@@ -1,4 +1,6 @@
 const mongoose = require("mongoose")
+const Category = require('./CategoryModel')
+const Material = require('./MaterialModel')
 const Schema = mongoose.Schema
 
 const productSchema = new mongoose.Schema({
@@ -20,12 +22,12 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: Schema.Types.ObjectId,
-    ref: "Category",
+    ref: Category,
     required: true,
   },
   material: {
     type: Schema.Types.ObjectId,
-    ref: "Material",
+    ref: Material,
     required: true,
   },
 });

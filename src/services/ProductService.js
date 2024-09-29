@@ -1,25 +1,11 @@
+const { default: mongoose } = require("mongoose")
 const Product = require("../models/ProductModel")
+const ObjId = require('mongoose').Types.ObjectId
 
 const getAllProducts = (limit, page, sort, filter) => {
     return new Promise(async (resolve, reject) => {
         try {
             const totalProduct = await Product.countDocuments()
-
-            // fill products
-            if (filter) {
-                const label = filter[0]
-                const allProductFilter = await Product.find({ [label]: {'$regex': filter[1]} }).limit(limit).skip(page * limit)
-                resolve(
-                    {
-                        status: 'OK',
-                        message: 'Get all product',
-                        data: allProductFilter,
-                        total: totalProduct,
-                        currentPage: Number(page + 1),
-                        totalPage: Math.ceil(totalProduct / limit)
-                    }
-                )
-            }
 
             // sort products
             if (sort) {
@@ -50,17 +36,78 @@ const getAllProducts = (limit, page, sort, filter) => {
                     totalPage: Math.ceil(totalProduct / limit)
                 }
             )
-        } catch(e) {
+        } catch (e) {
             reject(e)
         }
     })
 }
 
-const fillByMaterial = async (materialId) => {
+const fillByMaterial = async (materialId, limit, page) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log('materialId', materialId)
-            const products = await Product.find({ material: materialId }).populate('material')
+            // mongoose debug tools
+            // mongoose.set('debug', true)
+
+            const query = {'material': new ObjId(materialId)}
+            const products = await Product.find(query).populate('material').populate('category').limit(limit).skip(page * limit)
+
+            // console.log('[DEBUG] query', query)
+            // console.log('materialId', materialId)
+            // console.log('filled product', products)
+
+            resolve(
+                {
+                    status: 'OK',
+                    message: 'Get filled products',
+                    data: products
+                    // total: totalProduct,
+                    // currentPage: Number(page + 1),
+                    // totalPage: Math.ceil(totalProduct / limit)
+                }
+            )
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+const fillByCategory = async (categoryId, limit, page) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // mongoose debug tools
+            // mongoose.set('debug', true)
+
+            const query = {'category': new ObjId(categoryId)}
+            const products = await Product.find(query).populate('material').populate('category').limit(limit).skip(page * limit)
+
+            resolve(
+                {
+                    status: 'OK',
+                    message: 'Get filled products',
+                    data: products
+                    // total: totalProduct,
+                    // currentPage: Number(page + 1),
+                    // totalPage: Math.ceil(totalProduct / limit)
+                }
+            )
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+const fillProducts = async (categoryId, materialId, limit, page) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // mongoose debug tools
+            // mongoose.set('debug', true)
+
+            const query = {
+                'category': new ObjId(categoryId),
+                'material': new ObjId(materialId)
+            }
+            const products = await Product.find(query).populate('material').populate('category').limit(limit).skip(page * limit)
+
             resolve(
                 {
                     status: 'OK',
@@ -79,5 +126,7 @@ const fillByMaterial = async (materialId) => {
 
 module.exports = {
     getAllProducts,
-    fillByMaterial
+    fillByMaterial,
+    fillByCategory, 
+    fillProducts, 
 }
