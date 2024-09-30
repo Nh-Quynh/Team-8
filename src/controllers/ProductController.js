@@ -50,8 +50,6 @@ const fillProducts = async (req, res) => {
     try {
         const { category: categoryId, material: materialId, limit, page } = req.query
 
-        console.log('[REQUEST QUERY]', categoryId, materialId)
-
         const response = await ProductService.fillProducts(categoryId, materialId, limit || 8, page || 0)
         return res.status(200).json(response)
     } catch(e) {

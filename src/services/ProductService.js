@@ -50,19 +50,16 @@ const fillByMaterial = async (materialId, limit, page) => {
 
             const query = {'material': new ObjId(materialId)}
             const products = await Product.find(query).populate('material').populate('category').limit(limit).skip(page * limit)
-
-            // console.log('[DEBUG] query', query)
-            // console.log('materialId', materialId)
-            // console.log('filled product', products)
+            const totalProduct = await Product.countDocuments(query)
 
             resolve(
                 {
                     status: 'OK',
                     message: 'Get filled products',
-                    data: products
-                    // total: totalProduct,
-                    // currentPage: Number(page) + 1,
-                    // totalPage: Math.ceil(totalProduct / limit)
+                    data: products,
+                    total: totalProduct,
+                    currentPage: Number(page) + 1,
+                    totalPage: Math.ceil(totalProduct / limit)
                 }
             )
         } catch (e) {
@@ -79,15 +76,16 @@ const fillByCategory = async (categoryId, limit, page) => {
 
             const query = {'category': new ObjId(categoryId)}
             const products = await Product.find(query).populate('material').populate('category').limit(limit).skip(page * limit)
+            const totalProduct = await Product.countDocuments(query)
 
             resolve(
                 {
                     status: 'OK',
                     message: 'Get filled products',
-                    data: products
-                    // total: totalProduct,
-                    // currentPage: Number(page) + 1,
-                    // totalPage: Math.ceil(totalProduct / limit)
+                    data: products,
+                    total: totalProduct,
+                    currentPage: Number(page) + 1,
+                    totalPage: Math.ceil(totalProduct / limit)
                 }
             )
         } catch (e) {
@@ -107,15 +105,16 @@ const fillProducts = async (categoryId, materialId, limit, page) => {
                 'material': new ObjId(materialId)
             }
             const products = await Product.find(query).populate('material').populate('category').limit(limit).skip(page * limit)
+            const totalProduct = await Product.countDocuments(query)
 
             resolve(
                 {
                     status: 'OK',
                     message: 'Get filled products',
-                    data: products
-                    // total: totalProduct,
-                    // currentPage: Number(page) + 1,
-                    // totalPage: Math.ceil(totalProduct / limit)
+                    data: products,
+                    total: totalProduct,
+                    currentPage: Number(page) + 1,
+                    totalPage: Math.ceil(totalProduct / limit)
                 }
             )
         } catch(e) {
