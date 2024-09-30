@@ -18,7 +18,7 @@ const getAllProducts = (limit, page, sort, filter) => {
                         message: 'Get all product',
                         data: allProductSort,
                         total: totalProduct,
-                        currentPage: Number(page + 1),
+                        currentPage: Number(page) + 1,
                         totalPage: Math.ceil(totalProduct / limit)
                     }
                 )
@@ -32,7 +32,7 @@ const getAllProducts = (limit, page, sort, filter) => {
                     message: 'Get all product',
                     data: allProduct,
                     total: totalProduct,
-                    currentPage: Number(page + 1),
+                    currentPage: Number(page) + 1,
                     totalPage: Math.ceil(totalProduct / limit)
                 }
             )
@@ -61,7 +61,7 @@ const fillByMaterial = async (materialId, limit, page) => {
                     message: 'Get filled products',
                     data: products
                     // total: totalProduct,
-                    // currentPage: Number(page + 1),
+                    // currentPage: Number(page) + 1,
                     // totalPage: Math.ceil(totalProduct / limit)
                 }
             )
@@ -86,7 +86,7 @@ const fillByCategory = async (categoryId, limit, page) => {
                     message: 'Get filled products',
                     data: products
                     // total: totalProduct,
-                    // currentPage: Number(page + 1),
+                    // currentPage: Number(page) + 1,
                     // totalPage: Math.ceil(totalProduct / limit)
                 }
             )
@@ -114,11 +114,35 @@ const fillProducts = async (categoryId, materialId, limit, page) => {
                     message: 'Get filled products',
                     data: products
                     // total: totalProduct,
-                    // currentPage: Number(page + 1),
+                    // currentPage: Number(page) + 1,
                     // totalPage: Math.ceil(totalProduct / limit)
                 }
             )
         } catch(e) {
+            reject(e)
+        }
+    })
+}
+
+const searchProducts = (keyword, limit, page) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // 'regex' helps in case insensitive search or searching for part of product name
+            const products = await Product.find({'name': {$regex: keyword}}).limit(limit).skip(page * limit)
+            const totalProduct = await Product.countDocuments({'name': {$regex: keyword}})
+            
+            resolve(
+                {
+                    status: 'OK',
+                    message: 'Get filled products',
+                    data: products,
+                    total: totalProduct,
+                    currentPage: Number(page) + 1,
+                    totalPage: Math.ceil(totalProduct / limit)
+                }
+            )
+        } catch(e)
+        {
             reject(e)
         }
     })
@@ -129,4 +153,5 @@ module.exports = {
     fillByMaterial,
     fillByCategory, 
     fillProducts, 
+    searchProducts
 }
