@@ -25,6 +25,8 @@ const getOrdersHistory = (limit, page) => {
         try {
             // mongoose.set('debug', true)
 
+            const totalOrder = await Order.countDocuments()
+
             // {orderDate: -1} will sort orders in descending order
             // date format in mongodb: yyyy-mm-dd
             const ordersSort = {orderDate: -1}
@@ -33,7 +35,9 @@ const getOrdersHistory = (limit, page) => {
             resolve({
                 status: 'OK',
                 message: 'Orders history',
-                order: orders
+                order: orders,
+                totalOrder: totalOrder,
+                totalPage: Math.ceil(totalOrder / limit)
             })
         } catch(e) {
             reject(e)
