@@ -24,7 +24,21 @@ const getOrdersHistory = async (req, res) => {
     }
 }
 
+const getOrderDetails = async (req, res) => {
+    try {
+        const orderId = req.params.orderId
+
+        const response = await OrderService.getOrderDetails(orderId)
+        return res.status(200).json(response)
+    } catch(e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 module.exports = {
     getAllOrders,
     getOrdersHistory,
+    getOrderDetails
 }
