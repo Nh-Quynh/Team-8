@@ -45,7 +45,26 @@ const getOrdersHistory = (limit, page) => {
     })
 }
 
+const getOrderDetails = (orderId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            mongoose.set('debug', true)
+
+            const order = await Order.find({'_id': new ObjId(orderId)})
+
+            resolve({
+                status: 'OK',
+                message: 'Order details',
+                detail: order
+            })
+        } catch(e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     getAllOrders,
     getOrdersHistory,
+    getOrderDetails,
 }
