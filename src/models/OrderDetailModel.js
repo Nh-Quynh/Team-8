@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema
+
 const orderDetailSchema = new mongoose.Schema({
   productQuantity: {
-    type: Schema.Typé.ObjectId,
+    type: Schema.Type.ObjectId,
     ref: "Quantity",
     required: true,
   },

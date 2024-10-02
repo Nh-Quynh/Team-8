@@ -1,4 +1,4 @@
-const Category = require('../models/CategoryModel')
+// const Category = require('../models/CategoryModel')
 const ProductService = require('../services/ProductService')
 
 const createProduct = async (req, res) => {
