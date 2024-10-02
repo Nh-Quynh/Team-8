@@ -6,11 +6,8 @@ const ObjId = mongoose.Types.ObjectId
 const getAllOrders = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            mongoose.set('debug', true)
-
+            // mongoose.set('debug', true)
             const orders = await Order.find()
-
-            console.log("[ORDERS]", orders)
 
             resolve({
                 status: "OK",
@@ -23,6 +20,28 @@ const getAllOrders = () => {
     })
 }
 
+const getOrdersHistory = (limit, page) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // mongoose.set('debug', true)
+
+            // {orderDate: -1} will sort orders in descending order
+            // date format in mongodb: yyyy-mm-dd
+            const ordersSort = {orderDate: -1}
+            const orders = await Order.find().sort(ordersSort).limit(limit).skip(page * limit)
+
+            resolve({
+                status: 'OK',
+                message: 'Orders history',
+                order: orders
+            })
+        } catch(e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     getAllOrders,
+    getOrdersHistory,
 }

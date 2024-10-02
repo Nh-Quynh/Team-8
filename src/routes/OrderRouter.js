@@ -3,5 +3,6 @@ const router = express.Router()
 const orderController = require('../controllers/OrderController')
 
 router.get('/get-all-orders', orderController.getAllOrders)
+router.get('/get-orders-history', orderController.getOrdersHistory)
 
 module.exports = router
