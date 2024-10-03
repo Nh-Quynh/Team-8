@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 const customerSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -33,7 +34,7 @@ const customerSchema = new mongoose.Schema({
   },
   bankAccount: [
     {
-      type: Schema.Types.OjectId,
+      type: Schema.Types.ObjectId,
       ref: "BankAccount",
     },
   ],

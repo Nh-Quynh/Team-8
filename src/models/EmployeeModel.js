@@ -5,7 +5,7 @@ const employeeSchema = new mongoose.Schema(
     email: { type: String, required: true },
     password: { type: String, required: true },
     status: { type: Boolean, default: true, required: true },
-    right: { type: String, required: true },
+    role: { type: String, required: true },
   },
   {
     timestamps: true,

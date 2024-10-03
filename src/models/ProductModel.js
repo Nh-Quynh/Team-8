@@ -4,6 +4,11 @@ const Material = require('./MaterialModel')
 const Schema = mongoose.Schema
 
 const productSchema = new mongoose.Schema({
+  id_product: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   name: {
     type: String,
     required: true,
