@@ -289,7 +289,7 @@ const updateEmployee = (id, data) => {
       console.log("checkEmployee ", checkEmployee);
       if (checkEmployee == null) {
         resolve({
-          status: "Ok",
+          status: "ERR",
           message: "The user is not defined",
         });
       }

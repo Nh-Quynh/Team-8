@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 const materialSchema = new mongoose.Schema(
   {
+    id_material: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     name: {
       type: String,
       required: true,
