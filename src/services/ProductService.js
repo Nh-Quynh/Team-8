@@ -43,7 +43,9 @@ const createProduct = async (newProduct) => {
 
       if (existingQuantity) {
         // Cập nhật số lượng sản phẩm
-        existingQuantity.quantity += quantity;
+        existingQuantity.quantity =
+          Number(existingQuantity.quantity) + Number(quantity);
+        // existingQuantity.quantity += quantity
         await existingQuantity.save();
         return {
           status: "OK",
