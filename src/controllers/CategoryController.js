@@ -3,8 +3,8 @@ const CategoryService = require("../services/CategoryService");
 //Khoi tao loai san pham
 const createCategory = async (req, res) => {
   try {
-    const { id_category, name } = req.body;
-    if (!id_category || !name) {
+    const { categoryId, name } = req.body;
+    if (!categoryId || !name) {
       return res.status(400).json({
         status: "ERR",
         message: "Name or ID not filled in",

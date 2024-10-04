@@ -71,6 +71,32 @@ const loginCustomer = async (req, res) => {
     });
   }
 };
+//Khach hang dang xuat
+// const logoutCustomer = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     //kiểm tra email
+//     const isCheckEmail = validator.isEmail(email);
+//     if (!email || !password) {
+//       return res.status(200).json({
+//         status: "ERR",
+//         message: "The input isn't required",
+//       });
+//     } else if (!isCheckEmail) {
+//       return res.status(200).json({
+//         status: "ERR",
+//         message: "The input isn't email",
+//       });
+//     }
+
+//     const response = await UserService.loginCustomer(req.body);
+//     return res.status(200).json(response);
+//   } catch (e) {
+//     return res.status(404).json({
+//       message: e,
+//     });
+//   }
+// };
 
 //Cap nhat thong tin nguoi dung khach hang
 const updateCustomer = async (req, res) => {
@@ -146,7 +172,7 @@ const getAllCustomer = async (req, res) => {
 };
 
 //Lay thong tin chi tiet nguoi dung qua id
-const getDetailsCustomer = async (req, res) => {
+const getCustomerById = async (req, res) => {
   try {
     const userId = req.params.id;
     if (!userId) {
@@ -279,7 +305,7 @@ const getAllEmployee = async (req, res) => {
 };
 
 //Lay thong tin chi tiet nhan vien qua id
-const getDetailsEmployee = async (req, res) => {
+const getEmployeeById = async (req, res) => {
   try {
     const userId = req.params.id;
     if (!userId) {
@@ -326,12 +352,12 @@ module.exports = {
   updateStatusCustomer,
   deleteCustomer,
   getAllCustomer,
-  getDetailsCustomer,
+  getCustomerById,
   createEmployee,
   loginEmployee,
   updateEmployee,
   deleteEmployee,
   getAllEmployee,
-  getDetailsEmployee,
+  getEmployeeById,
   updateStatusEmployee,
 };

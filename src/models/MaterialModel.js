@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const materialSchema = new mongoose.Schema(
   {
-    id_material: {
+    materialId: {
       type: String,
       required: true,
       unique: true,

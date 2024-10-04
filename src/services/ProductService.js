@@ -9,26 +9,26 @@ const ObjId = require("mongoose").Types.ObjectId;
 //Tao san pham
 const createProduct = async (newProduct) => {
   const {
-    id_product,
+    productId,
     name,
     price,
     description,
     urlImage,
-    id_category,
-    id_material,
+    categoryId,
+    materialId,
     color,
     quantity,
   } = newProduct;
 
   try {
     // Kiểm tra xem sản phẩm có tồn tại không
-    let product = await Product.findOne({ id_product });
-    let categoryObj = await Category.findOne({ id_category });
+    let product = await Product.findOne({ productId });
+    let categoryObj = await Category.findOne({ categoryId });
     let colorObj = await Color.findOne({
       name: { $regex: new RegExp(`^${color}$`, "i") },
     });
     // let colorObj = await Color.findOne({ name: color });
-    let materialObj = await Material.findOne({ id_material });
+    let materialObj = await Material.findOne({ materialId });
     // Nếu category , material chưa tồn tại báo lỗi
     if (!categoryObj) {
       return {
@@ -81,7 +81,7 @@ const createProduct = async (newProduct) => {
 
     // Nếu sản phẩm chưa tồn tại, tiến hành tạo sản phẩm mới
     product = await Product.create({
-      id_product,
+      productId,
       name,
       price,
       description,
@@ -152,6 +152,7 @@ const deleteProduct = (id) => {
         });
       }
       await Product.findByIdAndDelete(id);
+      await Quantity.findOneAndDelete({ product: id });
       resolve({
         status: "Ok",
         message: "Delete product SUCCESS",

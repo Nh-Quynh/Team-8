@@ -1,10 +1,10 @@
-const mongoose = require("mongoose")
-const Category = require('./CategoryModel')
-const Material = require('./MaterialModel')
-const Schema = mongoose.Schema
+const mongoose = require("mongoose");
+const Category = require("./CategoryModel");
+const Material = require("./MaterialModel");
+const Schema = mongoose.Schema;
 
 const productSchema = new mongoose.Schema({
-  id_product: {
+  productId: {
     type: String,
     required: true,
     unique: true,

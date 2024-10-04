@@ -1,8 +1,8 @@
 const Category = require("../models/CategoryModel");
 
 const createCategory = async (newCategory) => {
-  const { id_category, name } = newCategory;
-  const checkCategory = await Category.findOne({ id_category });
+  const { categoryId, name } = newCategory;
+  const checkCategory = await Category.findOne({ categoryId });
 
   try {
     if (checkCategory) {
@@ -13,7 +13,7 @@ const createCategory = async (newCategory) => {
       };
     } else {
       const category = await Category.create({
-        id_category,
+        categoryId,
         name,
       });
       return {

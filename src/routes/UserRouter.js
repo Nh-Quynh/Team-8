@@ -17,7 +17,7 @@ router.get("/getAll", userController.getAllCustomer);
 router.get(
   "/get-details/:id",
   // authUserMiddleware,
-  userController.getDetailsCustomer
+  userController.getCustomerById
 );
 //Xem chi tiet nguoi dung = email
 
@@ -31,7 +31,7 @@ router.delete(
   userController.deleteEmployee
 );
 router.get("/employee/getAll", userController.getAllEmployee);
-router.get("/employee/get-details/:id", userController.getDetailsEmployee);
+router.get("/employee/get-details/:id", userController.getEmployeeById);
 router.put("/employee/update-status", userController.updateStatusEmployee);
 
 module.exports = router;

@@ -1,8 +1,8 @@
 const Material = require("../models/MaterialModel");
 
 const createMaterial = async (newMaterial) => {
-  const { id_material, name } = newMaterial;
-  const checkMaterial = await Material.findOne({ id_material });
+  const { materialId, name } = newMaterial;
+  const checkMaterial = await Material.findOne({ materialId });
 
   try {
     if (checkMaterial) {
@@ -13,7 +13,7 @@ const createMaterial = async (newMaterial) => {
       };
     } else {
       const material = await Material.create({
-        id_material,
+        materialId,
         name,
       });
       return {

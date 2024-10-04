@@ -180,7 +180,7 @@ const getAllCustomer = () => {
     }
   });
 };
-const getDetailsCustomer = (id) => {
+const getCustomerById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const customer = await Customer.findOne({
@@ -374,7 +374,7 @@ const getAllEmployee = () => {
     }
   });
 };
-const getDetailsEmployee = (id) => {
+const getEmployeeById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const employee = await Employee.findOne({
@@ -404,12 +404,12 @@ module.exports = {
   updateStatusCustomer,
   deleteCustomer,
   getAllCustomer,
-  getDetailsCustomer,
+  getCustomerById,
   createEmployee,
   loginEmployee,
   updateEmployee,
   deleteEmployee,
   getAllEmployee,
-  getDetailsEmployee,
+  getEmployeeById,
   updateStatusEmployee,
 };
