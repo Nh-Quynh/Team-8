@@ -109,6 +109,7 @@ const createProduct = async (newProduct) => {
     throw new Error(e.message);
   }
 };
+
 //Cap nhat san pham
 const updateProduct = (id, data) => {
   return new Promise(async (resolve, reject) => {

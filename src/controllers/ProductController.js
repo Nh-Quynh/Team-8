@@ -58,6 +58,7 @@ const updateProduct = async (req, res) => {
     });
   }
 };
+
 //Xoa san pham theo id
 const deleteProduct = async (req, res) => {
   try {
