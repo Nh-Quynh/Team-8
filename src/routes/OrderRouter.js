@@ -5,5 +5,6 @@ const orderController = require('../controllers/OrderController')
 router.get('/get-all-orders', orderController.getAllOrders)
 router.get('/get-orders-history', orderController.getOrdersHistory)
 router.get('/get-details/:orderId', orderController.getOrderDetails)
+router.put('/cancel-order/:orderId', orderController.cancelOrder)
 
 module.exports = router

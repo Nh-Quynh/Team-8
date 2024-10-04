@@ -122,7 +122,7 @@ const updateProduct = (id, data) => {
         resolve({
           status: "ERR",
           message: "The product is not defined",
-        });
+        })
       }
       const updateProduct = await Product.findByIdAndUpdate(id, data, {
         new: true,
@@ -284,7 +284,7 @@ const fillProducts = async (categoryId, materialId, limit, page) => {
   return new Promise(async (resolve, reject) => {
     try {
       // mongoose debug tools
-      mongoose.set("debug", true);
+      // mongoose.set("debug", true);
 
       var query;
 
