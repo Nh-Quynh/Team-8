@@ -65,12 +65,14 @@ const loginCustomer = (customerLogin) => {
         });
       }
       const accessToken = await generalAccessToken({
-        id: checkCustomer.id,
-        // type: "customer",
+        id: checkCustomer._id,
+        type: "customer",
+        status: checkCustomer.status,
       });
       const refreshToken = await generalRefreshToken({
-        id: checkCustomer.id,
-        // type: "customer",
+        id: checkCustomer._id,
+        type: "customer",
+        status: checkCustomer.status,
       });
       resolve({
         status: "Ok",
@@ -262,11 +264,15 @@ const loginEmployee = (employeeLogin) => {
       }
       const accessToken = await generalAccessToken({
         id: checkEmployee.id,
-        // type: "customer",
+        type: "employee",
+        status: checkEmployee.status,
+        role: checkEmployee.role,
       });
       const refreshToken = await generalRefreshToken({
         id: checkEmployee.id,
-        // type: "customer",
+        type: "employee",
+        status: checkEmployee.status,
+        role: checkEmployee.role,
       });
       resolve({
         status: "Ok",

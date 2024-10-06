@@ -181,7 +181,7 @@ const getCustomerById = async (req, res) => {
         message: "The userId is required",
       });
     }
-    const response = await UserService.getDetailsCustomer(userId);
+    const response = await UserService.getCustomerById(userId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -314,7 +314,7 @@ const getEmployeeById = async (req, res) => {
         message: "The userId is required",
       });
     }
-    const response = await UserService.getDetailsEmployee(userId);
+    const response = await UserService.getEmployeeById(userId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({

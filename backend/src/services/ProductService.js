@@ -168,7 +168,7 @@ const getProductById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const product = await Product.findOne({
-        id_product: id, //MongodB sử dụng ID dạng _id
+        productId: id, //MongodB sử dụng ID dạng _id
       });
       if (!product) {
         resolve({
