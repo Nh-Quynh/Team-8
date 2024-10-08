@@ -40,5 +40,8 @@ router.put(
   authAdminMiddleware,
   userController.updateStatusEmployee
 );
+router.post("/refresh-token", userController.refreshToken);
+
+router.post("/log-out", userController.logoutUser);
 
 module.exports = router;

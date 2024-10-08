@@ -1,4 +1,5 @@
 const UserService = require("../services/UserService");
+const JwtService = require("../services/jwtService");
 const validator = require("validator");
 
 // Tao tai khoan khach hang
@@ -343,7 +344,39 @@ const updateStatusEmployee = async (req, res) => {
   }
 };
 
-//dang xuat tai khoan nhan vien
+const refreshToken = async (req, res) => {
+  try {
+    console.log("Headers: ", req.headers);
+    const token = req.headers.token.split(" ")[1];
+    if (!token) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The token is required",
+      });
+    }
+    const response = await JwtService.refreshTokenJwtService(token);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
+const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("refreshToken");
+    return res.status(200).json({
+      status: "OK",
+      message: "Logout successfully",
+    });
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
 // logoutEmployee
 module.exports = {
   createCustomer,
@@ -360,4 +393,6 @@ module.exports = {
   getAllEmployee,
   getEmployeeById,
   updateStatusEmployee,
+  refreshToken,
+  logoutUser,
 };

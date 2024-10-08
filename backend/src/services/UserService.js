@@ -225,9 +225,6 @@ const createEmployee = (newEmployee) => {
           password: hashPassword,
           role,
         });
-      }
-
-      if (createEmployee) {
         resolve({
           status: "Ok",
           message: "SUCCESS",

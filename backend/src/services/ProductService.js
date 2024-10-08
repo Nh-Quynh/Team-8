@@ -163,12 +163,11 @@ const deleteProduct = (id) => {
   });
 };
 
-//Tim kiem san pham dua theo ma san pham(id_product do minh quan ly)
 const getProductById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const product = await Product.findOne({
-        productId: id, //MongodB sử dụng ID dạng _id
+        _id: id, //MongodB sử dụng ID dạng _id
       });
       if (!product) {
         resolve({
