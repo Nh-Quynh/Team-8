@@ -28,13 +28,13 @@ const createCustomer = (newCustomer) => {
           birthday,
           phone,
         });
-      }
-      if (createCustomer) {
-        resolve({
-          status: "Ok",
-          message: "SUCCESS",
-          data: createCustomer,
-        });
+        if (createCustomer) {
+          resolve({
+            status: "Ok",
+            message: "SUCCESS",
+            data: createCustomer,
+          });
+        }
       }
     } catch (e) {
       reject(e);
@@ -79,6 +79,7 @@ const loginCustomer = (customerLogin) => {
         message: "SUCCESS",
         accessToken,
         refreshToken,
+        user: checkCustomer,
       });
     } catch (e) {
       reject(e);
@@ -213,7 +214,7 @@ const createEmployee = (newEmployee) => {
       });
       if (checkEmployee !== null) {
         resolve({
-          status: "OK",
+          status: "ERR",
           message: "The email is already",
         });
       } else {
@@ -246,16 +247,19 @@ const loginEmployee = (employeeLogin) => {
       });
       if (checkEmployee == null) {
         resolve({
-          status: "OK",
+          status: "ERR",
           message: "The user is not defined",
         });
       }
-      const comparePassword = bcrypt.compare(password, checkEmployee.password);
+      const comparePassword = await bcrypt.compare(
+        password,
+        checkEmployee.password
+      );
       // const hashPassword = bcrypt.hashSync(password, 10);
       console.log("comparePassword", comparePassword);
       if (!comparePassword) {
         resolve({
-          status: "OK",
+          status: "ERR",
           message: "The password or user is incorrect",
         });
       }
@@ -272,8 +276,11 @@ const loginEmployee = (employeeLogin) => {
         role: checkEmployee.role,
       });
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "SUCCESS",
+        // statusUser: checkEmployee.status,
+        // roleUser: checkEmployee.role,
+        user: checkEmployee,
         accessToken,
         refreshToken,
       });
@@ -391,7 +398,7 @@ const getEmployeeById = (id) => {
       }
       resolve({
         status: "Ok",
-        message: "Get mployee SUCCESS",
+        message: "Get employee SUCCESS",
         data: employee,
       });
     } catch (e) {

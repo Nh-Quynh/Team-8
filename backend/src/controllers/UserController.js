@@ -72,32 +72,6 @@ const loginCustomer = async (req, res) => {
     });
   }
 };
-//Khach hang dang xuat
-// const logoutCustomer = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     //kiểm tra email
-//     const isCheckEmail = validator.isEmail(email);
-//     if (!email || !password) {
-//       return res.status(200).json({
-//         status: "ERR",
-//         message: "The input isn't required",
-//       });
-//     } else if (!isCheckEmail) {
-//       return res.status(200).json({
-//         status: "ERR",
-//         message: "The input isn't email",
-//       });
-//     }
-
-//     const response = await UserService.loginCustomer(req.body);
-//     return res.status(200).json(response);
-//   } catch (e) {
-//     return res.status(404).json({
-//       message: e,
-//     });
-//   }
-// };
 
 //Cap nhat thong tin nguoi dung khach hang
 const updateCustomer = async (req, res) => {

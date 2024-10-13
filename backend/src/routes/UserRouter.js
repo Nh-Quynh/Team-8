@@ -20,8 +20,10 @@ router.delete(
   // authAdminMiddleWare, //tim hieu sau
   userController.deleteCustomer
 );
+
 router.get("/getAll", userController.getAllCustomer);
 router.get("/get-details/:id", authMiddleware, userController.getCustomerById);
+router.post("/log-out", userController.logoutUser);
 //Xem chi tiet nguoi dung = email
 
 //Employee
@@ -42,6 +44,6 @@ router.put(
 );
 router.post("/refresh-token", userController.refreshToken);
 
-router.post("/log-out", userController.logoutUser);
+router.post("/employee/log-out", userController.logoutUser);
 
 module.exports = router;

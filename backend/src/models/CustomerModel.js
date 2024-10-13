@@ -10,6 +10,12 @@ const customerSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  fullName: {
+    type: String,
+  },
+  image: {
+    type: String,
+  },
   password: {
     type: String,
     required: true,
