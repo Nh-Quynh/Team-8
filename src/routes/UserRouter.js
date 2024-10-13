@@ -3,7 +3,7 @@ const router = express.Router();
 const userController = require("../controllers/UserController");
 // const authUserMiddleware = require("../middleware/authUserMiddleware");
 
-//Customer
+// ============== Customer ==============
 router.post("/sign-up", userController.createCustomer);
 router.post("/sign-in", userController.loginCustomer);
 router.put("/update-customer/:id", userController.updateCustomer);
@@ -21,7 +21,7 @@ router.get(
 );
 //Xem chi tiet nguoi dung = email
 
-//Employee
+// ============== Employee ==============
 router.post("/employee/create", userController.createEmployee);
 router.post("/employee/sign-in", userController.loginEmployee);
 router.put("/employee/update-employee/:id", userController.updateEmployee);

@@ -70,6 +70,16 @@ const getOrderDetails = (orderId) => {
     })
 }
 
+const updateOrderStatus = (orderId, orderStatus) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+        } catch(e) {
+            reject(e)
+        }
+    })
+}
+
 const cancelOrder = (orderId) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -109,7 +119,7 @@ const cancelOrder = (orderId) => {
                 resolve({
                     status: 'OK',
                     message: 'You cannot cancel this order',
-                    data: order
+                    reason_orderStatus: order.status.name
                 })
             }
         } catch(e) {
@@ -122,5 +132,6 @@ module.exports = {
     getAllOrders,
     getOrdersHistory,
     getOrderDetails,
+    updateOrderStatus,
     cancelOrder,
 }

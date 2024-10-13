@@ -4,24 +4,24 @@ const ProductService = require("../services/ProductService");
 const createProduct = async (req, res) => {
   try {
     const {
-      id_product,
+      productId,
       name,
       price,
       description,
       urlImage,
-      id_category,
-      id_material,
+      categoryId,
+      materialId,
       color,
       quantity,
     } = req.body;
     if (
-      !id_product ||
+      !productId ||
       !name ||
       !price ||
       !description ||
       !urlImage ||
-      !id_category ||
-      !id_material ||
+      !categoryId ||
+      !materialId ||
       !color ||
       !quantity
     ) {
@@ -77,6 +77,7 @@ const deleteProduct = async (req, res) => {
     });
   }
 };
+
 //Tim san pham theo ma san pham
 const getProductById = async (req, res) => {
   try {

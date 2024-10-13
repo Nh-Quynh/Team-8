@@ -37,6 +37,14 @@ const getOrderDetails = async (req, res) => {
     }
 }
 
+const updateOrderStatus = async(req, res) => {
+    try {
+
+    } catch(e) {
+
+    }
+}
+
 const cancelOrder = async (req, res) => {
     try {
         const orderId = req.params.orderId
@@ -61,5 +69,6 @@ module.exports = {
     getAllOrders,
     getOrdersHistory,
     getOrderDetails,
+    updateOrderStatus,
     cancelOrder,
 }

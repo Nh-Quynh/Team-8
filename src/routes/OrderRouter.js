@@ -6,5 +6,6 @@ router.get('/get-all-orders', orderController.getAllOrders)
 router.get('/get-orders-history', orderController.getOrdersHistory)
 router.get('/get-details/:orderId', orderController.getOrderDetails)
 router.put('/cancel-order/:orderId', orderController.cancelOrder)
+router.put('/update-status/:orderId', orderController.updateOrderStatus)
 
 module.exports = router
