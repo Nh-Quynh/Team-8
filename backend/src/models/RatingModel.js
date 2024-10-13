@@ -1,15 +1,18 @@
 const mongoose = require("mongoose");
+const Customer = require('./CustomerModel')
+const Product = require('./ProductModel')
 const Schema = mongoose.Schema;
+
 const ratingSchema = new mongoose.Schema(
   {
     customer: {
-      type: Schema.Type.ObjectId,
-      ref: "Customer",
+      type: Schema.Types.ObjectId,
+      ref: Customer,
       required: true,
     },
     product: {
-      type: Schema.Type.ObjectId,
-      ref: "Product",
+      type: Schema.Types.ObjectId,
+      ref: Product,
       required: true,
     },
     rating: {
