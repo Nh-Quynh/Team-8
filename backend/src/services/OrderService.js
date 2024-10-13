@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Order = require('../models/OrderModel')
-const Status = require('../models/StatusModel')
+const Status = require('../models/Status.Model')
 const ObjId = mongoose.Types.ObjectId
 
 

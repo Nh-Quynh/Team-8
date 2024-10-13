@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const Status = require('../models/StatusModel')
+const Status = require('../models/Status.Model')
 
 const createStatus = (name) => {
     return new Promise(async (resolve, reject) => {
