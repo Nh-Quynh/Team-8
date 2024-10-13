@@ -58,7 +58,6 @@ const updateProduct = async (req, res) => {
     });
   }
 };
-
 //Xoa san pham theo id
 const deleteProduct = async (req, res) => {
   try {
@@ -77,8 +76,7 @@ const deleteProduct = async (req, res) => {
     });
   }
 };
-
-//Tim san pham theo ma san pham
+//Tim san pham theo id
 const getProductById = async (req, res) => {
   try {
     const productId = req.params.productId;

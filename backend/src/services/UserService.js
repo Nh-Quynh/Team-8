@@ -65,12 +65,14 @@ const loginCustomer = (customerLogin) => {
         });
       }
       const accessToken = await generalAccessToken({
-        id: checkCustomer.id,
-        // type: "customer",
+        id: checkCustomer._id,
+        type: "customer",
+        status: checkCustomer.status,
       });
       const refreshToken = await generalRefreshToken({
-        id: checkCustomer.id,
-        // type: "customer",
+        id: checkCustomer._id,
+        type: "customer",
+        status: checkCustomer.status,
       });
       resolve({
         status: "Ok",
@@ -180,7 +182,7 @@ const getAllCustomer = () => {
     }
   });
 };
-const getDetailsCustomer = (id) => {
+const getCustomerById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const customer = await Customer.findOne({
@@ -223,9 +225,6 @@ const createEmployee = (newEmployee) => {
           password: hashPassword,
           role,
         });
-      }
-
-      if (createEmployee) {
         resolve({
           status: "Ok",
           message: "SUCCESS",
@@ -262,11 +261,15 @@ const loginEmployee = (employeeLogin) => {
       }
       const accessToken = await generalAccessToken({
         id: checkEmployee.id,
-        // type: "customer",
+        type: "employee",
+        status: checkEmployee.status,
+        role: checkEmployee.role,
       });
       const refreshToken = await generalRefreshToken({
         id: checkEmployee.id,
-        // type: "customer",
+        type: "employee",
+        status: checkEmployee.status,
+        role: checkEmployee.role,
       });
       resolve({
         status: "Ok",
@@ -374,7 +377,7 @@ const getAllEmployee = () => {
     }
   });
 };
-const getDetailsEmployee = (id) => {
+const getEmployeeById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const employee = await Employee.findOne({
@@ -404,12 +407,12 @@ module.exports = {
   updateStatusCustomer,
   deleteCustomer,
   getAllCustomer,
-  getDetailsCustomer,
+  getCustomerById,
   createEmployee,
   loginEmployee,
   updateEmployee,
   deleteEmployee,
   getAllEmployee,
-  getDetailsEmployee,
+  getEmployeeById,
   updateStatusEmployee,
 };

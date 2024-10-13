@@ -1,4 +1,5 @@
 const UserService = require("../services/UserService");
+const JwtService = require("../services/jwtService");
 const validator = require("validator");
 
 // Tao tai khoan khach hang
@@ -71,6 +72,32 @@ const loginCustomer = async (req, res) => {
     });
   }
 };
+//Khach hang dang xuat
+// const logoutCustomer = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     //kiểm tra email
+//     const isCheckEmail = validator.isEmail(email);
+//     if (!email || !password) {
+//       return res.status(200).json({
+//         status: "ERR",
+//         message: "The input isn't required",
+//       });
+//     } else if (!isCheckEmail) {
+//       return res.status(200).json({
+//         status: "ERR",
+//         message: "The input isn't email",
+//       });
+//     }
+
+//     const response = await UserService.loginCustomer(req.body);
+//     return res.status(200).json(response);
+//   } catch (e) {
+//     return res.status(404).json({
+//       message: e,
+//     });
+//   }
+// };
 
 //Cap nhat thong tin nguoi dung khach hang
 const updateCustomer = async (req, res) => {
@@ -146,7 +173,7 @@ const getAllCustomer = async (req, res) => {
 };
 
 //Lay thong tin chi tiet nguoi dung qua id
-const getDetailsCustomer = async (req, res) => {
+const getCustomerById = async (req, res) => {
   try {
     const userId = req.params.id;
     if (!userId) {
@@ -155,7 +182,7 @@ const getDetailsCustomer = async (req, res) => {
         message: "The userId is required",
       });
     }
-    const response = await UserService.getDetailsCustomer(userId);
+    const response = await UserService.getCustomerById(userId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -279,7 +306,7 @@ const getAllEmployee = async (req, res) => {
 };
 
 //Lay thong tin chi tiet nhan vien qua id
-const getDetailsEmployee = async (req, res) => {
+const getEmployeeById = async (req, res) => {
   try {
     const userId = req.params.id;
     if (!userId) {
@@ -288,7 +315,7 @@ const getDetailsEmployee = async (req, res) => {
         message: "The userId is required",
       });
     }
-    const response = await UserService.getDetailsEmployee(userId);
+    const response = await UserService.getEmployeeById(userId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -317,7 +344,39 @@ const updateStatusEmployee = async (req, res) => {
   }
 };
 
-//dang xuat tai khoan nhan vien
+const refreshToken = async (req, res) => {
+  try {
+    console.log("Headers: ", req.headers);
+    const token = req.headers.token.split(" ")[1];
+    if (!token) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The token is required",
+      });
+    }
+    const response = await JwtService.refreshTokenJwtService(token);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
+const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("refreshToken");
+    return res.status(200).json({
+      status: "OK",
+      message: "Logout successfully",
+    });
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
 // logoutEmployee
 module.exports = {
   createCustomer,
@@ -326,12 +385,14 @@ module.exports = {
   updateStatusCustomer,
   deleteCustomer,
   getAllCustomer,
-  getDetailsCustomer,
+  getCustomerById,
   createEmployee,
   loginEmployee,
   updateEmployee,
   deleteEmployee,
   getAllEmployee,
-  getDetailsEmployee,
+  getEmployeeById,
   updateStatusEmployee,
+  refreshToken,
+  logoutUser,
 };

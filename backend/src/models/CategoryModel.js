@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-const materialSchema = new mongoose.Schema(
+const categorySchema = new mongoose.Schema(
   {
-    id_material: {
+    categoryId: {
       type: String,
       required: true,
       unique: true,
@@ -16,5 +16,5 @@ const materialSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-const Material = mongoose.model("Material", materialSchema);
-module.exports = Material;
+const Category = mongoose.model("Category", categorySchema);
+module.exports = Category;

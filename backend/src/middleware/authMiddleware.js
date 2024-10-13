@@ -24,8 +24,9 @@ dotenv.config();
 //     }
 //   });
 // };
+
 const authUserMiddleWare = (req, res, next) => {
-  console.log("CheckToken", req.headers.token);
+  // console.log("CheckToken", req.headers.token);
   const token = req.headers.token.split(" ")[1];
   const userId = req.params.id;
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
@@ -35,8 +36,15 @@ const authUserMiddleWare = (req, res, next) => {
         status: "ERROR",
       });
     }
+
     const { payload } = user;
-    if (payload?.role == "admin" || payload?.id == userId) {
+    // console.log("Payload", payload);
+    if (
+      (payload?.status == true && payload?.id == userId) ||
+      (payload?.type == "employee" &&
+        payload?.status == true &&
+        payload?.role == "admin")
+    ) {
       next();
     } else {
       return res.status(404).json({
@@ -47,7 +55,4 @@ const authUserMiddleWare = (req, res, next) => {
   });
 };
 
-module.exports = {
-  authAdminMiddleWare,
-  authUserMiddleWare,
-};
+module.exports = authUserMiddleWare;

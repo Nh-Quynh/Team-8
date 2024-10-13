@@ -2,8 +2,8 @@ const MaterialService = require("../services/MaterialService");
 
 const createMaterial = async (req, res) => {
   try {
-    const { id_material, name } = req.body;
-    if (!id_material || !name) {
+    const { materialId, name } = req.body;
+    if (!materialId || !name) {
       return res.status(400).json({
         status: "ERR",
         message: "Name or ID not filled in",

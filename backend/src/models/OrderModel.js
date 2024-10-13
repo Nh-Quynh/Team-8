@@ -1,9 +1,9 @@
-const PaymentMethod = require('./PaymentMethodModel')
-const OrderDetail = require('./OrderDetailModel')
-const Status = require('./StatusModel')
+const PaymentMethod = require("./PaymentMethodModel");
+const OrderDetail = require("./OrderDetailModel");
+const Status = require("./Status.Model");
+const mongoose = require("mongoose");
 
-const mongoose = require("mongoose")
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
 
 const orderSchema = new mongoose.Schema({
   orderDetail: [
@@ -15,6 +15,10 @@ const orderSchema = new mongoose.Schema({
 
   totalPrice: {
     type: Number,
+    required: true,
+  },
+  deliveryMethod: {
+    type: String,
     required: true,
   },
   deliveryFee: {
@@ -39,7 +43,7 @@ const orderSchema = new mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: Status,
     required: true,
-  }
+  },
 });
 
 const Order = mongoose.model("Order", orderSchema);
