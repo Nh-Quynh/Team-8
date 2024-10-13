@@ -40,10 +40,9 @@ const getOrderDetails = async (req, res) => {
 const updateOrderStatus = async(req, res) => {
     try {
         const orderId = req.params.orderId
-        const newStatus = 'dang giao'
-        console.log('order id', orderId)
+        const statusId = req.query.statusId
 
-        const response = await OrderService.updateOrderStatus(orderId, newStatus)
+        const response = await OrderService.updateOrderStatus(orderId, statusId)
         return res.status(200).json(response)
     } catch(e) {
         return res.status(404).json({

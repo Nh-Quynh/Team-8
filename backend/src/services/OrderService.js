@@ -73,8 +73,7 @@ const getOrderDetails = (orderId) => {
 const updateOrderStatus = (orderId, orderStatus) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const status = await Status.findOne({name: orderStatus})
-            const updatedOrder = await Order.findByIdAndUpdate(orderId, {status: new ObjId(status._id)}, {new: true})
+            const updatedOrder = await Order.findByIdAndUpdate(orderId, {status: new ObjId(orderStatus)}, {new: true})
                 .populate('status')
 
             resolve({
