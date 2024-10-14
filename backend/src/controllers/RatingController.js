@@ -1,5 +1,6 @@
 const RatingService = require('../services/RatingService')
 
+// add rating with data from request body
 const ratingProduct = async (req, res) => {
   try {
     const {userId, productId, rating } = req.body;
@@ -22,6 +23,8 @@ const ratingProduct = async (req, res) => {
   }
 };  
 
+
+// update rating with data from request body
 const updateRating = async (req, res) => {
   try {
     const {userId, productId, rating } = req.body;

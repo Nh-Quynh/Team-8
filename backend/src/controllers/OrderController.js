@@ -37,6 +37,7 @@ const getOrderDetails = async (req, res) => {
     }
 }
 
+// update order status with order id from request parameters and status id form request query
 const updateOrderStatus = async(req, res) => {
     try {
         const orderId = req.params.orderId
