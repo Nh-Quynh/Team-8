@@ -183,6 +183,7 @@ const getAllCustomer = () => {
     }
   });
 };
+
 const getCustomerById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -205,6 +206,7 @@ const getCustomerById = (id) => {
     }
   });
 };
+
 const createEmployee = (newEmployee) => {
   return new Promise(async (resolve, reject) => {
     const { name, email, password, role } = newEmployee;
@@ -317,6 +319,7 @@ const updateEmployee = (id, data) => {
     }
   });
 };
+
 const updateStatusEmployee = (email, status) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -370,6 +373,7 @@ const deleteEmployee = (id) => {
     }
   });
 };
+
 const getAllEmployee = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -384,6 +388,7 @@ const getAllEmployee = () => {
     }
   });
 };
+
 const getEmployeeById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {

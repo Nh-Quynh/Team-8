@@ -8,11 +8,9 @@ const discountSchema = new mongoose.Schema(
     endDate: { type: Date, default: Date.now, required: true },
     products: [
       {
-        product: {
-          type: Schema.Types.ObjectId,
-          ref: "Product",
-          required: true,
-        },
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
       },
     ],
   },
