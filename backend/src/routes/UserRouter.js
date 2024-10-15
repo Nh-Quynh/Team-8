@@ -21,7 +21,7 @@ router.delete(
   userController.deleteCustomer
 );
 
-router.get("/getAll", userController.getAllCustomer);
+router.get("/customer/getAll", userController.getAllCustomer);
 router.get("/get-details/:id", authMiddleware, userController.getCustomerById);
 router.post("/log-out", userController.logoutUser);
 //Xem chi tiet nguoi dung = email

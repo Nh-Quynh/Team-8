@@ -66,10 +66,28 @@ const getAllCategories = async (req, res) => {
     });
   }
 };
+const getCategoryById = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
+    if (!categoryId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The categoryId is required",
+      });
+    }
+    const response = await CategoryService.getCategoryById(categoryId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 
 module.exports = {
   createCategory,
   updateCategory,
   getAllCategories,
   deleteCategory,
+  getCategoryById,
 };

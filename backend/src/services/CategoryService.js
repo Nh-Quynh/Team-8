@@ -93,10 +93,33 @@ const getAllCategories = () => {
     }
   });
 };
+const getCategoryById = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkCategory = await Category.findOne({
+        _id: id, //MongodB sử dụng ID dạng _id
+      });
+      if (checkCategory == null) {
+        resolve({
+          status: "Ok",
+          message: "The category is not defined",
+        });
+      }
+      resolve({
+        status: "Ok",
+        message: "Get category SUCCESS",
+        category: checkCategory,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 module.exports = {
   getAllCategories,
   updateCategory,
   createCategory,
   deleteCategory,
+  getCategoryById,
 };

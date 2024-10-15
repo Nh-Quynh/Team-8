@@ -122,7 +122,7 @@ const updateProduct = (id, data) => {
         resolve({
           status: "ERR",
           message: "The product is not defined",
-        })
+        });
       }
       const updateProduct = await Product.findByIdAndUpdate(id, data, {
         new: true,
@@ -348,6 +348,7 @@ const searchProducts = (keyword, limit, page) => {
   });
 };
 
+const quantityProduct = (id) => {};
 module.exports = {
   createProduct,
   updateProduct,

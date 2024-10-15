@@ -79,7 +79,7 @@ const deleteProduct = async (req, res) => {
 //Tim san pham theo id
 const getProductById = async (req, res) => {
   try {
-    const productId = req.params.productId;
+    const productId = req.params.id;
     if (!productId) {
       return res.status(200).json({
         status: "ERR",
