@@ -55,7 +55,10 @@ const loginCustomer = (customerLogin) => {
           message: "The user is not defined",
         });
       }
-      const comparePassword = bcrypt.compare(password, checkCustomer.password);
+      const comparePassword = await bcrypt.compare(
+        password,
+        checkCustomer.password
+      );
       // const hashPassword = bcrypt.hashSync(password, 10);
       console.log("comparePassword", comparePassword);
       if (!comparePassword) {
@@ -99,6 +102,11 @@ const updateCustomer = (id, data) => {
           status: "Ok",
           message: "The user is not defined",
         });
+      }
+      // Nếu có mật khẩu mới trong dữ liệu, băm nó
+      if (data.password) {
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        data.password = hashedPassword; // Cập nhật mật khẩu đã băm
       }
       const updateCustomer = await Customer.findByIdAndUpdate(id, data, {
         new: true,
@@ -302,6 +310,11 @@ const updateEmployee = (id, data) => {
           status: "ERR",
           message: "The user is not defined",
         });
+      }
+      // Nếu có mật khẩu mới trong dữ liệu, băm nó
+      if (data.password) {
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        data.password = hashedPassword; // Cập nhật mật khẩu đã băm
       }
       const updateEmployee = await Employee.findByIdAndUpdate(id, data, {
         new: true,

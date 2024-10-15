@@ -20,6 +20,9 @@ const customerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  address: {
+    type: String,
+  },
   status: {
     type: Boolean,
     default: true,

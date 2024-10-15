@@ -18,7 +18,43 @@ const createCategory = async (req, res) => {
     });
   }
 };
+//Cap nhat
+const updateCategory = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
+    const data = req.body;
+    if (!categoryId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The categoryId is required",
+      });
+    }
+    const response = await CategoryService.updateCategory(categoryId, data);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 
+const deleteCategory = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
+    if (!categoryId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The categoryId is required",
+      });
+    }
+    const response = await CategoryService.deleteCategory(categoryId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 //Lay danh sach loai san pham
 const getAllCategories = async (req, res) => {
   try {
@@ -33,5 +69,7 @@ const getAllCategories = async (req, res) => {
 
 module.exports = {
   createCategory,
+  updateCategory,
   getAllCategories,
+  deleteCategory,
 };
