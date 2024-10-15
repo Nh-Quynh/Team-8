@@ -28,6 +28,7 @@ const createMaterial = async (newMaterial) => {
     throw new Error(e.message);
   }
 };
+
 const getAllMaterials = () => {
   return new Promise(async (resolve, reject) => {
     try {
