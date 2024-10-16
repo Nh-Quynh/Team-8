@@ -6,7 +6,7 @@ const employeeSchema = new mongoose.Schema(
     image: { type: String },
     email: { type: String, required: true },
     birthday: { type: Date },
-    gender: { type: Boolean },
+    gender: { type: Boolean, default: false },
     address: { type: String },
     password: { type: String, required: true },
     status: { type: Boolean, default: true, required: true },

@@ -3,7 +3,6 @@ const router = express.Router();
 const userController = require("../controllers/UserController");
 const authMiddleware = require("../middleware/authMiddleware");
 const authAdminMiddleware = require("../middleware/authAdminMiddleware");
-const authAccountantMiddleware = require("../middleware/authAccountantMiddleware");
 const authSalesMiddleware = require("../middleware/authSalesMiddleware");
 
 // ============== Customer ==============
@@ -11,7 +10,7 @@ router.post("/sign-up", userController.createCustomer);
 router.post("/sign-in", userController.loginCustomer);
 router.put("/update-customer/:id", userController.updateCustomer);
 router.put(
-  "/update-status",
+  "/update-status/:id",
   authAdminMiddleware,
   userController.updateStatusCustomer
 );
@@ -21,7 +20,7 @@ router.delete(
   userController.deleteCustomer
 );
 
-router.get("/customer/getAll", userController.getAllCustomer);
+router.get("/getAll", userController.getAllCustomer);
 router.get("/get-details/:id", authMiddleware, userController.getCustomerById);
 router.post("/log-out", userController.logoutUser);
 //Xem chi tiet nguoi dung = email
@@ -38,9 +37,14 @@ router.delete(
 router.get("/employee/getAll", userController.getAllEmployee);
 router.get("/employee/get-details/:id", userController.getEmployeeById);
 router.put(
-  "/employee/update-status",
+  "/employee/update-status/:id",
   authAdminMiddleware,
   userController.updateStatusEmployee
+);
+router.put(
+  "/employee/update-role/:id",
+  authAdminMiddleware,
+  userController.updateRoleEmployee
 );
 router.post("/refresh-token", userController.refreshToken);
 

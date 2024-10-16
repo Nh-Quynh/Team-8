@@ -124,11 +124,11 @@ const updateCustomer = (id, data) => {
 };
 
 // Cập nhật trạng thái tài khoản
-const updateStatusCustomer = (email, status) => {
+const updateStatusCustomer = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkCustomer = await Customer.findOne({
-        email: email, //MongodB sử dụng ID dạng _id
+        _id: id, //MongodB sử dụng ID dạng _id
       });
       console.log("checkCustomer", checkCustomer);
       if (checkCustomer == null) {
@@ -137,8 +137,11 @@ const updateStatusCustomer = (email, status) => {
           message: "The user is not defined",
         });
       }
-      const updateStatusCustomer = await Customer.findOneAndUpdate(
-        { email: email }, // Điều kiện tìm kiếm: email
+      // const status = checkCustomer.status ? false : true;
+      const status = !checkCustomer.status;
+
+      const updateStatusCustomer = await Customer.findByIdAndUpdate(
+        id,
         { $set: { status: status } }, // Cập nhật trường status
         { new: true } // Trả về tài liệu đã được cập nhật
       );
@@ -333,11 +336,11 @@ const updateEmployee = (id, data) => {
   });
 };
 
-const updateStatusEmployee = (email, status) => {
+const updateStatusEmployee = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkEmployee = await Employee.findOne({
-        email: email, //MongodB sử dụng ID dạng _id
+        _id: id, //MongodB sử dụng ID dạng _id
       });
       console.log("checkEmployee ", checkEmployee);
       if (checkEmployee == null) {
@@ -346,12 +349,44 @@ const updateStatusEmployee = (email, status) => {
           message: "The user is not defined",
         });
       }
-      const updateStatusEmployee = await Employee.findOneAndUpdate(
-        { email: email }, // Điều kiện tìm kiếm
+      const status = !checkEmployee.status;
+
+      const updateStatusEmployee = await Employee.findByIdAndUpdate(
+        id,
         { $set: { status: status } }, // Dữ liệu cập nhật
         { new: true } // Tùy chọn trả về tài liệu đã cập nhật
       );
       console.log("updateStatusEmployee", updateStatusEmployee);
+      resolve({
+        status: "Ok",
+        message: "SUCCESS",
+        data: updateStatusEmployee,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+const updateRoleEmployee = (id, role) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkEmployee = await Employee.findOne({
+        _id: id, //MongodB sử dụng ID dạng _id
+      });
+      console.log("checkEmployee ", checkEmployee);
+      if (checkEmployee == null) {
+        resolve({
+          status: "Ok",
+          message: "The user is not defined",
+        });
+      }
+
+      const updateStatusEmployee = await Employee.findByIdAndUpdate(
+        id,
+        { $set: { role: role } }, // Dữ liệu cập nhật
+        { new: true } // Tùy chọn trả về tài liệu đã cập nhật
+      );
+      console.log("updateRoleEmployee", updateRoleEmployee);
       resolve({
         status: "Ok",
         message: "SUCCESS",
@@ -440,4 +475,5 @@ module.exports = {
   getAllEmployee,
   getEmployeeById,
   updateStatusEmployee,
+  updateRoleEmployee,
 };

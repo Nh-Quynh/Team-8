@@ -97,15 +97,14 @@ const updateCustomer = async (req, res) => {
 //cap nhat trang thai khach hang
 const updateStatusCustomer = async (req, res) => {
   try {
-    const email = req.body.email;
-    const status = req.body.status;
-    if (!email) {
+    const userId = req.params.id;
+    if (!userId) {
       return res.status(200).json({
         status: "ERR",
-        message: "The email is required",
+        message: "The userId is required",
       });
     }
-    const response = await UserService.updateStatusCustomer(email, status);
+    const response = await UserService.updateStatusCustomer(userId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -300,16 +299,15 @@ const getEmployeeById = async (req, res) => {
 
 const updateStatusEmployee = async (req, res) => {
   try {
-    const email = req.body.email;
-    const status = req.body.status;
-    if (!email) {
+    const userId = req.params.id;
+    if (!userId) {
       return res.status(200).json({
         status: "ERR",
-        message: "The email is required",
+        message: "The userId is required",
       });
     }
     // console.log("userId", userId);
-    const response = await UserService.updateStatusEmployee(email, status);
+    const response = await UserService.updateStatusEmployee(userId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -317,7 +315,25 @@ const updateStatusEmployee = async (req, res) => {
     });
   }
 };
-
+const updateRoleEmployee = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const role = req.params.role;
+    if (!userId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The userId is required",
+      });
+    }
+    // console.log("userId", userId);
+    const response = await UserService.updateRoleEmployee(userId, role);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 const refreshToken = async (req, res) => {
   try {
     console.log("Headers: ", req.headers);
@@ -367,6 +383,7 @@ module.exports = {
   getAllEmployee,
   getEmployeeById,
   updateStatusEmployee,
+  updateRoleEmployee,
   refreshToken,
   logoutUser,
 };
