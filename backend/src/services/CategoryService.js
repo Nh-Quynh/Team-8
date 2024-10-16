@@ -7,7 +7,7 @@ const createCategory = async (newCategory) => {
   try {
     if (checkCategory) {
       return {
-        status: "OK",
+        status: "ERR",
         message: "Category available",
         checkCategory,
       };
@@ -46,7 +46,7 @@ const updateCategory = async (id, data) => {
       });
       console.log(" updateCategory", updateCategory);
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Update category success",
         data: updateCategory,
       });
@@ -64,13 +64,13 @@ const deleteCategory = (id) => {
       console.log("Id Service", id);
       if (checkCategory == null) {
         resolve({
-          status: "Ok",
+          status: "ERR",
           message: "The category is not defined",
         });
       }
       await Category.findByIdAndDelete(id);
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Delete category SUCCESS",
       });
     } catch (e) {
@@ -101,12 +101,12 @@ const getCategoryById = (id) => {
       });
       if (checkCategory == null) {
         resolve({
-          status: "Ok",
+          status: "ERR",
           message: "The category is not defined",
         });
       }
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Get category SUCCESS",
         category: checkCategory,
       });

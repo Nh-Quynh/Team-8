@@ -42,7 +42,7 @@ const refreshTokenJwtService = async (token) => {
         });
         console.log("accessToken", accessToken);
         resolve({
-          status: "Ok",
+          status: "OK",
           message: "SUCCESS",
           accessToken,
         });

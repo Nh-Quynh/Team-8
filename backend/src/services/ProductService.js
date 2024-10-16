@@ -129,7 +129,7 @@ const updateProduct = (id, data) => {
       });
       console.log("updateProduct", updateProduct);
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Update product success",
         data: updateProduct,
       });
@@ -148,14 +148,14 @@ const deleteProduct = (id) => {
       console.log("Id Service", id);
       if (checkProduct == null) {
         resolve({
-          status: "Ok",
+          status: "ERR",
           message: "The product is not defined",
         });
       }
       await Product.findByIdAndDelete(id);
       await Quantity.findOneAndDelete({ product: id });
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Delete product SUCCESS",
       });
     } catch (e) {
@@ -172,12 +172,12 @@ const getProductById = (id) => {
       });
       if (!product) {
         resolve({
-          status: "Ok",
+          status: "ERR",
           message: "The product is not defined",
         });
       }
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Get product SUCCESS",
         data: product,
       });

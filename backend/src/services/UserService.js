@@ -133,7 +133,7 @@ const updateStatusCustomer = (id) => {
       console.log("checkCustomer", checkCustomer);
       if (checkCustomer == null) {
         resolve({
-          status: "Ok",
+          status: "ERR",
           message: "The user is not defined",
         });
       }
@@ -147,7 +147,7 @@ const updateStatusCustomer = (id) => {
       );
       console.log("updateStatusCustomer", updateStatusCustomer);
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "SUCCESS",
         data: updateStatusCustomer,
       });
@@ -165,13 +165,13 @@ const deleteCustomer = (id) => {
       });
       if (checkCustomer == null) {
         resolve({
-          status: "Ok",
+          status: "OK",
           message: "The user is not defined",
         });
       }
       await Customer.findByIdAndDelete(id);
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Delete customer SUCCESS",
       });
     } catch (e) {
@@ -185,7 +185,7 @@ const getAllCustomer = () => {
     try {
       const getAllCustomer = await Customer.find();
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "SUCCESS",
         data: getAllCustomer,
       });
@@ -203,12 +203,12 @@ const getCustomerById = (id) => {
       });
       if (customer == null) {
         resolve({
-          status: "Ok",
+          status: "OK",
           message: "The user is not defined",
         });
       }
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Get customer SUCCESS",
         data: customer,
       });
@@ -240,7 +240,7 @@ const createEmployee = (newEmployee) => {
           role,
         });
         resolve({
-          status: "Ok",
+          status: "OK",
           message: "SUCCESS",
           data: createEmployee,
         });
@@ -326,7 +326,7 @@ const updateEmployee = (id, data) => {
       });
       console.log("updateEmployee", updateEmployee);
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "SUCCESS",
         data: updateEmployee,
       });
@@ -345,7 +345,7 @@ const updateStatusEmployee = (id) => {
       console.log("checkEmployee ", checkEmployee);
       if (checkEmployee == null) {
         resolve({
-          status: "Ok",
+          status: "OK",
           message: "The user is not defined",
         });
       }
@@ -358,7 +358,7 @@ const updateStatusEmployee = (id) => {
       );
       console.log("updateStatusEmployee", updateStatusEmployee);
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "SUCCESS",
         data: updateStatusEmployee,
       });
@@ -376,7 +376,7 @@ const updateRoleEmployee = (id, role) => {
       console.log("checkEmployee ", checkEmployee);
       if (checkEmployee == null) {
         resolve({
-          status: "Ok",
+          status: "OK",
           message: "The user is not defined",
         });
       }
@@ -388,7 +388,7 @@ const updateRoleEmployee = (id, role) => {
       );
       console.log("updateRoleEmployee", updateRoleEmployee);
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "SUCCESS",
         data: updateStatusEmployee,
       });
@@ -407,13 +407,13 @@ const deleteEmployee = (id) => {
       console.log("Id Service", id);
       if (checkEmployee == null) {
         resolve({
-          status: "Ok",
+          status: "OK",
           message: "The user is not defined",
         });
       }
       await Employee.findByIdAndDelete(id);
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Delete customer SUCCESS",
       });
     } catch (e) {
@@ -427,7 +427,7 @@ const getAllEmployee = () => {
     try {
       const getAllEmployee = await Employee.find();
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "SUCCESS",
         data: getAllEmployee,
       });
@@ -445,12 +445,12 @@ const getEmployeeById = (id) => {
       });
       if (employee == null) {
         resolve({
-          status: "Ok",
+          status: "OK",
           message: "The user is not defined",
         });
       }
       resolve({
-        status: "Ok",
+        status: "OK",
         message: "Get employee SUCCESS",
         data: employee,
       });
