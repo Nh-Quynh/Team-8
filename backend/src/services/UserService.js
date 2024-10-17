@@ -316,11 +316,13 @@ const updateEmployee = (id, data) => {
           message: "The user is not defined",
         });
       }
+      data.password = data.password || checkEmployee.password;
       // Nếu có mật khẩu mới trong dữ liệu, băm nó
-      if (data.password) {
+      if (data.password != checkEmployee.password) {
         const hashedPassword = await bcrypt.hash(data.password, 10);
         data.password = hashedPassword; // Cập nhật mật khẩu đã băm
       }
+      console.log(data.password);
       const updateEmployee = await Employee.findByIdAndUpdate(id, data, {
         new: true,
       });
@@ -370,28 +372,22 @@ const updateStatusEmployee = (id) => {
 const updateRoleEmployee = (id, role) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkEmployee = await Employee.findOne({
-        _id: id, //MongodB sử dụng ID dạng _id
-      });
-      console.log("checkEmployee ", checkEmployee);
-      if (checkEmployee == null) {
+      const updateRoleEmployee = await Employee.findById(id);
+      if (updateRoleEmployee) {
+        updateRoleEmployee.role = role;
+        await updateRoleEmployee.save();
+        console.log("updateRoleEmployee", updateRoleEmployee);
         resolve({
           status: "OK",
-          message: "The user is not defined",
+          message: "SUCCESS",
+          data: updateRoleEmployee,
+        });
+      } else {
+        resolve({
+          status: "ERR",
+          message: "Failed to update role ",
         });
       }
-
-      const updateStatusEmployee = await Employee.findByIdAndUpdate(
-        id,
-        { $set: { role: role } }, // Dữ liệu cập nhật
-        { new: true } // Tùy chọn trả về tài liệu đã cập nhật
-      );
-      console.log("updateRoleEmployee", updateRoleEmployee);
-      resolve({
-        status: "OK",
-        message: "SUCCESS",
-        data: updateStatusEmployee,
-      });
     } catch (e) {
       reject(e);
     }

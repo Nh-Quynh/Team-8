@@ -43,7 +43,7 @@ router.put(
 );
 router.put(
   "/employee/update-role/:id",
-  authAdminMiddleware,
+  // authAdminMiddleware,
   userController.updateRoleEmployee
 );
 router.post("/refresh-token", userController.refreshToken);

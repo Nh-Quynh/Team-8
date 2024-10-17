@@ -318,7 +318,7 @@ const updateStatusEmployee = async (req, res) => {
 const updateRoleEmployee = async (req, res) => {
   try {
     const userId = req.params.id;
-    const role = req.params.role;
+    const role = req.body.role;
     if (!userId) {
       return res.status(200).json({
         status: "ERR",
