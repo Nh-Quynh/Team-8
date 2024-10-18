@@ -28,22 +28,26 @@ const createCategory = async (newCategory) => {
     throw new Error(e.message);
   }
 };
-const updateCategory = async (id, data) => {
+const updateCategory = async (categoryId, data) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkCategory = await Category.findOne({
-        _id: id,
+        categoryId: categoryId,
       });
-      console.log("checkCategory ", checkCategory);
+
       if (checkCategory == null) {
         resolve({
           status: "ERR",
           message: "The category is not defined",
         });
       }
-      const updateCategory = await Category.findByIdAndUpdate(id, data, {
-        new: true,
-      });
+      const updateCategory = await Category.findOneAndUpdate(
+        { categoryId: categoryId },
+        data,
+        {
+          new: true,
+        }
+      );
       console.log(" updateCategory", updateCategory);
       resolve({
         status: "OK",
@@ -55,20 +59,19 @@ const updateCategory = async (id, data) => {
     }
   });
 };
-const deleteCategory = (id) => {
+const deleteCategory = (categoryId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkCategory = await Category.findOne({
-        _id: id, //MongodB sử dụng ID dạng _id
+        categoryId: categoryId, //MongodB sử dụng ID dạng _id
       });
-      console.log("Id Service", id);
       if (checkCategory == null) {
         resolve({
           status: "ERR",
           message: "The category is not defined",
         });
       }
-      await Category.findByIdAndDelete(id);
+      await Category.findOneAndDelete({ categoryId: categoryId });
       resolve({
         status: "OK",
         message: "Delete category SUCCESS",
