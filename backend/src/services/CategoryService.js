@@ -28,6 +28,7 @@ const createCategory = async (newCategory) => {
     throw new Error(e.message);
   }
 };
+
 const updateCategory = async (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -55,6 +56,7 @@ const updateCategory = async (id, data) => {
     }
   });
 };
+
 const deleteCategory = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -93,6 +95,7 @@ const getAllCategories = () => {
     }
   });
 };
+
 const getCategoryById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
