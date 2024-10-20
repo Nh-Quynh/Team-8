@@ -95,7 +95,7 @@ const getMaterialById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkMaterial = await Material.findOne({
-        materialId: id, //MongodB sử dụng ID dạng _id
+        _id: id, //MongodB sử dụng ID dạng _id
       });
       if (checkMaterial == null) {
         resolve({
@@ -109,6 +109,7 @@ const getMaterialById = (id) => {
           material: checkMaterial,
         });
       }
+      S;
     } catch (e) {
       reject(e);
     }
