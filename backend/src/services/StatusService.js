@@ -13,12 +13,31 @@ const createStatus = (name) => {
                 message: 'Create status success',
                 data: status
             })
-        } catch(e) {
+        } catch (e) {
             reject(e)
         }
     })
 }
 
+const getAllStatus = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allStatus = await Status.find();
+
+            resolve({
+                status: "OK",
+                message: "Get all status",
+                data: allStatus
+            });
+        }
+        catch (e)
+        {
+            reject(e);
+        }
+    });
+}
+
 module.exports = {
-    createStatus
+    createStatus,
+    getAllStatus
 }

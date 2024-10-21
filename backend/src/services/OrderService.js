@@ -10,11 +10,25 @@ const getAllOrders = () => {
             // mongoose.set('debug', true)
 
             const orders = await Order.find()
+                .populate("paymentMethod", "name")
+                .populate("status", "name")
+                // .populate("orderDetail")
+                
+                // .populate({
+                //     path: 'orderDetail',
+                //     populate: {
+                //         path: 'productQuantity',
+                //         populate: {
+                //             path: 'product',
+                //             select: "name price urlImage"
+                //         }
+                //     }
+                // });
 
             resolve({
                 status: "OK",
                 message: "Get all orders",
-                orders: orders
+                data: orders
             })
         } catch(e) {
             reject(e)
@@ -38,11 +52,21 @@ const getOrdersHistory = (limit, page) => {
                 .skip(page * limit)
                 .populate('paymentMethod')
                 .populate('status')
+                .populate({
+                    path: 'orderDetail',
+                    populate: {
+                        path: 'productQuantity',
+                        populate: {
+                            path: 'product',
+                            select: "name price urlImage"
+                        }
+                    }
+                })
 
             resolve({
                 status: 'OK',
                 message: 'Orders history',
-                order: orders,
+                data: orders,
                 totalOrder: totalOrder,
                 totalPage: Math.ceil(totalOrder / limit)
             })
@@ -57,12 +81,25 @@ const getOrderDetails = (orderId) => {
         try {
             mongoose.set('debug', true)
 
-            const order = await Order.findById(orderId).populate('paymentMethod').populate('status')
+            const order = await Order.findById(orderId)
+                .populate('paymentMethod')
+                .populate('status')
+                .populate("orderDetail")
+                .populate({
+                    path: 'orderDetail',
+                    populate: {
+                        path: 'productQuantity',
+                        populate: {
+                            path: 'product',
+                            select: "name price urlImage"
+                        }
+                    }
+                });
 
             resolve({
                 status: 'OK',
                 message: 'Order details',
-                detail: order
+                data: order
             })
         } catch(e) {
             reject(e)

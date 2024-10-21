@@ -157,7 +157,7 @@ const CustomerTable = () => {
             <Button
               type={record.status ? "danger" : "primary"}
               icon={record.status ? <UnlockOutlined /> : <LockOutlined />} // Thay đổi icon tùy theo trạng thái
-              // Gọi chung một hàm
+            // Gọi chung một hàm
             />
           </Popconfirm>
 

@@ -33,12 +33,11 @@ const ContentContainer = styled.div`
 const OrderPage = () => {
     return (
         <PageContainer>
-        {/* <NavComponent /> */}
         <SaleNavComponent />
             <MainContainer>
                 <HeaderComponent />
                 <ContentContainer>
-                    {/* <h1>Quản lý người dùng</h1> */}
+                    <h1>Quản lý đơn hàng</h1>
                     <OrderTable />
                 </ContentContainer>
             </MainContainer>
