@@ -12,12 +12,12 @@ const quantitySchema = new mongoose.Schema(
     },
     color: {
       type: Schema.Types.ObjectId,
-      ref: Color,
+      ref: "Color",
       required: true,
     },
     product: {
       type: Schema.Types.ObjectId,
-      ref: Product,
+      ref: "Product",
       required: true,
     },
   },

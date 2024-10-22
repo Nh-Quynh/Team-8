@@ -9,7 +9,7 @@ const orderSchema = new mongoose.Schema({
   orderDetail: [
     {
       type: Schema.Types.ObjectId,
-      ref: OrderDetail,
+      ref: "OrderDetail",
     },
   ],
 
@@ -36,12 +36,12 @@ const orderSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: Schema.Types.ObjectId,
-    ref: PaymentMethod,
+    ref: "PaymentMethod",
     required: true,
   },
   status: {
     type: Schema.Types.ObjectId,
-    ref: Status,
+    ref: "Status",
     required: true,
   },
 });

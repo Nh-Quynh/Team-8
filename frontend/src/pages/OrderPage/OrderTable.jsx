@@ -17,7 +17,9 @@ import {
   DeleteOutlined,
   PlusOutlined,
   SearchOutlined,
+  UndoOutlined,
 } from "@ant-design/icons"; // Import icon
+import styled from "styled-components";
 
 const OrderTable = () => {
   const [orders, setOrders] = useState([]);
@@ -178,45 +180,32 @@ const OrderTable = () => {
   };
 
   const columns = [
-    // {
-    //   title: "ID",
-    //   dataIndex: "_id", // ID người dùng
-    //   key: "_id",
-    // },
     {
-      title: "Chi tiết đơn hàng",
-      dataIndex: "orderDetail",
-      key: "orderDetail",
+      title: "ID",
+      dataIndex: "_id", // ID người dùng
+      key: "_id",
     },
     {
       title: "Sản phẩm",
       dataIndex: "orderDetail",
-      key: "orderDetail",
-      // render: orderDetails => (
-      //   <Space direction="vertical">
-      //     {orderDetails.map( (detail) => {
-      //       <div>
-      //         {detail._id}
-      //       </div>
-      //     })}
+      key: "orderDetail",      
+      render: orderDetails => (
+        <Space direction="vertical">
+          {orderDetails.map((detail) => (
+            <ProductDetails key={detail._id}>
+              <div>
+                <img src={detail.productQuantity.product.urlImage} height="50px" />
+              </div>
 
-      //   </Space>
-      // )
-      
-      // render: orderDetails => (
-      //   <Space direction="vertical">
-      //     {orderDetails.map( detail => (
-      //       <Tag>
-      //         {detail._id}
-      //       </Tag>
-      //     ))}
-      //     {orderDetails.map((detail) => (
-      //       <Tag color="blue" key={detail._id}>
-      //         {detail.productQuantity.product.name} x{detail.quantity}
-      //       </Tag>
-      //     ))}
-      //   </Space>
-      // ),
+              <div style={{left: 0, marginTop: 5}}>
+                <Tag key={detail._id}>
+                  {detail.productQuantity.product.name} x{detail.quantity}
+                </Tag>
+              </div>
+            </ProductDetails>
+          ))}
+        </Space>
+      ),
     },
     {
       title: "Tổng số tiền",
@@ -277,7 +266,7 @@ const OrderTable = () => {
         <Button
           type="primary"
           onClick={handleSearch}
-          icon={<SearchOutlined />} // Thêm biểu tượng add
+          icon={<SearchOutlined />} 
           style={{ marginRight: 16 }}
         >
           Tìm kiếm
@@ -292,11 +281,20 @@ const OrderTable = () => {
             ))
           }
         </Select>
+
+        <Button
+          type="primary"
+          onClick={handleSearch}
+          icon={<UndoOutlined />} 
+          style={{ marginLeft: 16 }}
+        >
+          Đặt lại bộ lọc
+        </Button>
       </div>
 
       <Table
         columns={columns}
-        // check if orders is a array and adjust
+        // check if orders is an array and adjust
         dataSource={Array.isArray(orders) ? orders : [orders]}
         // rowKey="_id"
         loading={loading} // Hiển thị trạng thái loading
@@ -304,5 +302,11 @@ const OrderTable = () => {
     </div>
   );
 };
+
+const ProductDetails = styled.div`
+  display: table;
+  column-count: 2;
+  margin-bottom: 10px;
+`
 
 export default OrderTable;

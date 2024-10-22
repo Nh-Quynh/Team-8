@@ -12,18 +12,17 @@ const getAllOrders = () => {
             const orders = await Order.find()
                 .populate("paymentMethod", "name")
                 .populate("status", "name")
-                // .populate("orderDetail")
-                
-                // .populate({
-                //     path: 'orderDetail',
-                //     populate: {
-                //         path: 'productQuantity',
-                //         populate: {
-                //             path: 'product',
-                //             select: "name price urlImage"
-                //         }
-                //     }
-                // });
+                // .populate("orderDetail")                
+                .populate({
+                    path: 'orderDetail',
+                    populate: {
+                        path: 'productQuantity',
+                        populate: {
+                            path: 'product',
+                            select: "name price urlImage"
+                        }
+                    }
+                });
 
             resolve({
                 status: "OK",
