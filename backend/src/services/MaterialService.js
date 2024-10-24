@@ -109,7 +109,6 @@ const getMaterialById = (id) => {
           material: checkMaterial,
         });
       }
-      S;
     } catch (e) {
       reject(e);
     }
