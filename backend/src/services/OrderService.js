@@ -171,10 +171,42 @@ const cancelOrder = (orderId) => {
     })
 }
 
+const fillOrderByStatus = (statusId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const orders = await Order.find({status: statusId})
+                .populate('paymentMethod')
+                .populate('status')
+                .populate("orderDetail")
+                .populate({
+                    path: 'orderDetail',
+                    populate: {
+                        path: 'productQuantity',
+                        populate: {
+                            path: 'product',
+                            select: "name price urlImage"
+                        }
+                    }
+                });
+            
+            resolve({
+                status: 'OK',
+                message: 'Order details',
+                data: orders
+            })
+        }
+        catch(e)
+        {
+            reject(e);
+        }
+    });
+}
+
 module.exports = {
     getAllOrders,
     getOrdersHistory,
     getOrderDetails,
     updateOrderStatus,
     cancelOrder,
+    fillOrderByStatus,
 }

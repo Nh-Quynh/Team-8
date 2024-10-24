@@ -72,10 +72,26 @@ const cancelOrder = async (req, res) => {
     }
 }
 
+const fillOrderByStatus = async (req, res) => {
+    try {
+        const statusId = req.params.statusId;
+
+        const response = await OrderService.fillOrderByStatus(statusId);
+        return res.status(200).json(response)
+    }
+    catch (e)
+    {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 module.exports = {
     getAllOrders,
     getOrdersHistory,
     getOrderDetails,
     updateOrderStatus,
     cancelOrder,
+    fillOrderByStatus,
 }

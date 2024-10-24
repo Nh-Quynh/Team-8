@@ -27,10 +27,12 @@ const OrderTable = () => {
   const [loading, setLoading] = useState(true);
   const [searchId, setSearchId] = useState(""); // Trạng thái tìm kiếm
   const [isFormVisible, setIsFormVisible] = useState(false); // Trạng thái hiển thị form
+  const [selectedValue, setSelectedValue] = useState("Lọc theo trạng thái");
   const [form] = Form.useForm(); // Tạo form từ Ant Design
 
   const fetchOrders = async () => {
     try {
+      setLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_API_URI}/order/get-all-orders`
       );
@@ -40,8 +42,6 @@ const OrderTable = () => {
       }
 
       const data = await response.json();
-
-      console.log('DATA', data.data)
       
       // Kiểm tra dữ liệu người dùng
       if (!data || !Array.isArray(data.data)) {
@@ -145,6 +145,7 @@ const OrderTable = () => {
 
   const searchOrderById = async () => {
     try {
+      setLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_API_URI}/order/get-details/${searchId}`
       )
@@ -154,19 +155,20 @@ const OrderTable = () => {
       }
 
       const data = await response.json();
-      console.log('DATA', data)
 
       if (!data) {
         throw new Error("Dữ liệu đơn hàng không hợp lệ");
       }
 
-
       setOrders(data.data);
-      console.log('ORDER', orders)
     }
     catch (error) {
       message.error(error.message); // Hiển thị thông báo lỗi
       console.error(error);
+    }
+    finally
+    {
+      setLoading(false);
     }
   };
 
@@ -178,6 +180,42 @@ const OrderTable = () => {
       await fetchOrders();
     }
   };
+
+  const handleFillOrders = async (value) => {
+    try {
+      setLoading(true)
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URI}/order/fill-order/${value}`
+      )
+
+      if (!response.ok) {
+        throw new Error("Không thể lấy dữ liệu đơn hàng");
+      }
+
+      const data = await response.json();
+
+      if (!data) {
+        throw new Error("Dữ liệu đơn hàng không hợp lệ");
+      }
+
+      setSelectedValue(value);
+      setOrders(data.data);
+    }
+    catch(error)
+    {
+      message.error(error.message); // Hiển thị thông báo lỗi
+      console.error(error);
+    }
+    finally
+    {
+      setLoading(false);
+    }
+  };
+
+  const resetFilter = () => {
+    setSelectedValue("Lọc theo trạng thái");
+    fetchOrders();
+  }
 
   const columns = [
     {
@@ -272,7 +310,7 @@ const OrderTable = () => {
           Tìm kiếm
         </Button>
 
-        <Select defaultValue="Lọc theo trạng thái" style={{ width: 200 }} >
+        <Select value={selectedValue} style={{ width: 200 }} onChange={handleFillOrders}>
           {
             orderStatus.map(status => (
               <Option key={status._id} value={status._id}>
@@ -284,7 +322,7 @@ const OrderTable = () => {
 
         <Button
           type="primary"
-          onClick={handleSearch}
+          onClick={resetFilter}
           icon={<UndoOutlined />} 
           style={{ marginLeft: 16 }}
         >
@@ -294,7 +332,7 @@ const OrderTable = () => {
 
       <Table
         columns={columns}
-        // check if orders is an array and adjust
+        // check if orders is an array and adjust it
         dataSource={Array.isArray(orders) ? orders : [orders]}
         // rowKey="_id"
         loading={loading} // Hiển thị trạng thái loading
