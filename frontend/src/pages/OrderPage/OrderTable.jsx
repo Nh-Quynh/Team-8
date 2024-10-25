@@ -217,12 +217,53 @@ const OrderTable = () => {
     fetchOrders();
   }
 
-  const columns = [
+  const handleStatusChange = async (value, record) => {
+    const accessToken = localStorage.getItem("accessToken");
+    console.log(accessToken)
+
+    try {
+      console.log('VALUE', value)
+      setLoading(true);
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URI}/order/update-status/${record._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            token: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ status: value }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Không thể cập nhật vai trò người dùng");
+      }
+
+      // Cập nhật lại danh sách người dùng sau khi thay đổi vai trò
+      const updatedOrders = orders.map((order) =>
+        order._id === record._id ? { ...order, status: value } : order
+      );
+      setOrders(updatedOrders);
+      message.success("Đã cập nhật trạng thái đơn hàng thành công");
+
+      fetchOrders();
+    } catch (error) {
+      message.error(error.message);
+      console.error(error);
+    }
+    finally
     {
-      title: "ID",
-      dataIndex: "_id", // ID người dùng
-      key: "_id",
-    },
+      setLoading(false);
+    }
+  };
+
+  const columns = [
+    // {
+    //   title: "ID",
+    //   dataIndex: "_id", // ID người dùng
+    //   key: "_id",
+    // },
     {
       title: "Sản phẩm",
       dataIndex: "orderDetail",
@@ -276,14 +317,30 @@ const OrderTable = () => {
       title: "Phương thức thanh toán",
       dataIndex: "paymentMethod",
       key: "paymentMethod",
+      width: 140,
       // display payment method's name
       render: (paymentMethod) => paymentMethod ? paymentMethod.name : "",
-    }, {
+    }, 
+    {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
       // display status's name
-      render: (status) => status ? status.name : "",
+      render: (status, record) => (
+        <Select
+          value={status.name}
+          onChange={(value) => handleStatusChange(value, record)} 
+          style={{width: 190}}
+        >
+          {
+            orderStatus.map(status => (
+              <Option key={status._id} value={status._id}>
+                {status.name}
+              </Option>
+            ))
+          }
+        </Select>
+      ),
     }
   ];
 
@@ -310,7 +367,7 @@ const OrderTable = () => {
           Tìm kiếm
         </Button>
 
-        <Select value={selectedValue} style={{ width: 200 }} onChange={handleFillOrders}>
+        <Select value={selectedValue} style={{ width: 190 }} onChange={handleFillOrders}>
           {
             orderStatus.map(status => (
               <Option key={status._id} value={status._id}>

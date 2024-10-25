@@ -37,11 +37,11 @@ const getOrderDetails = async (req, res) => {
     }
 }
 
-// update order status with order id from request parameters and status id form request query
+// update order status with order id from request parameters and status id form request body
 const updateOrderStatus = async(req, res) => {
     try {
         const orderId = req.params.orderId
-        const statusId = req.query.statusId
+        const statusId = req.body.status
 
         const response = await OrderService.updateOrderStatus(orderId, statusId)
         return res.status(200).json(response)

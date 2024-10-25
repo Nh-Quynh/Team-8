@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import {
@@ -9,8 +9,9 @@ import {
   DashboardOutlined,
   TagOutlined,
   SolutionOutlined,
+  MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import { Menu, Avatar, Typography } from "antd";
+import { Menu, Avatar, Typography, Button } from "antd";
 import { useNavigate } from "react-router-dom"; // Import useNavigate từ react-router-dom
 import { CameraOutlined } from "@ant-design/icons"; // Import CameraOutlined
 
@@ -40,6 +41,7 @@ const SaleNavComponent = () => {
   const userName = useSelector((state) => state.auth.user?.name || ""); // Lấy name từ Redux
   const userRole = useSelector((state) => state.auth.user?.role || ""); // Lấy role từ Redux
   const userImage = useSelector((state) => state.auth.user?.image); // Lấy ảnh từ Redux
+  const [visible, setVisible] = useState(false);
 
   // Hàm xử lý sự kiện khi click vào một mục trong menu
   const onClick = (e) => {
@@ -100,6 +102,11 @@ const Profile = styled.div`
   align-items: center; /* Căn giữa các mục theo chiều dọc */
   padding: 20px; /* Khoảng cách bên trong */
   border-bottom: 4px solid #f0f0f0; /* Đường viền ngăn cách */
+`;
+
+const NavControllerButton = styled.button`
+  border: none;
+  background-color: #f7f7f7;
 `;
 
 export default SaleNavComponent;

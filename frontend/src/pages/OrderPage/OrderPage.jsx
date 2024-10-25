@@ -1,18 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
-import NavComponent from "../../components/NavComponent/NavComponent";
 import SaleNavComponent from "../../components/NavComponent/SaleNavComponent"
 import styled from "styled-components";
-import { Card, Row, Col } from "antd";
+import { Card, Row, Col} from "antd";
 import OrderTable from "./OrderTable";
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    Tooltip,
-    CartesianGrid,
-    Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
 } from "recharts";
 
 const PageContainer = styled.div`
@@ -31,18 +30,18 @@ const ContentContainer = styled.div`
 `;
 
 const OrderPage = () => {
-    return (
-        <PageContainer>
-        <SaleNavComponent />
-            <MainContainer>
-                <HeaderComponent />
-                <ContentContainer>
-                    <h1>Quản lý đơn hàng</h1>
-                    <OrderTable />
-                </ContentContainer>
-            </MainContainer>
-        </PageContainer>
-    );
+  return (
+    <PageContainer>
+      <SaleNavComponent />
+      <MainContainer>
+        <HeaderComponent />
+        <ContentContainer>
+          <h1>Quản lý đơn hàng</h1>
+          <OrderTable />
+        </ContentContainer>
+      </MainContainer>
+    </PageContainer>
+  );
 };
 
 export default OrderPage;
