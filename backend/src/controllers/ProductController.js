@@ -42,7 +42,7 @@ const createProduct = async (req, res) => {
 //Cap nhat thong tin san pham
 const updateProduct = async (req, res) => {
   try {
-    const productId = req.params.id;
+    const productId = req.params.productId;
     const data = req.body;
     if (!productId) {
       return res.status(200).json({
@@ -61,7 +61,7 @@ const updateProduct = async (req, res) => {
 //Xoa san pham theo id
 const deleteProduct = async (req, res) => {
   try {
-    const productId = req.params.id;
+    const productId = req.params.productId;
     if (!productId) {
       return res.status(200).json({
         status: "ERR",
@@ -79,7 +79,7 @@ const deleteProduct = async (req, res) => {
 //Tim san pham theo id
 const getProductById = async (req, res) => {
   try {
-    const productId = req.params.id;
+    const productId = req.params.productId;
     if (!productId) {
       return res.status(200).json({
         status: "ERR",
@@ -179,6 +179,93 @@ const searchProducts = async (req, res) => {
     });
   }
 };
+// Controller để lấy số lượng sản phẩm
+const getQuantity = async (req, res) => {
+  try {
+    const productId = req.params.productId; // Lấy productId từ URL parameters
+    if (!productId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The productId is required",
+      });
+    }
+    const response = await ProductService.getQuantity(productId); // Gọi hàm quantityProduct
+
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+const updateQuantity = async (req, res) => {
+  try {
+    const { color, product, quantity } = req.body;
+    if (!color && !product && !quantity) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The product or color or quantity is required",
+      });
+    }
+    const response = await ProductService.updateQuantity(
+      color,
+      product,
+      quantity
+    );
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+const deleteQuantity = async (req, res) => {
+  try {
+    const { color, product } = req.body;
+    if (!color && !product) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The product or color is required",
+      });
+    }
+    const response = await ProductService.deleteQuantity(color, product);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
+const getColorById = async (req, res) => {
+  try {
+    const colorId = req.params.colorId; // Lấy productId từ URL parameters
+    if (!colorId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The colorId is required",
+      });
+    }
+    const response = await ProductService.getColorById(colorId); // Gọi hàm quantityProduct
+
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+const getAllColor = async (req, res) => {
+  try {
+    const response = await ProductService.getAllColor();
+
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 
 module.exports = {
   createProduct,
@@ -190,4 +277,9 @@ module.exports = {
   // fillByCategory,
   fillProducts,
   searchProducts,
+  getQuantity,
+  updateQuantity,
+  deleteQuantity,
+  getColorById,
+  getAllColor,
 };

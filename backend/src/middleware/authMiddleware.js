@@ -40,10 +40,8 @@ const authUserMiddleWare = (req, res, next) => {
     const { payload } = user;
     // console.log("Payload", payload);
     if (
-      (payload?.status == true && payload?.id == userId) ||
-      (payload?.type == "employee" &&
-        payload?.status == true &&
-        payload?.role == "admin")
+      payload?.id == userId ||
+      (payload?.type == "employee" && payload?.role == "admin")
     ) {
       next();
     } else {

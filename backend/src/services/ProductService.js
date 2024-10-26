@@ -348,7 +348,133 @@ const searchProducts = (keyword, limit, page) => {
   });
 };
 
-const quantityProduct = (id) => {};
+const getQuantity = (productId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const quantities = await Quantity.find({
+        product: productId, //MongodB sử dụng ID dạng _id
+      });
+      if (quantities.length === 0) {
+        resolve({
+          status: "ERR",
+          message: "The product is not defined",
+        });
+      } else {
+        resolve({
+          status: "OK",
+          message: "Get quantity SUCCESS",
+          data: quantities, // Trả về dữ liệu số lượng
+        });
+      }
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message, // Trả về lỗi nếu có
+      });
+    }
+  });
+};
+const updateQuantity = (color, product, quantity) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const quantityProduct = await Quantity.findOne({
+        color: color,
+        product: product,
+      });
+      // Kiểm tra xem bản ghi có tồn tại không
+      if (!quantityProduct) {
+        return resolve({
+          status: "ERR",
+          message: "The product is not defined",
+        });
+      }
+      quantityProduct.quantity = quantity;
+      await quantityProduct.save();
+      resolve({
+        status: "OK",
+        message: "Quantity updated successfully",
+        data: quantityProduct,
+      });
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message, // Trả về lỗi nếu có
+      });
+    }
+  });
+};
+
+const deleteQuantity = (color, product) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Tìm và xóa bản ghi Quantity dựa trên colorId và productId
+      const result = await Quantity.findOneAndDelete({
+        color: color,
+        product: product,
+      });
+
+      // Kiểm tra xem bản ghi có tồn tại không
+      if (!result) {
+        return resolve({
+          status: "ERR",
+          message: "The product is not defined",
+        });
+      }
+
+      // Trả về thông báo thành công
+      resolve({
+        status: "OK",
+        message: "Quantity deleted successfully",
+      });
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message, // Trả về lỗi nếu có
+      });
+    }
+  });
+};
+
+const getColorById = (colorId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const color = await Color.findOne({
+        _id: colorId, //MongodB sử dụng ID dạng _id
+      });
+      if (!color) {
+        resolve({
+          status: "ERR",
+          message: "The color is not defined",
+        });
+      } else {
+        resolve({
+          status: "OK",
+          message: "Get color SUCCESS",
+          data: color, // Trả về dữ liệu số lượng
+        });
+      }
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message, // Trả về lỗi nếu có
+      });
+    }
+  });
+};
+const getAllColor = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const getAllColor = await Color.find();
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: getAllColor,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 module.exports = {
   createProduct,
   updateProduct,
@@ -359,4 +485,9 @@ module.exports = {
   // fillByCategory,
   fillProducts,
   searchProducts,
+  getQuantity,
+  updateQuantity,
+  deleteQuantity,
+  getColorById,
+  getAllColor,
 };
