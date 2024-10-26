@@ -189,6 +189,26 @@ const getProductById = (id) => {
     }
   });
 };
+const getAll = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const product = await Product.find();
+      if (!product) {
+        resolve({
+          status: "ERR",
+          message: "The product is not defined",
+        });
+      }
+      resolve({
+        status: "OK",
+        message: "Get all product SUCCESS",
+        data: product,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 const getAllProducts = (limit, page, sort) => {
   return new Promise(async (resolve, reject) => {
@@ -377,7 +397,7 @@ const getQuantity = (productId) => {
     }
   });
 };
-const updateQuantity = (id, data) => {
+const updateQuantity = (id, quantity) => {
   return new Promise(async (resolve, reject) => {
     try {
       const quantityProduct = await Quantity.findOne({
@@ -390,17 +410,17 @@ const updateQuantity = (id, data) => {
           message: "The quantity product is not defined",
         });
       }
-      let colorObj = await Color.findOne({
-        name: { $regex: new RegExp(`^${data.color}$`, "i") },
-      });
-      if (colorObj._id != quantityProduct._id) {
-        return resolve({
-          status: "ERR",
-          message: "Do not change color ",
-        });
-      }
+      // let colorObj = await Color.findOne({
+      //   name: { $regex: new RegExp(`^${data.color}$`, "i") },
+      // });
+      // if (colorObj._id != quantityProduct._id) {
+      //   return resolve({
+      //     status: "ERR",
+      //     message: "Do not change color ",
+      //   });
+      // }
       quantityProduct = await Quantity.findByIdAndUpdate(id, {
-        quantity: data.quantity,
+        quantity: quantity,
       });
       resolve({
         status: "OK",
@@ -458,14 +478,11 @@ const createQuantity = (newQuantity) => {
   });
 };
 
-const deleteQuantity = (color, product) => {
+const deleteQuantity = (quantityId) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Tìm và xóa bản ghi Quantity dựa trên colorId và productId
-      const result = await Quantity.findOneAndDelete({
-        color: color,
-        product: product,
-      });
+      const result = await Quantity.findByIdAndDelete(quantityId);
 
       // Kiểm tra xem bản ghi có tồn tại không
       if (!result) {
@@ -592,6 +609,7 @@ module.exports = {
   deleteProduct,
   getProductById,
   getAllProducts,
+  getAll,
   // fillByMaterial,
   // fillByCategory,
   fillProducts,

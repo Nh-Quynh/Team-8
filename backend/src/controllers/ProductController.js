@@ -201,14 +201,14 @@ const getQuantity = async (req, res) => {
 const updateQuantity = async (req, res) => {
   try {
     const quantityId = req.params.id;
-    const data = req.body;
+    const quantity = req.body.quantity;
     if (!quantityId) {
       return res.status(200).json({
         status: "ERR",
         message: "The quantity is required",
       });
     }
-    const response = await ProductService.updateQuantity(quantityId, data);
+    const response = await ProductService.updateQuantity(quantityId, quantity);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -223,7 +223,7 @@ const createQuantity = async (req, res) => {
     if (!color && !productId && !quantity) {
       return res.status(200).json({
         status: "ERR",
-        message: "The product or color or quantity is required",
+        message: "The product, color, and quantity are required",
       });
     }
     const response = await ProductService.createQuantity(req.body);
@@ -237,14 +237,14 @@ const createQuantity = async (req, res) => {
 
 const deleteQuantity = async (req, res) => {
   try {
-    const { color, product } = req.body;
-    if (!color && !product) {
+    const quantityId = req.params.id;
+    if (!quantityId) {
       return res.status(200).json({
         status: "ERR",
-        message: "The product or color is required",
+        message: "The quantityId is required",
       });
     }
-    const response = await ProductService.deleteQuantity(color, product);
+    const response = await ProductService.deleteQuantity(quantityId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -282,6 +282,17 @@ const getAllColor = async (req, res) => {
     });
   }
 };
+const getAll = async (req, res) => {
+  try {
+    const response = await ProductService.getAll();
+
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 
 module.exports = {
   createProduct,
@@ -289,6 +300,7 @@ module.exports = {
   deleteProduct,
   getProductById,
   getAllProducts,
+  getAll,
   // fillByMaterial,
   // fillByCategory,
   fillProducts,

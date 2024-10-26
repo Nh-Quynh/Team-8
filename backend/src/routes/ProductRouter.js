@@ -17,6 +17,7 @@ router.delete(
 );
 router.get("/get-product/:productId", productController.getProductById);
 router.get("/get-all-products", productController.getAllProducts);
+router.get("/get-all", productController.getAll);
 // router.get('/material/:materialId', productController.fillByMaterial)
 // router.get('/category/:categoryId', productController.fillByCategory)
 router.get("/fill-products", productController.fillProducts);
@@ -25,7 +26,7 @@ router.get("/quantity/:productId", productController.getQuantity);
 router.put("/update-quantity/:id", productController.updateQuantity);
 router.post("/create-quantity", productController.createQuantity);
 router.delete(
-  "/delete-quantity",
+  "/delete-quantity/:id",
   //   authAdminMiddleware,
   productController.deleteQuantity
 );

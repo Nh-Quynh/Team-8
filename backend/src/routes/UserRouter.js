@@ -23,7 +23,7 @@ router.delete(
 router.get("/get-all", userController.getAllCustomer);
 router.get(
   "/get-details/:id",
-  // authUserMiddleWare,
+  authUserMiddleWare,
   userController.getCustomerById
 );
 router.post("/log-out", userController.logoutUser);
