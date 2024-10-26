@@ -1,9 +1,12 @@
 const mongoose = require("mongoose");
 const Product = require("../models/ProductModel");
+const Customer = require("../models/CustomerModel");
 const Category = require("../models/CategoryModel");
 const Color = require("../models/ColorModel");
 const Quantity = require("../models/QuantityModel");
 const Material = require("../models/MaterialModel");
+const Cart = require("../models/CartModel");
+const ObjectId = mongoose.Types.ObjectId;
 
 const ObjId = require("mongoose").Types.ObjectId;
 //Tao san pham
@@ -374,26 +377,77 @@ const getQuantity = (productId) => {
     }
   });
 };
-const updateQuantity = (color, product, quantity) => {
+const updateQuantity = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
       const quantityProduct = await Quantity.findOne({
-        color: color,
-        product: product,
+        _id: id,
       });
       // Kiểm tra xem bản ghi có tồn tại không
       if (!quantityProduct) {
         return resolve({
           status: "ERR",
-          message: "The product is not defined",
+          message: "The quantity product is not defined",
         });
       }
-      quantityProduct.quantity = quantity;
-      await quantityProduct.save();
+      let colorObj = await Color.findOne({
+        name: { $regex: new RegExp(`^${data.color}$`, "i") },
+      });
+      if (colorObj._id != quantityProduct._id) {
+        return resolve({
+          status: "ERR",
+          message: "Do not change color ",
+        });
+      }
+      quantityProduct = await Quantity.findByIdAndUpdate(id, {
+        quantity: data.quantity,
+      });
       resolve({
         status: "OK",
         message: "Quantity updated successfully",
         data: quantityProduct,
+      });
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message, // Trả về lỗi nếu có
+      });
+    }
+  });
+};
+const createQuantity = (newQuantity) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { color, quantity, productId } = newQuantity;
+      // Kiểm tra tính hợp lệ của productId
+      let productObj = await Product.findOne({ _id: productId });
+      let colorObj = await Color.findOne({
+        name: { $regex: new RegExp(`^${color}$`, "i") },
+      });
+      if (!colorObj) colorObj = await Color.create({ name: color });
+
+      const quantityProduct = await Quantity.findOne({
+        color: colorObj._id,
+        product: productObj._id,
+      });
+      // Kiểm tra xem bản ghi có tồn tại không
+      if (quantityProduct) {
+        return resolve({
+          status: "ERR",
+          message: "The quantity is available",
+          quantityProduct,
+        });
+      }
+
+      const quantityObj = await Quantity.create({
+        product: productObj._id,
+        color: colorObj._id,
+        quantity,
+      });
+      resolve({
+        status: "OK",
+        message: "Create quantity successfully",
+        data: quantityObj,
       });
     } catch (e) {
       reject({
@@ -475,6 +529,63 @@ const getAllColor = () => {
     }
   });
 };
+
+const addProductToCart = (userId, quantityId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Kiểm tra khách hàng
+      const customer = await Customer.findById(userId);
+      if (!customer) {
+        return resolve({
+          status: "ERR",
+          message: "The user is not defined",
+        });
+      }
+
+      // Kiểm tra số lượng sản phẩm
+      const quantity = await Quantity.findById(quantityId);
+      if (!quantity || quantity.quantity <= 0) {
+        return resolve({
+          status: "ERR",
+          message: "The quantity is not defined or out of stock",
+        });
+      }
+
+      // Tìm hoặc tạo giỏ hàng cho khách hàng
+      let cart = await Cart.findOne({ customer: userId });
+      if (!cart) {
+        cart = new Cart({
+          customer: userId,
+          items: [{ quantity: quantityId, quantity: 1 }],
+        });
+      } else {
+        // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng
+        const itemIndex = cart.items.findIndex(
+          (item) => item.quantity.toString() === quantityId
+        );
+
+        if (itemIndex > -1) {
+          // Nếu có, cập nhật số lượng sản phẩm
+          cart.items[itemIndex].quantity += 1;
+        } else {
+          // Nếu chưa có, thêm mới vào giỏ hàng
+          cart.items.push({ quantity: quantityId, quantity: 1 });
+        }
+      }
+
+      await cart.save();
+
+      resolve({
+        status: "OK",
+        message: "Product added to cart successfully",
+        data: cart,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   createProduct,
   updateProduct,
@@ -490,4 +601,6 @@ module.exports = {
   deleteQuantity,
   getColorById,
   getAllColor,
+  createQuantity,
+  addProductToCart,
 };

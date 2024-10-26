@@ -200,18 +200,15 @@ const getQuantity = async (req, res) => {
 };
 const updateQuantity = async (req, res) => {
   try {
-    const { color, product, quantity } = req.body;
-    if (!color && !product && !quantity) {
+    const quantityId = req.params.id;
+    const data = req.body;
+    if (!quantityId) {
       return res.status(200).json({
         status: "ERR",
-        message: "The product or color or quantity is required",
+        message: "The quantity is required",
       });
     }
-    const response = await ProductService.updateQuantity(
-      color,
-      product,
-      quantity
-    );
+    const response = await ProductService.updateQuantity(quantityId, data);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -219,6 +216,25 @@ const updateQuantity = async (req, res) => {
     });
   }
 };
+const createQuantity = async (req, res) => {
+  try {
+    // const product = req.params.id;
+    const { color, quantity, productId } = req.body;
+    if (!color && !productId && !quantity) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The product or color or quantity is required",
+      });
+    }
+    const response = await ProductService.createQuantity(req.body);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
 const deleteQuantity = async (req, res) => {
   try {
     const { color, product } = req.body;
@@ -282,4 +298,5 @@ module.exports = {
   deleteQuantity,
   getColorById,
   getAllColor,
+  createQuantity,
 };

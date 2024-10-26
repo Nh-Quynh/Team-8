@@ -22,7 +22,8 @@ router.get("/get-all-products", productController.getAllProducts);
 router.get("/fill-products", productController.fillProducts);
 router.get("/search/:keyword", productController.searchProducts);
 router.get("/quantity/:productId", productController.getQuantity);
-router.put("/update-quantity", productController.updateQuantity);
+router.put("/update-quantity/:id", productController.updateQuantity);
+router.post("/create-quantity", productController.createQuantity);
 router.delete(
   "/delete-quantity",
   //   authAdminMiddleware,

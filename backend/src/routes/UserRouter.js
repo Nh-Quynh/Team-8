@@ -27,6 +27,7 @@ router.get(
   userController.getCustomerById
 );
 router.post("/log-out", userController.logoutUser);
+router.post("/add-to-cart/:id", userController.addProductToCart);
 //Xem chi tiet nguoi dung = email
 
 // ============== Employee ==============
