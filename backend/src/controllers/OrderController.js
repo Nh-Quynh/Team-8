@@ -87,6 +87,35 @@ const fillOrderByStatus = async (req, res) => {
     }
 }
 
+const getOrdersCountByStatus = async (req, res) => {
+    try {
+        const response = await OrderService.getOrdersCountByStatus();
+        return res.status(200).json(response)
+    }
+    catch (e)
+    {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
+const getMonthlyRevenue = async (req, res) => {
+    try {
+        // convert parameter type to number
+        const year = parseInt(req.params.year);
+
+        const response = await OrderService.getMonthlyRevenue(year);
+        return res.status(200).json(response)
+    }
+    catch (e)
+    {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 module.exports = {
     getAllOrders,
     getOrdersHistory,
@@ -94,4 +123,6 @@ module.exports = {
     updateOrderStatus,
     cancelOrder,
     fillOrderByStatus,
+    getOrdersCountByStatus,
+    getMonthlyRevenue,
 }

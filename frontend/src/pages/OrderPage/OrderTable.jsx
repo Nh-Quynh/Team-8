@@ -20,6 +20,8 @@ import {
   UndoOutlined,
 } from "@ant-design/icons"; // Import icon
 import styled from "styled-components";
+// extract the Option property from the Select object
+const { Option } = Select;
 
 const OrderTable = () => {
   const [orders, setOrders] = useState([]);
@@ -343,9 +345,6 @@ const OrderTable = () => {
       ),
     }
   ];
-
-  // extract the Option property from the Select object
-  const { Option } = Select;
 
   return (
     <div>

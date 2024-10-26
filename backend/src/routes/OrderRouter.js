@@ -10,5 +10,9 @@ router.put('/cancel-order/:orderId', orderController.cancelOrder)
 router.get('/fill-order/:statusId', orderController.fillOrderByStatus);
 // only sale employees can update order status
 router.put('/update-status/:orderId', authSalesMiddleware, orderController.updateOrderStatus)
+// return data as [{_id (statusName), count}]
+router.get("/get-order-count-by-status", orderController.getOrdersCountByStatus)
+// return data as [{_id (month), revenue}]
+router.get("/get-monthly-revenue/:year", orderController.getMonthlyRevenue);
 
 module.exports = router

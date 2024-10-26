@@ -41,7 +41,6 @@ const SaleNavComponent = () => {
   const userName = useSelector((state) => state.auth.user?.name || ""); // Lấy name từ Redux
   const userRole = useSelector((state) => state.auth.user?.role || ""); // Lấy role từ Redux
   const userImage = useSelector((state) => state.auth.user?.image || ""); // Lấy ảnh từ Redux
-  console.log('userImage', userImage)
 
   // Hàm xử lý sự kiện khi click vào một mục trong menu
   const onClick = (e) => {
