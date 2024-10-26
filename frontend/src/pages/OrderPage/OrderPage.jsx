@@ -21,7 +21,7 @@ const PageContainer = styled.div`
 
 const MainContainer = styled.div`
   flex: 1;
-  margin-left: 300px; /* Khoảng cách cho NavComponent */
+  margin-left: 235px; /* Khoảng cách cho NavComponent */
 `;
 
 const ContentContainer = styled.div`

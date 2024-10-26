@@ -40,8 +40,8 @@ const SaleNavComponent = () => {
   const navigate = useNavigate(); // Khởi tạo useNavigate để điều hướng
   const userName = useSelector((state) => state.auth.user?.name || ""); // Lấy name từ Redux
   const userRole = useSelector((state) => state.auth.user?.role || ""); // Lấy role từ Redux
-  const userImage = useSelector((state) => state.auth.user?.image); // Lấy ảnh từ Redux
-  const [visible, setVisible] = useState(false);
+  const userImage = useSelector((state) => state.auth.user?.image || ""); // Lấy ảnh từ Redux
+  console.log('userImage', userImage)
 
   // Hàm xử lý sự kiện khi click vào một mục trong menu
   const onClick = (e) => {
@@ -69,7 +69,7 @@ const SaleNavComponent = () => {
       <Menu
         onClick={onClick}
         style={{
-          width: 300,
+          width: 235,
           height: "100vh", // Chiều cao cố định
           overflow: "auto", // Cuộn nếu cần
         }}
@@ -87,7 +87,7 @@ const SaleNavComponent = () => {
 
 const NavContainer = styled.div`
   height: 100vh; /* Chiếm toàn bộ chiều cao màn hình */
-  width: 300px; /* Chiều rộng của nav */
+  width: 235px; /* Chiều rộng của nav */
   background-color: #f7f7f7; /* Màu nền của nav */
   position: fixed; /* Cố định nav bên trái màn hình */
   top: 0; /* Gắn nó ở trên cùng */

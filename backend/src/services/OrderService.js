@@ -80,7 +80,7 @@ const getOrderDetails = (orderId) => {
         try {
             mongoose.set('debug', true)
 
-            const order = await Order.findById(orderId)
+            const order = await Order.findOne({orderId: orderId})
                 .populate('paymentMethod')
                 .populate('status')
                 .populate("orderDetail")

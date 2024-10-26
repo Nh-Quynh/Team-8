@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
+import HeaderComponent from "../../components/HeaderComponent/HeaderComponent"
 import InfoCard from "./InfoCard";
 import SaleNavComponent from "../../components/NavComponent/SaleNavComponent";
 import SaleInfoCard from "./SalePersonalCard";
@@ -12,8 +12,8 @@ const SalePersonalPage = () => {
       <MainContainer>
         <HeaderComponent />
         <ContentContainer>
+          <Title>Thông tin cá nhân</Title>
           <CenteredContainer>
-            <Title>Thông tin cá nhân</Title> {/* Thêm tiêu đề ở đây */}
             <SaleInfoCard />
           </CenteredContainer>
         </ContentContainer>
@@ -38,7 +38,8 @@ const MainContainer = styled.div`
 const ContentContainer = styled.div`
   padding: 10px; /* Khoảng cách cho nội dung */
   padding-top: 20px; /* Khoảng cách từ header */
-  display: flex; /* Sử dụng flexbox để căn giữa */
+  display: flex; /* Sử dụng flexbox để căn giữa card */
+  flex-direction: column; /* Chuyển đổi chiều flex thành cột để chứa tiêu đề và card */
   justify-content: center; /* Căn giữa theo chiều ngang */
   align-items: center; /* Căn giữa theo chiều dọc */
   height: calc(100vh - 60px); /* Chiều cao tính từ header */
@@ -49,7 +50,7 @@ const CenteredContainer = styled.div`
   background-color: #fff7ed;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   height: 60%; /* Chiếm 1/2 chiều cao của màn hình */
-  width: 100%; /* Chiều rộng đầy đủ */
+  width: 90%; /* Chiều rộng đầy đủ */
   max-width: 1200px; /* Giới hạn chiều rộng tối đa */
   display: flex; /* Sử dụng flexbox để căn giữa card */
   flex-direction: column; /* Chuyển đổi chiều flex thành cột để chứa tiêu đề và card */

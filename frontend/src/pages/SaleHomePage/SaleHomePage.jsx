@@ -1,29 +1,29 @@
 import React from "react";
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
-import NavComponent from "../../components/NavComponent/NavComponent";
 import SaleNavComponent from "../../components/NavComponent/SaleNavComponent"
 import styled from "styled-components";
 import { Card, Row, Col } from "antd";
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    Tooltip,
-    CartesianGrid,
-    Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
 } from "recharts";
 
 const SaleHomePage = () => {
-    return (
-        <PageContainer>
-        {/* <NavComponent /> */}
-        <SaleNavComponent />
-            <MainContainer>
-                <HeaderComponent />
-            </MainContainer>
-        </PageContainer>
-    );
+  return (
+    <PageContainer>
+      <SaleNavComponent />
+      <MainContainer>
+        <HeaderComponent />
+        <ContentContainer>
+        </ContentContainer>
+      </MainContainer>
+    </PageContainer>
+  );
 };
 
 const PageContainer = styled.div`
@@ -33,12 +33,12 @@ const PageContainer = styled.div`
 
 const MainContainer = styled.div`
   flex: 1;
-  margin-left: 300px; /* Khoảng cách cho NavComponent */
+  margin-left: 250px; /* Khoảng cách cho NavComponent */
 `;
 
 const ContentContainer = styled.div`
   padding: 20px;
   padding-top: 80px; /* Thêm khoảng cách để tránh bị đè bởi HeaderComponent */
 `;
-  
+
 export default SaleHomePage;

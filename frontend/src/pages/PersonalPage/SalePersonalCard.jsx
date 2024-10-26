@@ -107,8 +107,6 @@ const InfoForm = ({ isVisible, onClose, userInfo }) => {
   const userId = useSelector((state) => state.auth.user?._id);
   const handleFormSubmit = async (values) => {
     try {
-      console.log(values)
-    
       const response = await fetch(
         `${process.env.REACT_APP_API_URI}/user/employee/update-employee/${userId}`,
         {
@@ -142,6 +140,8 @@ const InfoForm = ({ isVisible, onClose, userInfo }) => {
       open={isVisible}
       title="Chỉnh sửa thông tin"
       onCancel={onClose}
+      // appear position of Modal
+      style={{ top: '20px', right: 'unset', bottom: 'unset' }}
       footer={[
         <Button key="cancel" onClick={onClose}>
           Hủy
@@ -217,7 +217,7 @@ const SaleInfoCard = () => {
         `${process.env.REACT_APP_API_URI}/user/employee/get-details/${userId}`
       );
       const data = await response.json();
-      console.log("Dữ liệu từ API:", data);
+      // console.log("Dữ liệu từ API:", data);
       SetUserInfo(data.data);
       setLoading(false);
     } catch (error) {

@@ -156,8 +156,8 @@ const OrderTable = () => {
 
       const data = await response.json();
 
-      if (!data) {
-        throw new Error("Dữ liệu đơn hàng không hợp lệ");
+      if (!data.data) {
+        throw new Error("Không tìm thấy đơn hàng");
       }
 
       setOrders(data.data);
@@ -259,11 +259,11 @@ const OrderTable = () => {
   };
 
   const columns = [
-    // {
-    //   title: "ID",
-    //   dataIndex: "_id", // ID người dùng
-    //   key: "_id",
-    // },
+    {
+      title: "ID",
+      dataIndex: "orderId", 
+      key: "orderId",
+    },
     {
       title: "Sản phẩm",
       dataIndex: "orderDetail",
@@ -296,11 +296,11 @@ const OrderTable = () => {
       dataIndex: "deliveryMethod",
       key: "deliveryMethod",
     },
-    {
-      title: "Chi phí vận chuyển",
-      dataIndex: "deliveryFee",
-      key: "deliveryFee",
-    },
+    // {
+    //   title: "Chi phí vận chuyển",
+    //   dataIndex: "deliveryFee",
+    //   key: "deliveryFee",
+    // },
     {
       title: "Ngày đặt hàng",
       dataIndex: "orderDate",
