@@ -275,12 +275,12 @@ const OrderTable = () => {
           {orderDetails.map((detail) => (
             <ProductDetails key={detail._id}>
               <div>
-                <img src={detail.productQuantity.product.urlImage} height="50px" />
+                <img src={detail.productQuantity?.product?.urlImage} height="50px" />
               </div>
 
               <div style={{left: 0, marginTop: 5}}>
                 <Tag key={detail._id}>
-                  {detail.productQuantity.product.name} x{detail.quantity}
+                  {detail.productQuantity?.product?.name} x{detail.quantity}
                 </Tag>
               </div>
             </ProductDetails>

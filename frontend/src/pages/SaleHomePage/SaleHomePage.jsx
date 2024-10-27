@@ -131,6 +131,7 @@ const SaleHomePage = () => {
                 </BarChart>
               </Card>
             </Col>
+
             <Col span={24}>
               <Card title="Thống kê doanh thu">
                 <Select
@@ -159,38 +160,6 @@ const SaleHomePage = () => {
                 </BarChart>
               </Card>
             </Col>
-            {/* <Col span={24}>
-              <Card title="Thống kê sản phẩm theo màu">
-                <BarChart
-                  width={600}
-                  height={300}
-                  data={sampleProductCountByColor}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="color" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="count" fill="#ffc658" />
-                </BarChart>
-              </Card>
-            </Col> */}
-            {/* <Col span={24}>
-              <Card title="Thống kê sản phẩm bán chạy">
-                <BarChart
-                  width={600}
-                  height={300}
-                  data={sampleBestSellingProducts}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="sold" fill="#ff7300" />
-                </BarChart>
-              </Card>
-            </Col> */}
           </Row>
         </ContentContainer>
       </MainContainer>
