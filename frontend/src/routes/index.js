@@ -68,25 +68,29 @@ export const routes = [
     path: "/sale",
     page: SaleHomePage,
     requiresAuth: true,
-    isSale: true
+    requiresSales: true,
+    requiresStatus: true,
   },
   {
     path: "/sale/home",
     page: SaleHomePage,
     requiresAuth: true,
-    isSale: true
+    requiresSales: true,
+    requiresStatus: true,
   },
   {
     path: "/sale/order-management",
     page: OrderPage,
     requiresAuth: true,
-    isSale: true
+    requiresSales: true,
+    requiresStatus: true,
   },
   {
     path: "/sale/personal-information",
     page: SalePersonalPage,
     requiresAuth: true,
-    isSale: true
+    requiresSales: true,
+    requiresStatus: true,
   },
   {
     path: "*",

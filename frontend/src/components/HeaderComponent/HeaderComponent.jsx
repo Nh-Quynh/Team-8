@@ -4,7 +4,7 @@ import * as UserService from "../../services/UserService";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { logoutAdmin } from "../../redux/slices/authSlice";
+import { logoutSale } from "../../redux/slices/authSlice";
 import { Col, Dropdown, Menu, message } from "antd"; // Nhập Spin cho chỉ báo đang tải
 import {
   CaretDownOutlined,
@@ -31,7 +31,7 @@ const HeaderComponent = () => {
         message.success("Đăng xuất thành công!");
         // localStorage.removeItem("accessToken");
         // localStorage.removeItem("refreshToken");
-        dispatch(logoutAdmin());
+        dispatch(logoutSale());
         navigate("/sign-in");
       } else {
         message.error("Có lỗi xảy ra khi đăng xuất!");

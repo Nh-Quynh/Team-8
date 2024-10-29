@@ -36,6 +36,8 @@ function App() {
                     <ProtectedRoute
                       page={Page}
                       requiresAuth={route.requiresAuth}
+                      requiresSales={route.requiresSales}
+                      requiresStatus={route.requiresStatus}
                     />
                   ) : (
                     <Page />

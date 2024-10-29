@@ -134,26 +134,26 @@ const cancelOrder = (orderId) => {
 
       if (order === null) {
         resolve({
-          status: "OK",
+          status: "ERROR",
           message: "The order is not existed",
         });
       }
       const orderStatus = order.status.name;
 
       // if the order was canceled, show message the order is ready canceled
-      if (orderStatus == "bi huy") {
+      if (orderStatus == "Bị hủy") {
         resolve({
-          status: "OK",
+          status: "ERROR",
           message: "The order was already cancelled",
           data: order,
         });
       }
       // if the order is being prepared, set the order's status to canceled
       else if (
-        orderStatus == "dang chuan bi" ||
-        orderStatus == "dang cho duyet"
+        orderStatus == "Đang chuẩn bị" ||
+        orderStatus == "Đang chờ duyệt"
       ) {
-        const canceledStatus = await Status.findOne({ name: "bi huy" });
+        const canceledStatus = await Status.findOne({ name: "Bị hủy" });
         const canceledOrder = await Order.findByIdAndUpdate(
           orderId,
           { status: new ObjId(canceledStatus._id) },

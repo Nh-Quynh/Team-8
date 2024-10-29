@@ -17,8 +17,9 @@ import {
   message,
 } from "antd";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
+import {getUser} from "../../redux/slices/authSlice"
 
 const { Option } = Select;
 
@@ -88,6 +89,7 @@ const formatDate = (isoDate) => {
 
 // Form chỉnh sửa thông tin
 const InfoForm = ({ isVisible, onClose, userInfo }) => {
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
   const [showPassword, setShowPassword] = useState(false); // Khai báo biến showPassword
   const initialValues = {
@@ -119,6 +121,7 @@ const InfoForm = ({ isVisible, onClose, userInfo }) => {
       );
 
       const data = await response.json();
+      dispatch(getUser(data));
       //   console.log(data)
 
       if (data.status === "OK") {
@@ -209,16 +212,26 @@ const SaleInfoCard = () => {
   const userId = useSelector((state) => state.auth.user?._id);
   const [userInfo, SetUserInfo] = useState();
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+
 
   // get employee information
   const fetchUser = async () => {
     try {
+      const accessToken = localStorage.getItem("accessToken");
       const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/user/employee/get-details/${userId}`
+        `${process.env.REACT_APP_API_URI}/user/employee/get-details/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            token: `Bearer ${accessToken}`,
+          },
+        }
       );
       const data = await response.json();
-      // console.log("Dữ liệu từ API:", data);
       SetUserInfo(data.data);
+      dispatch(getUser(data.data));
       setLoading(false);
     } catch (error) {
       console.error("Lỗi khi lấy người dùng:", error);
@@ -228,7 +241,21 @@ const SaleInfoCard = () => {
   };
 
   useEffect(() => {
-    fetchUser();
+    const handlePageReload = () => {
+      fetchUser();
+    };
+    handlePageReload(); // Run on initial load
+
+    const interval = setInterval(() => {
+      fetchUser(); // Set interval to refresh data
+    }, 1000); // Refresh every 10 seconds (adjust as needed)
+
+    window.addEventListener("focus", handlePageReload); // Trigger fetch on page focus
+
+    return () => {
+      clearInterval(interval); // Clear interval on unmount
+      window.removeEventListener("focus", handlePageReload); // Clean up event listener
+    };
   }, [userId]);
 
   const handleModalClose = () => {

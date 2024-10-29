@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { loginAdmin } from "../../redux/slices/authSlice"; // Cập nhật đường dẫn tùy thuộc vào cấu trúc dự án của bạn
+import { loginSale } from "../../redux/slices/authSlice"; // Cập nhật đường dẫn tùy thuộc vào cấu trúc dự án của bạn
 import { Form, Input, Button, Typography, message } from "antd";
 import styled, { createGlobalStyle } from "styled-components";
 import { useMutation } from "@tanstack/react-query";
@@ -37,7 +37,7 @@ const LoginPage = () => {
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
           localStorage.setItem("user", JSON.stringify(data.user)); // Lưu user vào localStorage
-          dispatch(loginAdmin(data.user)); // Gửi thông tin user vào Redux
+          dispatch(loginSale(data.user)); // Gửi thông tin user vào Redux
           form.resetFields(); // Reset lại form
           // Điều hướng tới trang admin
           if (data.user.role === "admin") {

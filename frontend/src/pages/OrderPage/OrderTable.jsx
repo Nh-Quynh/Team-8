@@ -239,7 +239,7 @@ const OrderTable = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Không thể cập nhật vai trò người dùng");
+        throw new Error("Không thể cập nhật trạng thái đơn hàng");
       }
 
       // Cập nhật lại danh sách người dùng sau khi thay đổi vai trò

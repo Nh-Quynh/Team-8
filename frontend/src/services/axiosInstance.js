@@ -68,6 +68,6 @@ instance.interceptors.response.use(
 );
 
 // Thiết lập tự động làm mới token mỗi 30 giây
-setInterval(refreshAccessToken, 30 * 1000); // 15 giây
+setInterval(refreshAccessToken, 1 * 1000); // 15 giây
 
 export default instance;
