@@ -81,7 +81,37 @@ const createDiscount = async (newDiscount) => {
     return { status: "ERR", message: e.message || "Internal server error" };
   }
 };
+const getDiscountByProductId = async (productId) => {
+  try {
+    const currentDate = new Date(); // Lấy ngày hiện tại
 
+    // Tìm tất cả các giảm giá mà sản phẩm nằm trong danh sách sản phẩm
+    const discounts = await Discount.find({
+      products: productId,
+      startDate: { $lte: currentDate }, // Ngày bắt đầu <= ngày hiện tại
+      endDate: { $gte: currentDate }, // Ngày kết thúc >= ngày hiện tại
+    });
+
+    if (discounts.length === 0) {
+      return {
+        status: "ERR",
+        message: "No discounts found for this product",
+      };
+    }
+
+    return {
+      status: "OK",
+      message: "Discounts found",
+      data: discounts,
+    };
+  } catch (error) {
+    return {
+      status: "ERR",
+      message: "Error fetching discounts",
+      error: error.message,
+    };
+  }
+};
 const getAllDiscount = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -220,4 +250,5 @@ module.exports = {
   getDiscount,
   updateDiscount,
   deleteDiscount,
+  getDiscountByProductId,
 };

@@ -293,7 +293,36 @@ const getAll = async (req, res) => {
     });
   }
 };
+const productCountByCategory = async (req, res) => {
+  try {
+    const response = await ProductService.productCountByCategory();
 
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+
+const getQuantityById = async (req, res) => {
+  try {
+    const quantityId = req.params.quantityId;
+    // const quantity = req.body.quantity;
+    if (!quantityId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The quantity is required",
+      });
+    }
+    const response = await ProductService.getQuantityById(quantityId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 module.exports = {
   createProduct,
   updateProduct,
@@ -311,4 +340,6 @@ module.exports = {
   getColorById,
   getAllColor,
   createQuantity,
+  productCountByCategory,
+  getQuantityById,
 };

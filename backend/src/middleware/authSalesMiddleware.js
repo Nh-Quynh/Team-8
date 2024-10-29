@@ -31,5 +31,4 @@ const authSalesMiddleware = (req, res, next) => {
     }
   });
 };
-
 module.exports = authSalesMiddleware;
