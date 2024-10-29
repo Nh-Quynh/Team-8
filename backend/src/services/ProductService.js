@@ -604,15 +604,16 @@ const addProductToCart = (userId, quantityId, quantityToAdd) => {
 
       // Kiểm tra số lượng tồn kho
       const quantityInStock = await Quantity.findById(quantityId);
+      console.log(quantityInStock);
       if (!quantityInStock || quantityInStock.quantity <= 0) {
         return resolve({
           status: "ERR",
           message: "The quantity is not defined or out of stock",
         });
       }
-
       // Tìm hoặc tạo giỏ hàng cho khách hàng
       let cart = await Cart.findOne({ customer: userId });
+      let message = "Product added to cart successfully";
       if (!cart) {
         cart = new Cart({
           customer: userId,
@@ -630,15 +631,24 @@ const addProductToCart = (userId, quantityId, quantityToAdd) => {
         );
 
         if (itemIndex > -1) {
-          // Tính số lượng tối đa có thể thêm
+          // Nếu sản phẩm đã tồn tại, cập nhật số lượng
           const currentQuantity = cart.items[itemIndex].quantity;
           const maxQuantityToAdd = Math.min(
             quantityToAdd,
             quantityInStock.quantity - currentQuantity
           );
-          cart.items[itemIndex].quantity += maxQuantityToAdd;
+
+          if (maxQuantityToAdd > 0) {
+            cart.items[itemIndex].quantity += maxQuantityToAdd;
+            if (cart.items[itemIndex].quantity === quantityInStock.quantity) {
+              message = "Product quantity has reached the stock limit";
+            }
+          } else {
+            cart.items[itemIndex].quantity = quantityInStock.quantity;
+            message = "Requested quantity exceeds stock limit";
+          }
         } else {
-          // Thêm mới sản phẩm vào giỏ hàng với số lượng giới hạn
+          // Thêm mới sản phẩm vào giỏ hàng
           const limitedQuantityToAdd = Math.min(
             quantityToAdd,
             quantityInStock.quantity
@@ -647,14 +657,16 @@ const addProductToCart = (userId, quantityId, quantityToAdd) => {
             quantityId: quantityId,
             quantity: limitedQuantityToAdd,
           });
+          if (limitedQuantityToAdd === quantityInStock.quantity) {
+            message = "Product quantity has reached the stock limit";
+          }
         }
       }
 
       await cart.save();
-
       resolve({
         status: "OK",
-        message: "Product added to cart successfully",
+        message: message,
         data: cart,
       });
     } catch (e) {

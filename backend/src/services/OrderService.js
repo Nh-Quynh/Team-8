@@ -89,11 +89,11 @@ const createOrder = (userId, newOrder) => {
         await quantityValid.save();
 
         // Xóa item khỏi giỏ hàng
-        await Cart.updateOne(
-          { userId: userId },
+        const cartObj = await Cart.updateOne(
+          { customer: userId },
           { $pull: { items: { _id: item._id } } }
         );
-
+        console.log(cartObj);
         // Tính toán giảm giá
         if (discounts.status === "OK") {
           for (const discount of discounts.data) {

@@ -372,6 +372,7 @@ const addProductToCart = async (req, res) => {
   try {
     const userId = req.params.id;
     const { quantityId, quantity } = req.body;
+    // console.log(req.body);
     if (
       !userId ||
       !quantityId ||
@@ -389,6 +390,7 @@ const addProductToCart = async (req, res) => {
       quantityId,
       quantity
     );
+    // console.log("response", response);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
