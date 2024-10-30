@@ -11,6 +11,7 @@ import {
   Tooltip,
   CartesianGrid,
   Legend,
+  Label,
 } from "recharts";
 import { current } from "@reduxjs/toolkit";
 const {Option} = Select;
@@ -118,7 +119,7 @@ const SaleHomePage = () => {
             <Col span={24}>
               <Card title="Thống kê đơn hàng theo trạng thái">
                 <BarChart
-                  width={600}
+                  width={800}
                   height={300}
                   data={orderCountByStatus}
                 >
@@ -127,7 +128,10 @@ const SaleHomePage = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="count" fill="#82ca9d" />
+                  <Bar 
+                    dataKey="count" 
+                    fill="#82ca9d"
+                  />
                 </BarChart>
               </Card>
             </Col>

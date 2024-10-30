@@ -9,6 +9,8 @@ router.get("/get-orders-history", orderController.getOrdersHistory);
 router.get("/get-details/:orderId", orderController.getOrderDetails);
 router.put("/cancel-order/:orderId", orderController.cancelOrder);
 router.get('/fill-order/:statusId', orderController.fillOrderByStatus);
+router.get("/get-order-count-by-status", orderController.getOrdersCountByStatus);
+router.get("/get-monthly-revenue/:year", orderController.getMonthlyRevenue);
 // only sale employees can update order status
 router.put(
   "/update-status/:orderId",
