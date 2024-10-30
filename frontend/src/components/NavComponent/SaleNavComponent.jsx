@@ -29,6 +29,12 @@ const items = [
     link: "/sale/order-management", // Liên kết cho mục Home
   },
   {
+    key: "news_management",
+    label: "Quản lý tin tức",
+    icon: <SolutionOutlined />,
+    link: "/sale/news-management"
+  },
+  {
     key: "personal_information", // Thêm khóa cho mục Home
     label: "Quản lý thông tin cá nhân", // Nhãn cho mục Home
     icon: <SettingOutlined />, // Nhập DashboardOutlined từ Ant Design
@@ -68,7 +74,7 @@ const SaleNavComponent = () => {
       <Menu
         onClick={onClick}
         style={{
-          width: 235,
+          width: 300,
           height: "100vh", // Chiều cao cố định
           overflow: "auto", // Cuộn nếu cần
         }}
@@ -86,7 +92,7 @@ const SaleNavComponent = () => {
 
 const NavContainer = styled.div`
   height: 100vh; /* Chiếm toàn bộ chiều cao màn hình */
-  width: 235px; /* Chiều rộng của nav */
+  width: 300px; /* Chiều rộng của nav */
   background-color: #f7f7f7; /* Màu nền của nav */
   position: fixed; /* Cố định nav bên trái màn hình */
   top: 0; /* Gắn nó ở trên cùng */

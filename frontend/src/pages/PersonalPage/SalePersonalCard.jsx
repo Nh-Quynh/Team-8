@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   PlusOutlined,
   CameraOutlined,
@@ -101,40 +102,117 @@ const InfoForm = ({ isVisible, onClose, userInfo }) => {
     password: "",
     image: userInfo?.image || "",
   };
+  const [fileList, setFileList] = useState([]);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+
+  // useEffect(() => {
+  //   form.setFieldsValue(initialValues); // Cập nhật giá trị ban đầu khi userInfo thay đổi
+  // }, [initialValues, form]);
 
   useEffect(() => {
-    form.setFieldsValue(initialValues); // Cập nhật giá trị ban đầu khi userInfo thay đổi
-  }, [initialValues, form]);
+    form.setFieldsValue(initialValues);
+
+    if (isVisible && isFirstLoad) {
+      if (userInfo?.image) {
+        setFileList([
+          {
+            uid: "-1",
+            name: "current-image",
+            status: "done",
+            url: userInfo.image,
+          },
+        ]);
+      }
+      setIsFirstLoad(false);
+    }
+  }, [initialValues, form, isVisible, isFirstLoad, userInfo])
 
   const userId = useSelector((state) => state.auth.user?._id);
   const handleFormSubmit = async (values) => {
+    // try {
+    //   const response = await fetch(
+    //     `${process.env.REACT_APP_API_URI}/user/employee/update-employee/${userId}`,
+    //     {
+    //       method: "PUT",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify(values),
+    //     }
+    //   );
+
+    //   const data = await response.json();
+    //   dispatch(getUser(data));
+    //   //   console.log(data)
+
+    //   if (data.status === "OK") {
+    //     // Cập nhật thành công, có thể thực hiện thêm hành động như thông báo cho người dùng
+    //     onClose(); // Đóng modal
+    //     message.success("Cập nhật thành công!");
+    //   } else {
+    //     // Xử lý lỗi
+    //     message.error("Cập nhật không thành công!");
+    //   }
+    // } catch (error) {
+    //   console.error("Lỗi cập nhật thông tin:", error);
+    //   message.error("Đã xảy ra lỗi, vui lòng thử lại!");
+    // }
+
     try {
+      const accessToken = localStorage.getItem("accessToken");
+      const updatedValues = {
+        ...values,
+        birthday: values.birthday ? values.birthday.format("YYYY-MM-DD") : null,
+        image: fileList.length > 0 ? fileList[0].url : null,
+      };
+
       const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/user/employee/update-employee/${userId}`,
+        `${process.env.REACT_APP_API_URI}/user/employee/update-employee/${userInfo._id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            token: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify(values),
+          body: JSON.stringify(updatedValues),
         }
       );
-
       const data = await response.json();
-      dispatch(getUser(data));
-      //   console.log(data)
-
       if (data.status === "OK") {
-        // Cập nhật thành công, có thể thực hiện thêm hành động như thông báo cho người dùng
-        onClose(); // Đóng modal
+        onClose();
         message.success("Cập nhật thành công!");
       } else {
-        // Xử lý lỗi
         message.error("Cập nhật không thành công!");
       }
     } catch (error) {
       console.error("Lỗi cập nhật thông tin:", error);
       message.error("Đã xảy ra lỗi, vui lòng thử lại!");
+    }
+  };
+
+  const handleUploadChange = async (info) => {
+    const file = info.fileList[0];
+    if (file && file.originFileObj) {
+      const formData = new FormData();
+      formData.append("file", file.originFileObj);
+      formData.append("upload_preset", "Your_cloud_image");
+
+      try {
+        const response = await axios.post(
+          `https://api.cloudinary.com/v1_1/drzjvhpwi/image/upload`,
+          formData
+        );
+
+        const urlImage = response.data.secure_url;
+        setFileList([
+          { uid: file.uid, name: file.name, status: "done", url: urlImage },
+        ]);
+        message.success(`Đã tải lên thành công: ${file.name}`);
+      } catch (error) {
+        message.error(`Lỗi khi tải hình ảnh lên Cloudinary: ${file.name}`);
+      }
+    } else {
+      setFileList(info.fileList);
     }
   };
 
@@ -196,9 +274,24 @@ const InfoForm = ({ isVisible, onClose, userInfo }) => {
             }
           />
         </Form.Item>
-        <Form.Item label="Ảnh" name="image">
-          <Upload accept="image/png, image/jpeg" showUploadList={false}>
-            <Button icon={<PlusOutlined />}>Tải lên ảnh</Button>
+        <Form.Item label="Hình ảnh">
+          <Upload
+            name="image"
+            listType="picture-card"
+            fileList={fileList}
+            onChange={handleUploadChange}
+            beforeUpload={() => false}
+            onRemove={() => {
+              setFileList([]);
+              message.success("Đã xóa ảnh thành công.");
+            }}
+          >
+            {fileList.length === 0 ? (
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Tải ảnh lên</div>
+              </div>
+            ) : null}
           </Upload>
         </Form.Item>
       </Form>

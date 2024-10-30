@@ -329,6 +329,76 @@ const cancelOrder = (orderId) => {
   });
 };
 
+// const cancelOrder = (orderId) => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       mongoose.set("debug", true);
+
+//       // Tìm đơn hàng theo ID và lấy chi tiết sản phẩm
+//       const order = await Order.findById(orderId)
+//         .populate("status")
+//         .populate("orderDetail");
+
+//       if (order === null) {
+//         return resolve({
+//           status: "OK",
+//           message: "The order does not exist",
+//         });
+//       }
+
+//       const orderStatus = order.status.name;
+
+//       // Kiểm tra trạng thái đơn hàng
+//       if (orderStatus === "Bị hủy") {
+//         return resolve({
+//           status: "OK",
+//           message: "The order was already cancelled",
+//           data: order,
+//         });
+//       } else if (
+//         orderStatus === "Đang chuẩn bị" ||
+//         orderStatus === "Đang chờ duyệt"
+//       ) {
+//         // Cập nhật trạng thái đơn hàng sang "Bị hủy"
+//         const canceledStatus = await Status.findOne({ name: "Bị hủy" });
+
+//         // Duyệt qua các mặt hàng trong OrderDetail để hoàn lại số lượng kho
+//         for (const detail of order.orderDetail) {
+//           const quantityObj = await Quantity.findById(detail.productQuantity);
+//           if (quantityObj) {
+//             quantityObj.quantity += detail.quantity; // Cộng lại số lượng về kho
+//             await quantityObj.save();
+//           }
+//         }
+
+//         const canceledOrder = await Order.findByIdAndUpdate(
+//           orderId,
+//           { status: canceledStatus._id },
+//           { new: true }
+//         );
+
+//         resolve({
+//           status: "OK",
+//           message: "The order was cancelled and stock quantities updated",
+//           data: canceledOrder,
+//         });
+//       } else {
+//         resolve({
+//           status: "OK",
+//           message: "You cannot cancel this order",
+//           reason_orderStatus: orderStatus,
+//         });
+//       }
+//     } catch (e) {
+//       console.error("Error canceling order:", e);
+//       reject({
+//         status: "ERR",
+//         message: e.message || "An error occurred while canceling the order.",
+//       });
+//     }
+//   });
+// };
+
 const fillOrderByStatus = (statusId) => {
   return new Promise(async (resolve, reject) => {
     try {

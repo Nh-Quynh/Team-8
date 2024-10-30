@@ -4,18 +4,11 @@ import {
   Button,
   Space,
   message,
-  Popconfirm,
   Input,
-  Form,
-  Modal,
   Select, // Nhập Select từ antd
   Tag,
 } from "antd";
 import {
-  LockOutlined,
-  UnlockOutlined,
-  DeleteOutlined,
-  PlusOutlined,
   SearchOutlined,
   UndoOutlined,
 } from "@ant-design/icons"; // Import icon
@@ -28,15 +21,21 @@ const OrderTable = () => {
   const [orderStatus, setOrderStatus] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchId, setSearchId] = useState(""); // Trạng thái tìm kiếm
-  const [isFormVisible, setIsFormVisible] = useState(false); // Trạng thái hiển thị form
   const [selectedValue, setSelectedValue] = useState("Lọc theo trạng thái");
-  const [form] = Form.useForm(); // Tạo form từ Ant Design
 
   const fetchOrders = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+
     try {
       setLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/order/get-all-orders`
+        `${process.env.REACT_APP_API_URI}/order/get-all-orders`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            token: `Bearer ${accessToken}`,
+          }
+        }
       );
 
       if (!response.ok) {
@@ -66,9 +65,17 @@ const OrderTable = () => {
     fetchOrders();
 
     const fetchOrderStatus = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+
       try {
         const allStatus = await fetch(
           `${process.env.REACT_APP_API_URI}/status/get-all-status`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              token: `Bearer ${accessToken}`,
+            },
+          }
         );
 
         if (!allStatus.ok) {
@@ -82,8 +89,6 @@ const OrderTable = () => {
           throw new Error("Dữ liệu trạng thái đơn hàng không hợp lệ");
         }
 
-        console.log('DATA', data.data)
-
         // Cập nhật dữ liệu trạng thái đơn hàng
         setOrderStatus(data.data);
       }
@@ -96,62 +101,19 @@ const OrderTable = () => {
     fetchOrderStatus();
   }, []);
 
-  const handleDelete = async (record) => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/user/employee/delete-employee/${record._id}`,
-        { method: "DELETE" }
-      );
-
-      if (!response.ok) {
-        throw new Error("Không thể xóa người dùng");
-      }
-
-      // Cập nhật lại danh sách người dùng
-      //   setOrders(users.filter((user) => user._id !== record._id));
-      message.success("Đã xóa người dùng thành công");
-    } catch (error) {
-      message.error(error.message);
-      console.error(error);
-    }
-  };
-
-  const handleRoleChange = async (value, record) => {
+  const searchOrderById = async () => {
     const accessToken = localStorage.getItem("accessToken");
+
     try {
+      setLoading(true);
       const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/user/employee/update-role/${record._id}`,
+        `${process.env.REACT_APP_API_URI}/order/get-details/${searchId}`,
         {
-          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             token: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ role: value }),
         }
-      );
-
-      if (!response.ok) {
-        throw new Error("Không thể cập nhật vai trò người dùng");
-      }
-
-      // Cập nhật lại danh sách người dùng sau khi thay đổi vai trò
-      //   const updatedUsers = users.map((user) =>
-      //     user._id === record._id ? { ...user, role: value } : user
-      //   );
-      //   setUsers(updatedUsers);
-      //   message.success("Đã cập nhật vai trò người dùng thành công");
-    } catch (error) {
-      message.error(error.message);
-      console.error(error);
-    }
-  };
-
-  const searchOrderById = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/order/get-details/${searchId}`
       )
 
       if (!response.ok) {
@@ -186,10 +148,18 @@ const OrderTable = () => {
   };
 
   const handleFillOrders = async (value) => {
+    const accessToken = localStorage.getItem("accessToken");
+
     try {
       setLoading(true)
       const response = await fetch(
-        `${process.env.REACT_APP_API_URI}/order/fill-order/${value}`
+        `${process.env.REACT_APP_API_URI}/order/fill-order/${value}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            token: `Bearer ${accessToken}`,
+          },
+        }
       )
 
       if (!response.ok) {
@@ -223,8 +193,6 @@ const OrderTable = () => {
 
   const handleStatusChange = async (value, record) => {
     const accessToken = localStorage.getItem("accessToken");
-    console.log('STATUS VALUE', value)
-    console.log('ORDER ID', record._id)
 
     try {
       setLoading(true);
@@ -357,7 +325,7 @@ const OrderTable = () => {
           value={searchId}
           placeholder="Tìm kiếm đơn hàng"
           onChange={(e) => setSearchId(e.target.value)}
-          style={{ width: 200, marginRight: 16 }}
+          style={{ width: 200, marginRight: -10 }}
         />
 
         <Button
@@ -365,9 +333,7 @@ const OrderTable = () => {
           onClick={handleSearch}
           icon={<SearchOutlined />} 
           style={{ marginRight: 16 }}
-        >
-          Tìm kiếm
-        </Button>
+        />
 
         <Select value={selectedValue} style={{ width: 190 }} onChange={handleFillOrders}>
           {
