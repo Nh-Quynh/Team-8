@@ -323,6 +323,7 @@ const getQuantityById = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   createProduct,
   updateProduct,

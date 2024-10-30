@@ -33,27 +33,40 @@ const getStatusDefault = () => {
     }
   });
 };
-
+const getStatus = (statusId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const status = await Status.findOne({
+        _id: statusId,
+      });
+      resolve({
+        status: "OK",
+        message: "Get status by status id",
+        data: status,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 const getAllStatus = () => {
   return new Promise(async (resolve, reject) => {
-      try {
-          const allStatus = await Status.find();
+    try {
+      const allStatus = await Status.find();
 
-          resolve({
-              status: "OK",
-              message: "Get all status",
-              data: allStatus
-          });
-      }
-      catch (e)
-      {
-          reject(e);
-      }
+      resolve({
+        status: "OK",
+        message: "Get all status",
+        data: allStatus,
+      });
+    } catch (e) {
+      reject(e);
+    }
   });
-}
-
+};
 module.exports = {
   createStatus,
   getStatusDefault,
+  getStatus,
   getAllStatus,
 };

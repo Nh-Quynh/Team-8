@@ -1,4 +1,5 @@
 const OrderService = require("../services/OrderService");
+const mongoose = require("mongoose");
 
 const createOrder = async (req, res) => {
   try {
@@ -114,47 +115,41 @@ const getOrderbyStatus = async (req, res) => {
 };
 const fillOrderByStatus = async (req, res) => {
   try {
-      const statusId = req.params.statusId;
+    const statusId = req.params.statusId;
 
-      const response = await OrderService.fillOrderByStatus(statusId);
-      return res.status(200).json(response)
+    const response = await OrderService.fillOrderByStatus(statusId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
   }
-  catch (e)
-  {
-      return res.status(404).json({
-          message: e
-      })
-  }
-}
+};
 
 const getOrdersCountByStatus = async (req, res) => {
   try {
-      const response = await OrderService.getOrdersCountByStatus();
-      return res.status(200).json(response)
+    const response = await OrderService.getOrdersCountByStatus();
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
   }
-  catch (e)
-  {
-      return res.status(404).json({
-          message: e
-      })
-  }
-}
+};
 
 const getMonthlyRevenue = async (req, res) => {
   try {
-      // convert parameter type to number
-      const year = parseInt(req.params.year);
+    // convert parameter type to number
+    const year = parseInt(req.params.year);
 
-      const response = await OrderService.getMonthlyRevenue(year);
-      return res.status(200).json(response)
+    const response = await OrderService.getMonthlyRevenue(year);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
   }
-  catch (e)
-  {
-      return res.status(404).json({
-          message: e
-      })
-  }
-}
+};
 
 module.exports = {
   getAllOrders,
