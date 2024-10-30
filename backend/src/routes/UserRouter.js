@@ -46,7 +46,7 @@ router.delete(
 );
 router.get(
   "/employee/get-all",
-  authAdminMiddleware,
+  // authAdminMiddleware,
   userController.getAllEmployee
 );
 router.get(

@@ -326,7 +326,8 @@ const updateRoleEmployee = async (req, res) => {
         message: "The userId is required",
       });
     }
-    // console.log("userId", userId);
+    console.log("userId", userId);
+    console.log("userId", role);
     const response = await UserService.updateRoleEmployee(userId, role);
     return res.status(200).json(response);
   } catch (e) {

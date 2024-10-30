@@ -6,7 +6,7 @@ const authAdminMiddleware = require("../middleware/authAdminMiddleware");
 router.post("/create-discount", discountController.createDiscount);
 router.get(
   "/get-all-discounts",
-  authAdminMiddleware,
+  // authAdminMiddleware,
   discountController.getAllDiscount
 );
 router.get("/get-discount/:discountId", discountController.getDiscount);

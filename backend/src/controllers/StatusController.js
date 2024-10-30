@@ -1,5 +1,5 @@
-const { create } = require('../models/Status.Model')
-const StatusService = require('../services/StatusService')
+const { create } = require("../models/Status.Model");
+const StatusService = require("../services/StatusService");
 
 const createStatus = async (req, res) => {
     try {

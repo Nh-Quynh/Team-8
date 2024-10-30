@@ -372,22 +372,29 @@ const updateStatusEmployee = (id) => {
 const updateRoleEmployee = (id, role) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const updateRoleEmployee = await Employee.findById(id);
-      if (updateRoleEmployee) {
-        updateRoleEmployee.role = role;
-        await updateRoleEmployee.save();
-        console.log("updateRoleEmployee", updateRoleEmployee);
+      const checkEmployee = await Employee.findOne({
+        _id: id, //MongodB sử dụng ID dạng _id
+      });
+      console.log("checkEmployee ", checkEmployee);
+      if (checkEmployee == null) {
         resolve({
           status: "OK",
-          message: "SUCCESS",
-          data: updateRoleEmployee,
-        });
-      } else {
-        resolve({
-          status: "ERR",
-          message: "Failed to update role ",
+          message: "The user is not defined",
         });
       }
+      // const status = !checkEmployee.status;
+
+      const updateRoleEmployee = await Employee.findByIdAndUpdate(
+        id,
+        { $set: { role: role } }, // Dữ liệu cập nhật
+        { new: true } // Tùy chọn trả về tài liệu đã cập nhật
+      );
+      console.log("updateStatusEmployee", updateRoleEmployee);
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: updateRoleEmployee,
+      });
     } catch (e) {
       reject(e);
     }
@@ -455,7 +462,6 @@ const getEmployeeById = (id) => {
     }
   });
 };
-
 module.exports = {
   createCustomer,
   loginCustomer,

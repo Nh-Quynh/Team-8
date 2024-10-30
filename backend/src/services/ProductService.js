@@ -26,12 +26,12 @@ const createProduct = async (newProduct) => {
   try {
     // Kiểm tra xem sản phẩm có tồn tại không
     let product = await Product.findOne({ productId });
-    let categoryObj = await Category.findOne({ categoryId });
+    let categoryObj = await Category.findOne({ _id: categoryId });
     let colorObj = await Color.findOne({
       name: { $regex: new RegExp(`^${color}$`, "i") },
     });
     // let colorObj = await Color.findOne({ name: color });
-    let materialObj = await Material.findOne({ materialId });
+    let materialObj = await Material.findOne({ _id: materialId });
     // Nếu category , material chưa tồn tại báo lỗi
     if (!categoryObj) {
       return {
@@ -120,7 +120,7 @@ const updateProduct = (id, data) => {
       const checkProduct = await Product.findOne({
         _id: id,
       });
-      console.log("checkProduct ", checkProduct);
+      // console.log("checkProduct ", checkProduct);
       if (checkProduct == null) {
         resolve({
           status: "ERR",
@@ -129,8 +129,16 @@ const updateProduct = (id, data) => {
       }
       const updateProduct = await Product.findByIdAndUpdate(id, data, {
         new: true,
+        runValidators: true, // Kiểm tra tính hợp lệ nếu có
       });
-      console.log("updateProduct", updateProduct);
+      // Nếu không có sản phẩm nào được cập nhật
+      if (!updateProduct) {
+        return reject({
+          status: "ERR",
+          message: "Update failed, no changes were made.",
+        });
+      }
+      // console.log("updateProduct", updateProduct);
       resolve({
         status: "OK",
         message: "Update product success",
@@ -640,7 +648,8 @@ const addProductToCart = (userId, quantityId, quantityToAdd) => {
 
           if (maxQuantityToAdd > 0) {
             cart.items[itemIndex].quantity += maxQuantityToAdd;
-            if (cart.items[itemIndex].quantity === quantityInStock.quantity) {
+            if (cart.items[itemIndex].quantity > quantityInStock.quantity) {
+              cart.items[itemIndex].quantity = quantityInStock.quantity;
               message = "Product quantity has reached the stock limit";
             }
           } else {

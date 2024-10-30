@@ -98,7 +98,20 @@ const cancelOrder = async (req, res) => {
     });
   }
 };
+const getOrderbyStatus = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.params.userId); // Khởi tạo ObjectId cho userId
+    const statusName = req.params.statusName; // Lấy tên trạng thái từ params
 
+    const response = await OrderService.getOrderbyStatus(userId, statusName); // Gọi service với status name
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching orders by status:", error);
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 const fillOrderByStatus = async (req, res) => {
   try {
       const statusId = req.params.statusId;
@@ -153,4 +166,5 @@ module.exports = {
   getOrdersCountByStatus,
   getMonthlyRevenue,
   createOrder,
+  getOrderbyStatus,
 };

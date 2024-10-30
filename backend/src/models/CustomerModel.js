@@ -30,7 +30,6 @@ const customerSchema = new mongoose.Schema({
   },
   gender: {
     type: Boolean,
-    default: true,
     required: true,
   },
   birthday: {
@@ -41,12 +40,6 @@ const customerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  bankAccount: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "BankAccount",
-    },
-  ],
 });
 const Customer = mongoose.model("Customer", customerSchema);
 module.exports = Customer;

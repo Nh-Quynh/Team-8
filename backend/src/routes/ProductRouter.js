@@ -5,7 +5,7 @@ const authAdminMiddleware = require("../middleware/authAdminMiddleware");
 
 //Tao loai - Tao chat lieu - Tao
 router.post("/create-product", productController.createProduct);
-router.get(
+router.put(
   "/update-product/:productId",
   //   authAdminMiddleware,
   productController.updateProduct
@@ -32,7 +32,7 @@ router.get("/get-quantity/:quantityId", productController.getQuantityById);
 router.post("/create-quantity", productController.createQuantity);
 router.delete(
   "/delete-quantity/:id",
-  //   authAdminMiddleware,
+  authAdminMiddleware,
   productController.deleteQuantity
 );
 router.get("/color/:colorId", productController.getColorById);
