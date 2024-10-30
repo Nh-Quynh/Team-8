@@ -18,6 +18,7 @@ const createCategory = async (req, res) => {
     });
   }
 };
+
 //Cap nhat
 const updateCategory = async (req, res) => {
   try {
@@ -55,6 +56,7 @@ const deleteCategory = async (req, res) => {
     });
   }
 };
+
 //Lay danh sach loai san pham
 const getAllCategories = async (req, res) => {
   try {
@@ -66,6 +68,7 @@ const getAllCategories = async (req, res) => {
     });
   }
 };
+
 const getCategoryById = async (req, res) => {
   try {
     const categoryId = req.params.id;

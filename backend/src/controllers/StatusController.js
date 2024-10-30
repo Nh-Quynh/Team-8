@@ -24,8 +24,19 @@ const getStatus = async (req, res) => {
     });
   }
 };
+const getAllStatus = async (req, res) => {
+  try {
+    const response = await StatusService.getAllStatus();
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 
 module.exports = {
   createStatus,
   getStatus,
+  getAllStatus,
 };

@@ -18,6 +18,7 @@ const createStatus = (name) => {
     }
   });
 };
+
 const getStatusDefault = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -38,7 +39,6 @@ const getStatus = (statusId) => {
       const status = await Status.findOne({
         _id: statusId,
       });
-
       resolve({
         status: "OK",
         message: "Get status by status id",
@@ -49,8 +49,24 @@ const getStatus = (statusId) => {
     }
   });
 };
+const getAllStatus = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const allStatus = await Status.find();
+
+      resolve({
+        status: "OK",
+        message: "Get all status",
+        data: allStatus,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 module.exports = {
   createStatus,
   getStatusDefault,
   getStatus,
+  getAllStatus,
 };
