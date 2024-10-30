@@ -29,6 +29,14 @@ router.get(
 router.post("/log-out", userController.logoutUser);
 router.post("/add-to-cart/:id", userController.addProductToCart);
 router.get("/view-cart/:id", userController.viewCart);
+router.put(
+  "/item-increment/:userId/:itemId",
+  userController.incrementItemProduct
+);
+router.put(
+  "/item-decrement/:userId/:itemId",
+  userController.incrementItemProduct
+);
 //Xem chi tiet nguoi dung = email
 
 // ============== Employee ==============

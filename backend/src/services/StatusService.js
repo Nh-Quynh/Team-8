@@ -32,8 +32,25 @@ const getStatusDefault = () => {
     }
   });
 };
+const getStatus = (statusId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const status = await Status.findOne({
+        _id: statusId,
+      });
 
+      resolve({
+        status: "OK",
+        message: "Get status by status id",
+        data: status,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 module.exports = {
   createStatus,
   getStatusDefault,
+  getStatus,
 };

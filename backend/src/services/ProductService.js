@@ -732,6 +732,110 @@ const getQuantityById = (id) => {
     }
   });
 };
+const incrementItemProduct = (userId, itemId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const customerObj = await Customer.findById(userId);
+      if (!customerObj) {
+        return resolve({
+          status: "ERR",
+          message: "The user is not defined",
+        });
+      }
+      let cart = await Cart.findOne({ customer: userId });
+      if (!cart) {
+        return resolve({
+          status: "ERR",
+          message: "The cart is not defined or out of stock",
+        });
+      }
+      // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng
+      const itemIndex = cart.items.findIndex(
+        (item) => String(item._id) === String(itemId)
+      );
+
+      if (itemIndex > -1) {
+        const quantityObj = await Quantity.findOne({
+          _id: cart.items[itemIndex].quantityId,
+        });
+        console.log(itemIndex);
+        console.log("quantityId", cart.items[itemIndex].quantityId);
+        const maxAddToCart = quantityObj.quantity;
+        const addQuantity = cart.items[itemIndex].quantity + 1;
+        if (addQuantity <= maxAddToCart) {
+          cart.items[itemIndex].quantity = addQuantity;
+        } else {
+          return resolve({
+            status: "ERR",
+            message: "Product quantity has reached the stock limit",
+          });
+        }
+      } else {
+        return resolve({
+          status: "ERR",
+          message: "The item is not defined or out of stock",
+        });
+      }
+      await cart.save();
+      resolve({
+        status: "OK",
+        message: "The product was incremented of item",
+        data: cart,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+const decrementItemProduct = (userId, itemId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const customerObj = await Customer.findById(userId);
+      if (!customerObj) {
+        return resolve({
+          status: "ERR",
+          message: "The user is not defined",
+        });
+      }
+      let cart = await Cart.findOne({ customer: userId });
+      if (!cart) {
+        return resolve({
+          status: "ERR",
+          message: "The cart is not defined or out of stock",
+        });
+      }
+      // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng
+      const itemIndex = cart.items.findIndex(
+        (item) => String(item._id) === String(itemId)
+      );
+
+      if (itemIndex > -1) {
+        const itemDecrement = cart.items[itemIndex].quantity - 1;
+        if (itemDecrement >= 0) {
+          cart.items[itemIndex].quantity = itemDecrement;
+        } else {
+          cart.updateOne(
+            { customer: userId },
+            { $pull: { items: { _id: itemId } } }
+          );
+        }
+      } else {
+        return resolve({
+          status: "ERR",
+          message: "The item is not defined or out of stock",
+        });
+      }
+      await cart.save();
+      resolve({
+        status: "OK",
+        message: "The product was decremented of item",
+        data: cart,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 
 module.exports = {
   createProduct,
@@ -754,4 +858,6 @@ module.exports = {
   addProductToCart,
   getQuantityById,
   viewCart,
+  incrementItemProduct,
+  decrementItemProduct,
 };
