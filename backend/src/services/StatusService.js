@@ -18,6 +18,7 @@ const createStatus = (name) => {
     }
   });
 };
+
 const getStatusDefault = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -33,7 +34,26 @@ const getStatusDefault = () => {
   });
 };
 
+const getAllStatus = () => {
+  return new Promise(async (resolve, reject) => {
+      try {
+          const allStatus = await Status.find();
+
+          resolve({
+              status: "OK",
+              message: "Get all status",
+              data: allStatus
+          });
+      }
+      catch (e)
+      {
+          reject(e);
+      }
+  });
+}
+
 module.exports = {
   createStatus,
   getStatusDefault,
+  getAllStatus,
 };

@@ -65,11 +65,11 @@ const getOrderDetails = async (req, res) => {
   }
 };
 
-// update order status with order id from request parameters and status id form request query
+// update order status with order id from request parameters and status id form request body
 const updateOrderStatus = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    const statusId = req.query.statusId;
+    const statusId = req.body.statusId;
 
     const response = await OrderService.updateOrderStatus(orderId, statusId);
     return res.status(200).json(response);
@@ -112,12 +112,59 @@ const getOrderbyStatus = async (req, res) => {
     });
   }
 };
+const fillOrderByStatus = async (req, res) => {
+  try {
+      const statusId = req.params.statusId;
+
+      const response = await OrderService.fillOrderByStatus(statusId);
+      return res.status(200).json(response)
+  }
+  catch (e)
+  {
+      return res.status(404).json({
+          message: e
+      })
+  }
+}
+
+const getOrdersCountByStatus = async (req, res) => {
+  try {
+      const response = await OrderService.getOrdersCountByStatus();
+      return res.status(200).json(response)
+  }
+  catch (e)
+  {
+      return res.status(404).json({
+          message: e
+      })
+  }
+}
+
+const getMonthlyRevenue = async (req, res) => {
+  try {
+      // convert parameter type to number
+      const year = parseInt(req.params.year);
+
+      const response = await OrderService.getMonthlyRevenue(year);
+      return res.status(200).json(response)
+  }
+  catch (e)
+  {
+      return res.status(404).json({
+          message: e
+      })
+  }
+}
+
 module.exports = {
   getAllOrders,
   getOrdersHistory,
   getOrderDetails,
   updateOrderStatus,
   cancelOrder,
+  fillOrderByStatus,
+  getOrdersCountByStatus,
+  getMonthlyRevenue,
   createOrder,
   getOrderbyStatus,
 };

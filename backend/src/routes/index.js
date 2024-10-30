@@ -6,6 +6,7 @@ const MaterialRouter = require("./MaterialRouter");
 const StatusRouter = require('./StatusRouter')
 const DiscountRouter = require('./DiscountRouter');
 const RatingRouter = require('./RatingRouter');
+const NewsRouter = require("./NewsRouter")
 
 const routes = (app) => {
   app.use("/api/user", UserRouter);
@@ -15,7 +16,8 @@ const routes = (app) => {
   app.use("/api/material", MaterialRouter);
   app.use('/api/status', StatusRouter);
   app.use('/api/rating', RatingRouter);
-  app.use('/api/discount', DiscountRouter)
+  app.use('/api/discount', DiscountRouter);
+  app.use("/api/news", NewsRouter);
 };
 
 module.exports = routes;

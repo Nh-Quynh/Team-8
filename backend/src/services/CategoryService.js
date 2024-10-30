@@ -96,6 +96,7 @@ const getAllCategories = () => {
     }
   });
 };
+
 const getCategoryById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {

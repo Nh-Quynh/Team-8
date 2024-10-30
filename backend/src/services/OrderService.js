@@ -157,12 +157,25 @@ const getAllOrders = () => {
     try {
       // mongoose.set('debug', true)
 
-      const orders = await Order.find();
+      const orders = await Order.find()
+        .populate("paymentMethod", "name")
+        .populate("status", "name")
+        // .populate("orderDetail")
+        .populate({
+          path: "orderDetail",
+          populate: {
+            path: "productQuantity",
+            populate: {
+              path: "product",
+              select: "name price urlImage",
+            },
+          },
+        });
 
       resolve({
         status: "OK",
         message: "Get all orders",
-        orders: orders,
+        data: orders,
       });
     } catch (e) {
       reject(e);
@@ -185,12 +198,22 @@ const getOrdersHistory = (limit, page) => {
         .limit(limit)
         .skip(page * limit)
         .populate("paymentMethod")
-        .populate("status");
+        .populate("status")
+        .populate({
+          path: "orderDetail",
+          populate: {
+            path: "productQuantity",
+            populate: {
+              path: "product",
+              select: "name price urlImage",
+            },
+          },
+        });
 
       resolve({
         status: "OK",
         message: "Orders history",
-        order: orders,
+        data: orders,
         totalOrder: totalOrder,
         totalPage: Math.ceil(totalOrder / limit),
       });
@@ -205,14 +228,25 @@ const getOrderDetails = (orderId) => {
     try {
       mongoose.set("debug", true);
 
-      const order = await Order.findById(orderId)
+      const order = await Order.findOne({ orderID: orderId })
         .populate("paymentMethod")
-        .populate("status");
+        .populate("status")
+        .populate("orderDetail")
+        .populate({
+          path: "orderDetail",
+          populate: {
+            path: "productQuantity",
+            populate: {
+              path: "product",
+              select: "name price urlImage",
+            },
+          },
+        });
 
       resolve({
         status: "OK",
         message: "Order details",
-        detail: order,
+        data: order,
       });
     } catch (e) {
       reject(e);
@@ -297,7 +331,7 @@ const cancelOrder = (orderId) => {
         resolve({
           status: "OK",
           message: "You cannot cancel this order",
-          reason_orderStatus: orderStatus,
+          reason_orderStatus: order.status.name,
         });
       }
     } catch (e) {
@@ -310,11 +344,117 @@ const cancelOrder = (orderId) => {
   });
 };
 
+const fillOrderByStatus = (statusId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const orders = await Order.find({ status: statusId })
+        .populate("paymentMethod")
+        .populate("status")
+        .populate("orderDetail")
+        .populate({
+          path: "orderDetail",
+          populate: {
+            path: "productQuantity",
+            populate: {
+              path: "product",
+              select: "name price urlImage",
+            },
+          },
+        });
+
+      resolve({
+        status: "OK",
+        message: "Order details",
+        data: orders,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const getOrdersCountByStatus = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // use aggregate to group orders by status and count the quantity of each status.
+      const orders = await Order.aggregate([
+        {
+          $lookup: {
+            // join with collection 'status'
+            from: "status",
+            // current collection attribute
+            localField: "status",
+            // foreign collection (status) attribute
+            foreignField: "_id",
+            // array contains data that combine with 'status' collection
+            as: "statusDetails",
+          },
+        },
+        {
+          // split each element in the array into separate documents.
+          $unwind: "$statusDetails",
+        },
+        {
+          // group documents and count the number
+          $group: {
+            _id: "$statusDetails.name",
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      resolve({ status: "OK", data: orders });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const getMonthlyRevenue = (year) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const revenue = await Order.aggregate([
+        {
+          $match: {
+            orderDate: {
+              $gte: new Date(`${year}-01-01T00:00:00.000Z`),
+              $lt: new Date(`${year + 1}-01-01T00:00:00.000Z`),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: { $month: "$orderDate" },
+            totalRevenue: { $sum: "$totalPrice" },
+          },
+        },
+        {
+          $sort: { _id: 1 },
+        },
+        {
+          $project: {
+            _id: 0,
+            month: "$_id",
+            price: "$totalRevenue",
+          },
+        },
+      ]);
+
+      resolve({ status: "OK", data: revenue });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
+  createOrder,
   getAllOrders,
   getOrdersHistory,
   getOrderDetails,
   updateOrderStatus,
   cancelOrder,
-  createOrder,
+  fillOrderByStatus,
+  getOrdersCountByStatus,
+  getMonthlyRevenue,
 };
