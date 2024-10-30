@@ -372,22 +372,29 @@ const updateStatusEmployee = (id) => {
 const updateRoleEmployee = (id, role) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const updateRoleEmployee = await Employee.findById(id);
-      if (updateRoleEmployee) {
-        updateRoleEmployee.role = role;
-        await updateRoleEmployee.save();
-        console.log("updateRoleEmployee", updateRoleEmployee);
+      const checkEmployee = await Employee.findOne({
+        _id: id, //MongodB sử dụng ID dạng _id
+      });
+      console.log("checkEmployee ", checkEmployee);
+      if (checkEmployee == null) {
         resolve({
           status: "OK",
-          message: "SUCCESS",
-          data: updateRoleEmployee,
-        });
-      } else {
-        resolve({
-          status: "ERR",
-          message: "Failed to update role ",
+          message: "The user is not defined",
         });
       }
+      // const status = !checkEmployee.status;
+
+      const updateRoleEmployee = await Employee.findByIdAndUpdate(
+        id,
+        { $set: { role: role } }, // Dữ liệu cập nhật
+        { new: true } // Tùy chọn trả về tài liệu đã cập nhật
+      );
+      console.log("updateStatusEmployee", updateRoleEmployee);
+      resolve({
+        status: "OK",
+        message: "SUCCESS",
+        data: updateRoleEmployee,
+      });
     } catch (e) {
       reject(e);
     }
@@ -455,7 +462,56 @@ const getEmployeeById = (id) => {
     }
   });
 };
+const updateitemCart = async (id, data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Tìm giỏ hàng của khách hàng
+      const cart = await Cart.findOne({ customer: id });
+      if (!cart) {
+        return resolve({
+          status: "ERR",
+          message: "Giỏ hàng không tồn tại.",
+        });
+      }
 
+      // Kiểm tra số lượng tồn kho cho sản phẩm cần cập nhật
+      const quantityInStock = await Quantity.findById(data.quantityId);
+      if (!quantityInStock || quantityInStock.quantity <= 0) {
+        return resolve({
+          status: "ERR",
+          message: "Số lượng tồn kho không được xác định hoặc hết hàng.",
+        });
+      }
+
+      // Cập nhật số lượng cho item trong giỏ hàng
+      const updatedItems = cart.items.map((item) => {
+        if (item.quantityId.toString() === data.quantityId) {
+          // Kiểm tra xem số lượng cập nhật có vượt quá số lượng tồn kho không
+          if (data.quantity > quantityInStock.quantity) {
+            return resolve({
+              status: "ERR",
+              message: "Số lượng cập nhật vượt quá số lượng tồn kho.",
+            });
+          }
+          item.quantity = data.quantity; // Cập nhật số lượng
+        }
+        return item;
+      });
+
+      // Lưu giỏ hàng với items đã cập nhật
+      cart.items = updatedItems;
+      const updatedCart = await cart.save();
+
+      resolve({
+        status: "Ok",
+        message: "SUCCESS",
+        data: updatedCart,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 module.exports = {
   createCustomer,
   loginCustomer,
@@ -472,4 +528,5 @@ module.exports = {
   getEmployeeById,
   updateStatusEmployee,
   updateRoleEmployee,
+  updateitemCart,
 };

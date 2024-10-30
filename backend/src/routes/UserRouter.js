@@ -29,6 +29,7 @@ router.get(
 router.post("/log-out", userController.logoutUser);
 router.post("/add-to-cart/:id", userController.addProductToCart);
 router.get("/view-cart/:id", userController.viewCart);
+router.put("/update-itemcart/:id", userController.updateitemCart);
 //Xem chi tiet nguoi dung = email
 
 // ============== Employee ==============
@@ -46,7 +47,7 @@ router.delete(
 );
 router.get(
   "/employee/get-all",
-  authAdminMiddleware,
+  // authAdminMiddleware,
   userController.getAllEmployee
 );
 router.get(

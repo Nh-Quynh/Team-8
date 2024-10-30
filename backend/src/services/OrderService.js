@@ -125,6 +125,7 @@ const createOrder = (userId, newOrder) => {
 
       const orderNew = await Order.create({
         orderID: generateOrderID(),
+        userId: checkUser._id,
         orderDetail: orderDetails,
         totalPrice: totalPrice,
         deliveryMethod,
@@ -151,7 +152,6 @@ const createOrder = (userId, newOrder) => {
     }
   });
 };
-
 const getAllOrders = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -245,54 +245,91 @@ const cancelOrder = (orderId) => {
     try {
       mongoose.set("debug", true);
 
-      const order = await Order.findById(orderId).populate("status");
+      // Tìm đơn hàng theo ID và lấy chi tiết sản phẩm
+      const order = await Order.findById(orderId)
+        .populate("status")
+        .populate("orderDetail");
 
       if (order === null) {
-        resolve({
+        return resolve({
           status: "OK",
-          message: "The order is not existed",
+          message: "The order does not exist",
         });
       }
+
       const orderStatus = order.status.name;
 
-      // if the order was canceled, show message the order is ready canceled
-      if (orderStatus == "bi huy") {
-        resolve({
+      // Kiểm tra trạng thái đơn hàng
+      if (orderStatus === "Bị hủy") {
+        return resolve({
           status: "OK",
           message: "The order was already cancelled",
           data: order,
         });
-      }
-      // if the order is being prepared, set the order's status to canceled
-      else if (
-        orderStatus == "dang chuan bi" ||
-        orderStatus == "dang cho duyet"
+      } else if (
+        orderStatus === "Đang chuẩn bị" ||
+        orderStatus === "Đang chờ duyệt"
       ) {
-        const canceledStatus = await Status.findOne({ name: "bi huy" });
+        // Cập nhật trạng thái đơn hàng sang "Bị hủy"
+        const canceledStatus = await Status.findOne({ name: "Bị hủy" });
+
+        // Duyệt qua các mặt hàng trong OrderDetail để hoàn lại số lượng kho
+        for (const detail of order.orderDetail) {
+          const quantityObj = await Quantity.findById(detail.productQuantity);
+          if (quantityObj) {
+            quantityObj.quantity += detail.quantity; // Cộng lại số lượng về kho
+            await quantityObj.save();
+          }
+        }
+
         const canceledOrder = await Order.findByIdAndUpdate(
           orderId,
-          { status: new ObjId(canceledStatus._id) },
+          { status: canceledStatus._id },
           { new: true }
         );
 
         resolve({
           status: "OK",
-          message: "The order was cancelled",
+          message: "The order was cancelled and stock quantities updated",
           data: canceledOrder,
         });
-      }
-      // if the order in another status, show message the order cannot canceled
-      else {
+      } else {
         resolve({
           status: "OK",
           message: "You cannot cancel this order",
-          reason_orderStatus: order.status.name,
+          reason_orderStatus: orderStatus,
         });
       }
     } catch (e) {
-      reject(e);
+      console.error("Error canceling order:", e);
+      reject({
+        status: "ERR",
+        message: e.message || "An error occurred while canceling the order.",
+      });
     }
   });
+};
+const getOrderbyStatus = async (userId, statusName) => {
+  // Tìm trạng thái bằng tên
+  const status = await Status.findOne({ name: statusName });
+
+  // Kiểm tra xem trạng thái có tồn tại không
+  if (!status) {
+    throw new Error("Status not found");
+  }
+
+  const orders = await Order.find({
+    userId: userId, // Sử dụng ObjectId đã khởi tạo
+    status: status._id, // Sử dụng ObjectId của trạng thái đã tìm
+  })
+    .populate("paymentMethod")
+    .populate("status"); // Populate các trường liên quan nếu cần
+
+  return {
+    status: "OK",
+    message: "Orders by status",
+    orders: orders,
+  };
 };
 
 module.exports = {
@@ -302,4 +339,5 @@ module.exports = {
   updateOrderStatus,
   cancelOrder,
   createOrder,
+  getOrderbyStatus,
 };

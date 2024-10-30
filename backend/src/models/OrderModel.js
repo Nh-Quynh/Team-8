@@ -10,6 +10,11 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "Customer",
+    required: true,
+  },
   orderDetail: [
     {
       type: Schema.Types.ObjectId,

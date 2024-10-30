@@ -326,7 +326,8 @@ const updateRoleEmployee = async (req, res) => {
         message: "The userId is required",
       });
     }
-    // console.log("userId", userId);
+    console.log("userId", userId);
+    console.log("userId", role);
     const response = await UserService.updateRoleEmployee(userId, role);
     return res.status(200).json(response);
   } catch (e) {
@@ -415,6 +416,26 @@ const viewCart = async (req, res) => {
     });
   }
 };
+const updateitemCart = async (req, res) => {
+  try {
+    const customerId = req.params.id; // ID của khách hàng
+    const data = req.body; // Chứa quantityId và quantity
+    if (!customerId) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "The customerId is required",
+      });
+    }
+
+    const response = await UserService.updateitemCart(customerId, data);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(500).json({
+      status: "ERR",
+      message: e.message,
+    });
+  }
+};
 // logoutEmployee
 module.exports = {
   createCustomer,
@@ -436,4 +457,5 @@ module.exports = {
   logoutUser,
   addProductToCart,
   viewCart,
+  updateitemCart,
 };
