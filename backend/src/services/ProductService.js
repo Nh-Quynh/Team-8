@@ -1,9 +1,12 @@
 const mongoose = require("mongoose");
 const Product = require("../models/ProductModel");
+const Customer = require("../models/CustomerModel");
 const Category = require("../models/CategoryModel");
 const Color = require("../models/ColorModel");
 const Quantity = require("../models/QuantityModel");
 const Material = require("../models/MaterialModel");
+const Cart = require("../models/CartModel");
+const ObjectId = mongoose.Types.ObjectId;
 
 const ObjId = require("mongoose").Types.ObjectId;
 //Tao san pham
@@ -186,7 +189,78 @@ const getProductById = (id) => {
     }
   });
 };
+const getAll = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const product = await Product.find();
+      if (!product) {
+        resolve({
+          status: "ERR",
+          message: "The product is not defined",
+        });
+      }
+      resolve({
+        status: "OK",
+        message: "Get all product SUCCESS",
+        data: product,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+const productCountByCategory = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Sử dụng aggregate để nhóm và đếm sản phẩm theo loại
+      const productsCount = await Product.aggregate([
+        {
+          $group: {
+            _id: "$category", // Nhóm theo categoryId
+            count: { $sum: 1 }, // Đếm số lượng sản phẩm trong mỗi nhóm
+          },
+        },
+        {
+          $lookup: {
+            from: "categories", // Tên bảng category trong cơ sở dữ liệu
+            localField: "_id",
+            foreignField: "_id",
+            as: "category", // Lưu thông tin loại vào trường category
+          },
+        },
+        {
+          $unwind: "$category", // Giải nén mảng category
+        },
+        {
+          $project: {
+            _id: 0,
+            categoryId: "$category._id", // Lấy categoryId
+            categoryName: "$category.name", // Lấy tên loại
+            count: 1, // Số lượng sản phẩm
+          },
+        },
+      ]);
 
+      if (!productsCount || productsCount.length === 0) {
+        resolve({
+          status: "ERR",
+          message: "No products found",
+        });
+      } else {
+        resolve({
+          status: "OK",
+          message: "Get product count by category SUCCESS",
+          data: productsCount,
+        });
+      }
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message || "An error occurred while fetching data",
+      });
+    }
+  });
+};
 const getAllProducts = (limit, page, sort) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -374,26 +448,69 @@ const getQuantity = (productId) => {
     }
   });
 };
-const updateQuantity = (color, product, quantity) => {
+const updateQuantity = (id, quantity) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const quantityProduct = await Quantity.findOne({
-        color: color,
-        product: product,
-      });
+      const quantityProduct = await Quantity.findById(id);
       // Kiểm tra xem bản ghi có tồn tại không
       if (!quantityProduct) {
         return resolve({
           status: "ERR",
-          message: "The product is not defined",
+          message: "The quantity product is not defined",
         });
       }
-      quantityProduct.quantity = quantity;
-      await quantityProduct.save();
+      const updatedProduct = await Quantity.findByIdAndUpdate(
+        id,
+        { quantity: quantity },
+        { new: true } // Tùy chọn này sẽ trả về bản ghi đã được cập nhật
+      );
+      // console.log(id, quantity + "Đã được gửi đi");
       resolve({
         status: "OK",
         message: "Quantity updated successfully",
-        data: quantityProduct,
+        data: updatedProduct,
+      });
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message, // Trả về lỗi nếu có
+      });
+    }
+  });
+};
+const createQuantity = (newQuantity) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { color, quantity, productId } = newQuantity;
+      // Kiểm tra tính hợp lệ của productId
+      let productObj = await Product.findOne({ _id: productId });
+      let colorObj = await Color.findOne({
+        name: { $regex: new RegExp(`^${color}$`, "i") },
+      });
+      if (!colorObj) colorObj = await Color.create({ name: color });
+
+      const quantityProduct = await Quantity.findOne({
+        color: colorObj._id,
+        product: productObj._id,
+      });
+      // Kiểm tra xem bản ghi có tồn tại không
+      if (quantityProduct) {
+        return resolve({
+          status: "ERR",
+          message: "The quantity is available",
+          quantityProduct,
+        });
+      }
+
+      const quantityObj = await Quantity.create({
+        product: productObj._id,
+        color: colorObj._id,
+        quantity,
+      });
+      resolve({
+        status: "OK",
+        message: "Create quantity successfully",
+        data: quantityObj,
       });
     } catch (e) {
       reject({
@@ -404,14 +521,11 @@ const updateQuantity = (color, product, quantity) => {
   });
 };
 
-const deleteQuantity = (color, product) => {
+const deleteQuantity = (quantityId) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Tìm và xóa bản ghi Quantity dựa trên colorId và productId
-      const result = await Quantity.findOneAndDelete({
-        color: color,
-        product: product,
-      });
+      const result = await Quantity.findByIdAndDelete(quantityId);
 
       // Kiểm tra xem bản ghi có tồn tại không
       if (!result) {
@@ -475,12 +589,149 @@ const getAllColor = () => {
     }
   });
 };
+
+const addProductToCart = (userId, quantityId, quantityToAdd) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Kiểm tra khách hàng
+      const customer = await Customer.findById(userId);
+      if (!customer) {
+        return resolve({
+          status: "ERR",
+          message: "The user is not defined",
+        });
+      }
+
+      // Kiểm tra số lượng tồn kho
+      const quantityInStock = await Quantity.findById(quantityId);
+      console.log(quantityInStock);
+      if (!quantityInStock || quantityInStock.quantity <= 0) {
+        return resolve({
+          status: "ERR",
+          message: "The quantity is not defined or out of stock",
+        });
+      }
+      // Tìm hoặc tạo giỏ hàng cho khách hàng
+      let cart = await Cart.findOne({ customer: userId });
+      let message = "Product added to cart successfully";
+      if (!cart) {
+        cart = new Cart({
+          customer: userId,
+          items: [
+            {
+              quantityId: quantityId,
+              quantity: Math.min(quantityToAdd, quantityInStock.quantity),
+            },
+          ],
+        });
+      } else {
+        // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng
+        const itemIndex = cart.items.findIndex(
+          (item) => String(item.quantityId) === String(quantityId)
+        );
+
+        if (itemIndex > -1) {
+          // Nếu sản phẩm đã tồn tại, cập nhật số lượng
+          const currentQuantity = cart.items[itemIndex].quantity;
+          const maxQuantityToAdd = Math.min(
+            quantityToAdd,
+            quantityInStock.quantity - currentQuantity
+          );
+
+          if (maxQuantityToAdd > 0) {
+            cart.items[itemIndex].quantity += maxQuantityToAdd;
+            if (cart.items[itemIndex].quantity === quantityInStock.quantity) {
+              message = "Product quantity has reached the stock limit";
+            }
+          } else {
+            cart.items[itemIndex].quantity = quantityInStock.quantity;
+            message = "Requested quantity exceeds stock limit";
+          }
+        } else {
+          // Thêm mới sản phẩm vào giỏ hàng
+          const limitedQuantityToAdd = Math.min(
+            quantityToAdd,
+            quantityInStock.quantity
+          );
+          cart.items.push({
+            quantityId: quantityId,
+            quantity: limitedQuantityToAdd,
+          });
+          if (limitedQuantityToAdd === quantityInStock.quantity) {
+            message = "Product quantity has reached the stock limit";
+          }
+        }
+      }
+
+      await cart.save();
+      resolve({
+        status: "OK",
+        message: message,
+        data: cart,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+const viewCart = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Tìm giỏ hàng của người dùng
+      const cart = await Cart.findOne({ customer: userId }).populate({
+        path: "items.quantity", // Lấy thông tin chi tiết của sản phẩm
+        select: "productName price", // Chọn trường cần thiết từ Quantity
+      });
+      if (!cart) {
+        resolve({
+          status: "ERR",
+          message: "The cart is not defined",
+        });
+      }
+      resolve({
+        status: "OK",
+        message: "Get cart SUCCESS",
+        data: cart,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+const getQuantityById = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const quantityProduct = await Quantity.findById(id);
+      // Kiểm tra xem bản ghi có tồn tại không
+      if (!quantityProduct) {
+        return resolve({
+          status: "ERR",
+          message: "The quantity product is not defined",
+        });
+      }
+      resolve({
+        status: "OK",
+        message: "Get quantity successfully",
+        data: quantityProduct,
+      });
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message, // Trả về lỗi nếu có
+      });
+    }
+  });
+};
+
 module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
   getProductById,
   getAllProducts,
+  getAll,
+  productCountByCategory,
   // fillByMaterial,
   // fillByCategory,
   fillProducts,
@@ -490,4 +741,8 @@ module.exports = {
   deleteQuantity,
   getColorById,
   getAllColor,
+  createQuantity,
+  addProductToCart,
+  getQuantityById,
+  viewCart,
 };

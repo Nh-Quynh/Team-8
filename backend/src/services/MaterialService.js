@@ -7,7 +7,7 @@ const createMaterial = async (newMaterial) => {
   try {
     if (checkMaterial) {
       return {
-        status: "OK",
+        status: "ERR",
         message: "Material available",
         checkMaterial,
       };

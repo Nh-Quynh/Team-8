@@ -81,7 +81,37 @@ const createDiscount = async (newDiscount) => {
     return { status: "ERR", message: e.message || "Internal server error" };
   }
 };
+const getDiscountByProductId = async (productId) => {
+  try {
+    const currentDate = new Date(); // Lấy ngày hiện tại
 
+    // Tìm tất cả các giảm giá mà sản phẩm nằm trong danh sách sản phẩm
+    const discounts = await Discount.find({
+      products: productId,
+      startDate: { $lte: currentDate }, // Ngày bắt đầu <= ngày hiện tại
+      endDate: { $gte: currentDate }, // Ngày kết thúc >= ngày hiện tại
+    });
+
+    if (discounts.length === 0) {
+      return {
+        status: "ERR",
+        message: "No discounts found for this product",
+      };
+    }
+
+    return {
+      status: "OK",
+      message: "Discounts found",
+      data: discounts,
+    };
+  } catch (error) {
+    return {
+      status: "ERR",
+      message: "Error fetching discounts",
+      error: error.message,
+    };
+  }
+};
 const getAllDiscount = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -102,7 +132,7 @@ const getDiscount = (discountId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const discount = await Discount.findOne({
-        discountId: discountId,
+        _id: discountId,
       }).populate("products");
 
       resolve({
@@ -119,7 +149,7 @@ const getDiscount = (discountId) => {
 const updateDiscount = async (discountId, updatedData) => {
   try {
     // Kiểm tra mã giảm giá có tồn tại hay không
-    const checkDiscount = await Discount.findOne({ discountId: discountId });
+    const checkDiscount = await Discount.findOne({ _id: discountId });
     if (!checkDiscount) {
       return {
         status: "ERR",
@@ -176,7 +206,7 @@ const updateDiscount = async (discountId, updatedData) => {
 
     // Cập nhật mã giảm giá với dữ liệu đã cập nhật
     const updatedDiscount = await Discount.findOneAndUpdate(
-      { discountId: discountId },
+      { _id: discountId },
       updatedData,
       { new: true }
     ).populate("products");
@@ -194,7 +224,7 @@ const updateDiscount = async (discountId, updatedData) => {
 const deleteDiscount = (discountId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkDiscount = await Discount.findOne({ discountId: discountId });
+      const checkDiscount = await Discount.findOne({ _id: discountId });
       // if no discount found, return an error
       if (!checkDiscount) {
         resolve({
@@ -202,7 +232,7 @@ const deleteDiscount = (discountId) => {
           message: "No discount found",
         });
       } else {
-        await Discount.findOneAndDelete({ discountId: discountId });
+        await Discount.findOneAndDelete({ _id: discountId });
         resolve({
           status: "OK",
           message: "The discount was delete",
@@ -220,4 +250,5 @@ module.exports = {
   getDiscount,
   updateDiscount,
   deleteDiscount,
+  getDiscountByProductId,
 };

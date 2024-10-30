@@ -1,4 +1,5 @@
 const UserService = require("../services/UserService");
+const ProductService = require("../services/ProductService");
 const JwtService = require("../services/jwtService");
 const validator = require("validator");
 
@@ -367,6 +368,53 @@ const logoutUser = async (req, res) => {
   }
 };
 
+const addProductToCart = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { quantityId, quantity } = req.body;
+    // console.log(req.body);
+    if (
+      !userId ||
+      !quantityId ||
+      typeof quantity !== "number" ||
+      quantity <= 0
+    ) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "Invalid input",
+      });
+    }
+    // console.log("userId", userId);
+    const response = await ProductService.addProductToCart(
+      userId,
+      quantityId,
+      quantity
+    );
+    // console.log("response", response);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
+const viewCart = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The productId is required",
+      });
+    }
+    const response = await ProductService.viewCart(userId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 // logoutEmployee
 module.exports = {
   createCustomer,
@@ -386,4 +434,6 @@ module.exports = {
   updateRoleEmployee,
   refreshToken,
   logoutUser,
+  addProductToCart,
+  viewCart,
 };

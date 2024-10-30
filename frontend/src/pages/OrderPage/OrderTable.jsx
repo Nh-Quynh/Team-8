@@ -82,6 +82,8 @@ const OrderTable = () => {
           throw new Error("Dữ liệu trạng thái đơn hàng không hợp lệ");
         }
 
+        console.log('DATA', data.data)
+
         // Cập nhật dữ liệu trạng thái đơn hàng
         setOrderStatus(data.data);
       }
@@ -221,10 +223,10 @@ const OrderTable = () => {
 
   const handleStatusChange = async (value, record) => {
     const accessToken = localStorage.getItem("accessToken");
-    console.log(accessToken)
+    console.log('STATUS VALUE', value)
+    console.log('ORDER ID', record._id)
 
     try {
-      console.log('VALUE', value)
       setLoading(true);
       const response = await fetch(
         `${process.env.REACT_APP_API_URI}/order/update-status/${record._id}`,
@@ -234,7 +236,7 @@ const OrderTable = () => {
             "Content-Type": "application/json",
             token: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ status: value }),
+          body: JSON.stringify({ statusId: value }),
         }
       );
 
@@ -242,7 +244,7 @@ const OrderTable = () => {
         throw new Error("Không thể cập nhật trạng thái đơn hàng");
       }
 
-      // Cập nhật lại danh sách người dùng sau khi thay đổi vai trò
+      // Cập nhật lại danh sách đơn hàng sau khi thay đổi trạng thái
       const updatedOrders = orders.map((order) =>
         order._id === record._id ? { ...order, status: value } : order
       );
@@ -263,8 +265,8 @@ const OrderTable = () => {
   const columns = [
     {
       title: "ID",
-      dataIndex: "orderId", 
-      key: "orderId",
+      dataIndex: "orderID", 
+      key: "orderID",
     },
     {
       title: "Sản phẩm",
@@ -327,7 +329,8 @@ const OrderTable = () => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      // display status's name
+      // render: (status) => status ? status?.name : "not found status",
+      // display status's name      
       render: (status, record) => (
         <Select
           value={status.name}

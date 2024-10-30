@@ -30,7 +30,22 @@ const createDiscount = async (req, res) => {
     });
   }
 };
-
+const getDiscountByProductId = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    if (!productId) {
+      return res.status(400).json({
+        status: "ERR",
+        message: "The productId is required",
+      });
+    }
+    res.status(200).json(response);
+  } catch (e) {
+    res.status(404).json({
+      message: e,
+    });
+  }
+};
 const getAllDiscount = async (req, res) => {
   try {
     const response = await DiscountService.getAllDiscount();
@@ -95,4 +110,5 @@ module.exports = {
   getDiscount,
   updateDiscount,
   deleteDiscount,
+  getDiscountByProductId,
 };

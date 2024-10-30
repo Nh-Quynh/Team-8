@@ -6,15 +6,17 @@ const authAdminMiddleware = (req, res, next) => {
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
     if (err) {
       return res.status(404).json({
-        message: "The authentication",
+        message: "The authentication 123",
         status: "ERROR",
       });
     }
-    const payload = user;
+    // console.log("user", user);
+    const { payload } = user;
+    console.log("user", user);
     if (
+      payload?.status == true &&
       payload?.type == "employee" &&
-      payload?.role == "admin" &&
-      payload?.status == true
+      payload?.role == "admin"
     ) {
       next();
     } else {

@@ -32,7 +32,7 @@ const updateCategory = async (categoryId, data) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkCategory = await Category.findOne({
-        categoryId: categoryId,
+        _id: categoryId,
       });
 
       if (checkCategory == null) {
@@ -42,7 +42,7 @@ const updateCategory = async (categoryId, data) => {
         });
       }
       const updateCategory = await Category.findOneAndUpdate(
-        { categoryId: categoryId },
+        { _id: categoryId },
         data,
         {
           new: true,
@@ -63,7 +63,7 @@ const deleteCategory = (categoryId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const checkCategory = await Category.findOne({
-        categoryId: categoryId, //MongodB sử dụng ID dạng _id
+        _id: categoryId, //MongodB sử dụng ID dạng _id
       });
       if (checkCategory == null) {
         resolve({
@@ -71,7 +71,7 @@ const deleteCategory = (categoryId) => {
           message: "The category is not defined",
         });
       }
-      await Category.findOneAndDelete({ categoryId: categoryId });
+      await Category.findOneAndDelete({ _id: categoryId });
       resolve({
         status: "OK",
         message: "Delete category SUCCESS",

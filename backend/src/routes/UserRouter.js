@@ -11,22 +11,24 @@ router.post("/sign-in", userController.loginCustomer);
 router.put("/update-customer/:id", userController.updateCustomer);
 router.put(
   "/update-status/:id",
-  // authAdminMiddleware,
+  authAdminMiddleware,
   userController.updateStatusCustomer
 );
 router.delete(
   "/delete-customer/:id",
-  // authAdminMiddleware, //tim hieu sau
+  authAdminMiddleware, //tim hieu sau
   userController.deleteCustomer
 );
 
 router.get("/get-all", userController.getAllCustomer);
 router.get(
   "/get-details/:id",
-  // authUserMiddleWare,
+  authUserMiddleWare,
   userController.getCustomerById
 );
 router.post("/log-out", userController.logoutUser);
+router.post("/add-to-cart/:id", userController.addProductToCart);
+router.get("/view-cart/:id", userController.viewCart);
 //Xem chi tiet nguoi dung = email
 
 // ============== Employee ==============
@@ -44,12 +46,12 @@ router.delete(
 );
 router.get(
   "/employee/get-all",
-  // authAdminMiddleware,
+  authAdminMiddleware,
   userController.getAllEmployee
 );
 router.get(
   "/employee/get-details/:id",
-  // authUserMiddleWare,
+  authUserMiddleWare,
   userController.getEmployeeById
 );
 router.put(
