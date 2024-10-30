@@ -12,20 +12,7 @@ const createStatus = async (req, res) => {
     });
   }
 };
-const getStatus = async (req, res) => {
-  try {
-    const statusId = req.params.statusId;
-    const response = await StatusService.getStatus(statusId);
-
-    res.status(200).json(response);
-  } catch (e) {
-    res.status(404).json({
-      message: e,
-    });
-  }
-};
 
 module.exports = {
   createStatus,
-  getStatus,
 };

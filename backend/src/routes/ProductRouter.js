@@ -12,7 +12,7 @@ router.put(
 );
 router.delete(
   "/delete-product/:productId",
-  authAdminMiddleware,
+  // authAdminMiddleware,
   productController.deleteProduct
 );
 router.get("/get-product/:productId", productController.getProductById);

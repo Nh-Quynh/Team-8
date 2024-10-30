@@ -8,10 +8,10 @@ router.get("/get-all-orders", orderController.getAllOrders);
 router.get("/get-orders-history", orderController.getOrdersHistory);
 router.get("/get-details/:orderId", orderController.getOrderDetails);
 router.put("/cancel-order/:orderId", orderController.cancelOrder);
-router.get(
-  "/user/:userId/status/:statusName",
-  orderController.getOrderbyStatus
-);
+// router.get(
+//   "/user/:userId/status/:statusName",
+//   orderController.getOrderbyStatus
+// );
 
 // only sale employees can update order status
 router.put(

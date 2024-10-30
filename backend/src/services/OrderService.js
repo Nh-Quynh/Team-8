@@ -309,28 +309,6 @@ const cancelOrder = (orderId) => {
     }
   });
 };
-const getOrderbyStatus = async (userId, statusName) => {
-  // Tìm trạng thái bằng tên
-  const status = await Status.findOne({ name: statusName });
-
-  // Kiểm tra xem trạng thái có tồn tại không
-  if (!status) {
-    throw new Error("Status not found");
-  }
-
-  const orders = await Order.find({
-    userId: userId, // Sử dụng ObjectId đã khởi tạo
-    status: status._id, // Sử dụng ObjectId của trạng thái đã tìm
-  })
-    .populate("paymentMethod")
-    .populate("status"); // Populate các trường liên quan nếu cần
-
-  return {
-    status: "OK",
-    message: "Orders by status",
-    orders: orders,
-  };
-};
 
 module.exports = {
   getAllOrders,
@@ -339,5 +317,4 @@ module.exports = {
   updateOrderStatus,
   cancelOrder,
   createOrder,
-  getOrderbyStatus,
 };
