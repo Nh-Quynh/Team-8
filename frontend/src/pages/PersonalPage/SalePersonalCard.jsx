@@ -105,10 +105,6 @@ const InfoForm = ({ isVisible, onClose, userInfo }) => {
   const [fileList, setFileList] = useState([]);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
-  // useEffect(() => {
-  //   form.setFieldsValue(initialValues); // Cập nhật giá trị ban đầu khi userInfo thay đổi
-  // }, [initialValues, form]);
-
   useEffect(() => {
     form.setFieldsValue(initialValues);
 
@@ -129,35 +125,6 @@ const InfoForm = ({ isVisible, onClose, userInfo }) => {
 
   const userId = useSelector((state) => state.auth.user?._id);
   const handleFormSubmit = async (values) => {
-    // try {
-    //   const response = await fetch(
-    //     `${process.env.REACT_APP_API_URI}/user/employee/update-employee/${userId}`,
-    //     {
-    //       method: "PUT",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify(values),
-    //     }
-    //   );
-
-    //   const data = await response.json();
-    //   dispatch(getUser(data));
-    //   //   console.log(data)
-
-    //   if (data.status === "OK") {
-    //     // Cập nhật thành công, có thể thực hiện thêm hành động như thông báo cho người dùng
-    //     onClose(); // Đóng modal
-    //     message.success("Cập nhật thành công!");
-    //   } else {
-    //     // Xử lý lỗi
-    //     message.error("Cập nhật không thành công!");
-    //   }
-    // } catch (error) {
-    //   console.error("Lỗi cập nhật thông tin:", error);
-    //   message.error("Đã xảy ra lỗi, vui lòng thử lại!");
-    // }
-
     try {
       const accessToken = localStorage.getItem("accessToken");
       const updatedValues = {

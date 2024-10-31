@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
     Table,
     Button,
@@ -14,6 +15,7 @@ import {
     SearchOutlined,
     PlusOutlined,
     DeleteOutlined,
+    CameraOutlined,
     EditOutlined,
 } from "@ant-design/icons"; // Import icon
 
@@ -21,14 +23,14 @@ const NewsTable = () => {
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchId, setSearchId] = useState(""); // Trạng thái tìm kiếm
-    const [isFormVisible, setIsFormVisible] = useState(false); // Trạng thái hiển thị form
+    const [isFormOpen, setIsFormOpen] = useState(false); // Trạng thái hiển thị form
     const [form] = Form.useForm(); // Tạo form từ Ant Design
     const [fileList, setFileList] = useState([]);
-
+    const [selectedNews, setSelectedNews] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
 
     const fetchNews = async () => {
         const accessToken = localStorage.getItem("accessToken");
-
         try {
             setLoading(true);
             const response = await fetch(
@@ -66,12 +68,21 @@ const NewsTable = () => {
 
     useEffect(() => {
         fetchNews();
-    }, []);
+        if (selectedNews) {
+            form.setFieldsValue(selectedNews);
+            setImagePreview(selectedNews.urlImage);
+            setFileList([{ uid: "-1", url: selectedNews.urlImage }]);
+        }
+    }, [selectedNews, form]);
 
-    const handleFormSubmit = async (values) => {
+    const handleCreateNews = async (values) => {
         const accessToken = localStorage.getItem("accessToken");
-
         try {
+            const updatedValues = {
+                ...values,
+                urlImage: fileList.length > 0 ? fileList[0].url : null,
+            };
+
             const response = await fetch(
                 `${process.env.REACT_APP_API_URI}/news/create-news`,
                 {
@@ -80,7 +91,7 @@ const NewsTable = () => {
                         "Content-Type": "application/json",
                         token: `Bearer ${accessToken}`,
                     },
-                    body: JSON.stringify(values),
+                    body: JSON.stringify(updatedValues),
                 }
             );
 
@@ -91,25 +102,102 @@ const NewsTable = () => {
             const newNews = await response.json();
             setNews([...news, newNews]); // Thêm người dùng mới vào danh sách
             message.success("Đã thêm tin tức mới thành công");
-            setIsFormVisible(false); // Đóng form sau khi tạo người dùng
+
+            setFileList([]);
+            setImagePreview(null);
+            setIsFormOpen(false); // Đóng form sau khi tạo người dùng
+            fetchNews();
         } catch (error) {
             message.error(error.message);
             console.error(error);
         }
     };
 
-    const handleUploadChange = async () => {
+    const handleUpdateNews = async (values) => {
+        const accessToken = localStorage.getItem("accessToken");
+        try {
+            const updatedValues = {
+                ...values,
+                urlImage: fileList.length > 0 ? fileList[0].url : null,
+            };
 
+            const response = await fetch(
+                `${process.env.REACT_APP_API_URI}/news/update-news/${values.newsId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        token: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify(updatedValues),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Không thể cập nhật tin tức");
+            }
+
+            const newNews = await response.json();
+            setNews([...news, newNews]); // Thêm người dùng mới vào danh sách
+            message.success("Đã cập nhật tin tức thành công");
+
+            setFileList([]);
+            setImagePreview(null);
+            setIsFormOpen(false); // Đóng form sau khi tạo người dùng
+            fetchNews();
+        } catch (error) {
+            message.error(error.message);
+            console.error(error);
+        }
     }
 
-    const handleNewNews = () => {
-        setIsFormVisible(true); // Hiển thị form khi nhấn nút New
-        form.resetFields(); // Đặt lại các trường trong form
-    };
+    const handleUploadChange = async (info) => {
+        const file = info.fileList[0];
+        if (file && file.originFileObj) {
+            const formData = new FormData();
+            formData.append("file", file.originFileObj);
+            formData.append("upload_preset", "Your_cloud_image");
+
+            try {
+                const response = await axios.post(
+                    `https://api.cloudinary.com/v1_1/drzjvhpwi/image/upload`,
+                    formData
+                );
+
+                const urlImage = response.data.secure_url;
+                setFileList([
+                    { uid: file.uid, name: file.name, status: "done", url: urlImage },
+                ]);
+                setImagePreview(urlImage);
+                message.success(`Đã tải lên thành công: ${file.name}`);
+            } catch (error) {
+                message.error(`Lỗi khi tải hình ảnh lên Cloudinary: ${file.name}`);
+            }
+        } else {
+            setFileList(info.fileList);
+        }
+    }
+
+    const showForm = () => {
+        setSelectedNews(null);
+        setIsFormOpen(true);
+    }
+
+    const showEditModal = (news) => {
+        setSelectedNews(news);
+        setIsFormOpen(true);
+    }
+
+    const handleCancelForm = () => {
+        form.resetFields(); // Reset form khi hủy
+        setFileList([]); // Reset danh sách file
+        setIsFormOpen(false);
+        setSelectedNews(null);
+        setImagePreview(null);
+    }
 
     const searchNewsById = async () => {
         const accessToken = localStorage.getItem("accessToken");
-
         try {
             setLoading(true);
             const response = await fetch(
@@ -199,11 +287,30 @@ const NewsTable = () => {
             key: "description",
         },
         {
+            title: "Hình ảnh",
+            dataIndex: "urlImage",
+            key: "urlImage",
+            width: 150,
+            render: (text, record) =>
+                record.urlImage ? (
+                    <img
+                        src={record.urlImage}
+                        alt={record.name}
+                        style={{ width: "50px" }}
+                    />
+                ) : (
+                    <CameraOutlined style={{ fontSize: "35px", color: "#aaa" }} />
+            ),
+        },
+        {
             title: "Hành động",
             key: "action",
             render: (text, record) => (
                 <Space size="middle">
-                    <Button icon={<EditOutlined />} />
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={() => showEditModal(record)}
+                    />
 
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xóa tin tức này không?"
@@ -223,7 +330,7 @@ const NewsTable = () => {
             <div style={{ marginBottom: 16 }}>
                 <Button
                     type="primary"
-                    onClick={handleNewNews}
+                    onClick={showForm}
                     icon={<PlusOutlined />} // Thêm biểu tượng add
                     style={{ marginRight: 16 }}
                 >
@@ -255,13 +362,14 @@ const NewsTable = () => {
             />
 
             <Modal
-                title="Tạo tin tức mới"
-                visible={isFormVisible}
-                onCancel={() => setIsFormVisible(false)}
+                title={selectedNews ? "Chỉnh sửa tin tức" : "Tạo tin tức mới"}
+                open={isFormOpen}
+                onCancel={handleCancelForm}
                 footer={null}
                 width={800}
+                style={{ top: '20px', right: 'unset', bottom: 'unset' }}
             >
-                <Form form={form} onFinish={handleFormSubmit}>
+                <Form form={form} onFinish={selectedNews ? handleUpdateNews : handleCreateNews} onCancel={handleCancelForm}>
                     <Form.Item
                         name="newsId"
                         label="ID tin tức"
@@ -281,7 +389,7 @@ const NewsTable = () => {
                         label="Mô tả"
                         rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
                     >
-                        <Input style={{ height: 250 }} />
+                        <Input.TextArea style={{ height: 250 }} />
                     </Form.Item>
                     <Form.Item label="Hình ảnh">
                         <Upload
@@ -305,7 +413,7 @@ const NewsTable = () => {
                     </Form.Item>
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
-                            Tạo tin tức
+                            {selectedNews ? "Lưu tin tức" : "Tạo tin tức"}
                         </Button>
                     </Form.Item>
                 </Form>
