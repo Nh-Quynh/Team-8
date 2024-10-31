@@ -437,6 +437,25 @@ const decrementItemProduct = async (req, res) => {
     });
   }
 };
+const deleteItemProduct = async (req, res) => {
+  try {
+    const itemId = req.params.itemId;
+    const userId = req.params.userId;
+    if (!itemId && !userId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "Invalid input",
+      });
+    }
+    const response = await ProductService.deleteItemProduct(userId, itemId);
+    // console.log("response", response);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 const viewCart = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -477,4 +496,5 @@ module.exports = {
   viewCart,
   incrementItemProduct,
   decrementItemProduct,
+  deleteItemProduct,
 };

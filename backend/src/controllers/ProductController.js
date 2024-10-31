@@ -292,7 +292,17 @@ const getQuantityById = async (req, res) => {
     });
   }
 };
-
+const searchProductByAdmin = async (req, res) => {
+  try {
+    const keyword = req.params.keyword;
+    const response = await ProductService.searchProductByAdmin(keyword);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 module.exports = {
   createProduct,
   updateProduct,
@@ -311,4 +321,5 @@ module.exports = {
   createQuantity,
   productCountByCategory,
   getQuantityById,
+  searchProductByAdmin,
 };

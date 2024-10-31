@@ -765,13 +765,18 @@ const decrementItemProduct = (userId, itemId) => {
 
       if (itemIndex > -1) {
         const itemDecrement = cart.items[itemIndex].quantity - 1;
-        if (itemDecrement >= 0) {
+        if (itemDecrement > 0) {
           cart.items[itemIndex].quantity = itemDecrement;
         } else {
-          cart.updateOne(
-            { customer: userId },
-            { $pull: { items: { _id: itemId } } }
-          );
+          await cart.updateOne({ $pull: { items: { _id: itemId } } });
+          console.log("da toi day");
+          // Cập nhật lại giỏ hàng sau khi xóa
+          cart.items.splice(itemIndex, 1); // Xóa item từ mảng items
+          // return resolve({
+          //   status: "OK",
+          //   message: "Item has been removed from the cart",
+          //   data: cart,
+          // });
         }
       } else {
         return resolve({
@@ -790,7 +795,74 @@ const decrementItemProduct = (userId, itemId) => {
     }
   });
 };
+const deleteItemProduct = (userId, itemId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const customerObj = await Customer.findById(userId);
+      if (!customerObj) {
+        return resolve({
+          status: "ERR",
+          message: "The user is not defined",
+        });
+      }
+      let cart = await Cart.findOne({ customer: userId });
+      if (!cart) {
+        return resolve({
+          status: "ERR",
+          message: "The cart is not defined or out of stock",
+        });
+      }
 
+      // Tìm chỉ mục của mục trong giỏ hàng
+      const itemIndex = cart.items.findIndex(
+        (item) => item._id.toString() === itemId
+      );
+      if (itemIndex === -1) {
+        return {
+          status: "ERR",
+          message: "Item not found in the cart",
+        };
+      }
+      // Xóa mục
+      await cart.updateOne(
+        { customer: userId },
+        { $pull: { items: { _id: itemId } } }
+      );
+      // Cập nhật lại giỏ hàng trong bộ nhớ
+      cart.items.splice(itemIndex, 1);
+      await cart.save();
+
+      resolve({
+        status: "OK",
+        message: "The item has removed from the cart",
+        data: cart,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+const searchProductByAdmin = (keyword) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 'regex' helps in case searching for part of product name
+      // options: i helps in case insensitive search
+      const products = await Product.find({
+        $or: [
+          { productId: { $regex: keyword, $options: "i" } },
+          { name: { $regex: keyword, $options: "i" } },
+        ],
+      });
+      resolve({
+        status: "OK",
+        message: "Search product success",
+        data: products,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 module.exports = {
   createProduct,
   updateProduct,
@@ -813,4 +885,6 @@ module.exports = {
   viewCart,
   incrementItemProduct,
   decrementItemProduct,
+  searchProductByAdmin,
+  deleteItemProduct,
 };

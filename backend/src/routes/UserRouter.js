@@ -35,8 +35,9 @@ router.put(
 );
 router.put(
   "/item-decrement/:userId/:itemId",
-  userController.incrementItemProduct
+  userController.decrementItemProduct
 );
+router.delete("/item-delete/:userId/:itemId", userController.deleteItemProduct);
 //Xem chi tiet nguoi dung = email
 
 // ============== Employee ==============
