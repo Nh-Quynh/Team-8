@@ -39,6 +39,7 @@ const getDiscountByProductId = async (req, res) => {
         message: "The productId is required",
       });
     }
+    const response = await DiscountService.getDiscountByProductId(productId);
     res.status(200).json(response);
   } catch (e) {
     res.status(404).json({

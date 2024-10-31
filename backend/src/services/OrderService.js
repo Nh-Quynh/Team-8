@@ -12,7 +12,22 @@ const DiscountService = require("../services/DiscountService");
 const ObjId = mongoose.Types.ObjectId;
 const StatusService = require("../services/StatusService");
 const generateOrderID = () => {
-  return `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  return `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, "0")}`;
+};
+
+const createUniqueOrderID = async () => {
+  let orderId;
+  let isUnique = false;
+
+  while (!isUnique) {
+    orderId = generateOrderID();
+    const existingOrder = await Order.findOne({ orderId }); // Kiểm tra xem orderId có tồn tại trong database
+    isUnique = !existingOrder; // Duy nhất nếu không tìm thấy
+  }
+
+  return orderId;
 };
 const createOrder = (userId, newOrder) => {
   return new Promise(async (resolve, reject) => {
@@ -122,9 +137,9 @@ const createOrder = (userId, newOrder) => {
       }
 
       const status = await StatusService.getStatusDefault();
-
+      const orderId = await createUniqueOrderID();
       const orderNew = await Order.create({
-        orderID: generateOrderID(),
+        orderID: orderId,
         userId: checkUser._id,
         orderDetail: orderDetails,
         totalPrice: totalPrice,

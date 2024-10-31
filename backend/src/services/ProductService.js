@@ -6,6 +6,7 @@ const Color = require("../models/ColorModel");
 const Quantity = require("../models/QuantityModel");
 const Material = require("../models/MaterialModel");
 const Cart = require("../models/CartModel");
+const DiscountService = require("../services/DiscountService");
 const ObjectId = mongoose.Types.ObjectId;
 
 const ObjId = require("mongoose").Types.ObjectId;
@@ -187,6 +188,7 @@ const getProductById = (id) => {
           message: "The product is not defined",
         });
       }
+      // const responseDissount = await DiscountService.getDiscountByProductId(id);
       resolve({
         status: "OK",
         message: "Get product SUCCESS",
