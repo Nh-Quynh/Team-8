@@ -271,46 +271,6 @@ const productCountByCategory = () => {
     }
   });
 };
-const getAllProducts = (limit, page, sort) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const totalProduct = await Product.countDocuments();
-
-      // sort products
-      if (sort) {
-        const objSort = {};
-        objSort[sort[1]] = sort[0];
-        const allProductSort = await Product.find()
-          .limit(limit)
-          .skip(page * limit)
-          .sort(objSort);
-        resolve({
-          status: "OK",
-          message: "Get all product",
-          data: allProductSort,
-          total: totalProduct,
-          currentPage: Number(page) + 1,
-          totalPage: Math.ceil(totalProduct / limit),
-        });
-      }
-
-      // get all products
-      const allProduct = await Product.find()
-        .limit(limit)
-        .skip(page * limit);
-      resolve({
-        status: "OK",
-        message: "Get all product",
-        data: allProduct,
-        total: totalProduct,
-        currentPage: Number(page) + 1,
-        totalPage: Math.ceil(totalProduct / limit),
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
 
 // const fillByMaterial = async (materialId, limit, page) => {
 //     return new Promise(async (resolve, reject) => {
@@ -364,7 +324,7 @@ const getAllProducts = (limit, page, sort) => {
 //     })
 // }
 
-const fillProducts = async (categoryId, materialId, limit, page) => {
+const fillProducts = async (categoryId, materialId) => {
   return new Promise(async (resolve, reject) => {
     try {
       // mongoose debug tools
@@ -385,9 +345,7 @@ const fillProducts = async (categoryId, materialId, limit, page) => {
 
       const products = await Product.find(query)
         .populate("material")
-        .populate("category")
-        .limit(limit)
-        .skip(page * limit);
+        .populate("category");
       const totalProduct = await Product.countDocuments(query);
 
       resolve({
@@ -395,8 +353,6 @@ const fillProducts = async (categoryId, materialId, limit, page) => {
         message: "Get filled products",
         data: products,
         total: totalProduct,
-        currentPage: Number(page) + 1,
-        totalPage: Math.ceil(totalProduct / limit),
       });
     } catch (e) {
       reject(e);
@@ -404,16 +360,14 @@ const fillProducts = async (categoryId, materialId, limit, page) => {
   });
 };
 
-const searchProducts = (keyword, limit, page) => {
+const searchProducts = (keyword) => {
   return new Promise(async (resolve, reject) => {
     try {
       // 'regex' helps in case searching for part of product name
       // options: i helps in case insensitive search
       const products = await Product.find({
         name: { $regex: keyword, $options: "i" },
-      })
-        .limit(limit)
-        .skip(page * limit);
+      });
       const totalProduct = await Product.countDocuments({
         name: { $regex: keyword },
       });
@@ -423,8 +377,6 @@ const searchProducts = (keyword, limit, page) => {
         message: "Get filled products",
         data: products,
         total: totalProduct,
-        currentPage: Number(page) + 1,
-        totalPage: Math.ceil(totalProduct / limit),
       });
     } catch (e) {
       reject(e);
@@ -844,7 +796,6 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getProductById,
-  getAllProducts,
   getAll,
   productCountByCategory,
   // fillByMaterial,

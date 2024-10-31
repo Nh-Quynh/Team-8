@@ -16,7 +16,6 @@ router.delete(
   productController.deleteProduct
 );
 router.get("/get-product/:productId", productController.getProductById);
-router.get("/get-all-products", productController.getAllProducts);
 router.get("/get-all", productController.getAll);
 router.get(
   "/product-count-by-category",
@@ -32,7 +31,7 @@ router.get("/get-quantity/:quantityId", productController.getQuantityById);
 router.post("/create-quantity", productController.createQuantity);
 router.delete(
   "/delete-quantity/:id",
-  authAdminMiddleware,
+  // authAdminMiddleware,
   productController.deleteQuantity
 );
 router.get("/color/:colorId", productController.getColorById);

@@ -95,22 +95,6 @@ const getProductById = async (req, res) => {
   }
 };
 
-const getAllProducts = async (req, res) => {
-  try {
-    const { limit, page, sort, filter } = req.query;
-    const response = await ProductService.getAllProducts(
-      limit || 8,
-      Number(page) || 0,
-      sort
-    );
-    return res.status(200).json(response);
-  } catch (e) {
-    return res.status(404).json({
-      message: e,
-    });
-  }
-};
-
 // const fillByMaterial = async (req, res) => {
 //     try {
 //         const materialId = req.params.materialId
@@ -141,19 +125,9 @@ const getAllProducts = async (req, res) => {
 
 const fillProducts = async (req, res) => {
   try {
-    const {
-      category: categoryId,
-      material: materialId,
-      limit,
-      page,
-    } = req.query;
+    const { category: categoryId, material: materialId } = req.query;
 
-    const response = await ProductService.fillProducts(
-      categoryId,
-      materialId,
-      limit || 8,
-      page || 0
-    );
+    const response = await ProductService.fillProducts(categoryId, materialId);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -165,13 +139,7 @@ const fillProducts = async (req, res) => {
 const searchProducts = async (req, res) => {
   try {
     const keyword = req.params.keyword;
-    const { limit, page } = req.query;
-
-    const response = await ProductService.searchProducts(
-      keyword,
-      limit || 8,
-      page || 0
-    );
+    const response = await ProductService.searchProducts(keyword);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -284,6 +252,7 @@ const getAllColor = async (req, res) => {
 };
 const getAll = async (req, res) => {
   try {
+    // const { category, material } = req.query;
     const response = await ProductService.getAll();
 
     return res.status(200).json(response);
@@ -329,7 +298,6 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getProductById,
-  getAllProducts,
   getAll,
   // fillByMaterial,
   // fillByCategory,
