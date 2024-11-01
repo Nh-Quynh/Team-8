@@ -125,7 +125,7 @@ const createOrder = (userId, newOrder) => {
 
       // Đảm bảo tổng tiền giảm không vượt quá tổng tiền
       if (totalDiscount > totalAmount) totalDiscount = totalAmount;
-      const totalPrice = totalAmount - totalDiscount;
+      const totalPrice = totalAmount - totalDiscount - deliveryFee;
 
       let checkPaymentMethod = await PaymentMethod.findOne({
         name: paymentMethod,
