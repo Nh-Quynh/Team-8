@@ -21,6 +21,7 @@ router.get(
   "/product-count-by-category",
   productController.productCountByCategory
 );
+router.get("/product-top-selling", productController.topSellingProducts);
 // router.get('/material/:materialId', productController.fillByMaterial)
 // router.get('/category/:categoryId', productController.fillByCategory)
 router.get("/fill-products", productController.fillProducts);

@@ -473,6 +473,17 @@ const viewCart = async (req, res) => {
     });
   }
 };
+const searchEmployee = async (req, res) => {
+  try {
+    const keyword = req.params.keyword;
+    const response = await UserService.searchEmployee(keyword);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 // logoutEmployee
 module.exports = {
   createCustomer,
@@ -497,4 +508,5 @@ module.exports = {
   incrementItemProduct,
   decrementItemProduct,
   deleteItemProduct,
+  searchEmployee,
 };

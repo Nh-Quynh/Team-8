@@ -60,8 +60,13 @@ router.get(
 );
 router.get(
   "/employee/get-details/:id",
-  authUserMiddleWare,
+  // authUserMiddleWare,
   userController.getEmployeeById
+);
+router.get(
+  "/employee/search/:keyword",
+  // authUserMiddleWare,
+  userController.searchEmployee
 );
 router.put(
   "/employee/update-status/:id",

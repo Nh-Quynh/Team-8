@@ -3,6 +3,7 @@ const Product = require("../models/ProductModel");
 const Customer = require("../models/CustomerModel");
 const Category = require("../models/CategoryModel");
 const Color = require("../models/ColorModel");
+const OrderDetail = require("../models/OrderDetailModel");
 const Quantity = require("../models/QuantityModel");
 const Material = require("../models/MaterialModel");
 const Cart = require("../models/CartModel");
@@ -219,110 +220,6 @@ const getAll = () => {
     }
   });
 };
-const productCountByCategory = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // Sử dụng aggregate để nhóm và đếm sản phẩm theo loại
-      const productsCount = await Product.aggregate([
-        {
-          $group: {
-            _id: "$category", // Nhóm theo categoryId
-            count: { $sum: 1 }, // Đếm số lượng sản phẩm trong mỗi nhóm
-          },
-        },
-        {
-          $lookup: {
-            from: "categories", // Tên bảng category trong cơ sở dữ liệu
-            localField: "_id",
-            foreignField: "_id",
-            as: "category", // Lưu thông tin loại vào trường category
-          },
-        },
-        {
-          $unwind: "$category", // Giải nén mảng category
-        },
-        {
-          $project: {
-            _id: 0,
-            categoryId: "$category._id", // Lấy categoryId
-            categoryName: "$category.name", // Lấy tên loại
-            count: 1, // Số lượng sản phẩm
-          },
-        },
-      ]);
-
-      if (!productsCount || productsCount.length === 0) {
-        resolve({
-          status: "ERR",
-          message: "No products found",
-        });
-      } else {
-        resolve({
-          status: "OK",
-          message: "Get product count by category SUCCESS",
-          data: productsCount,
-        });
-      }
-    } catch (e) {
-      reject({
-        status: "ERR",
-        message: e.message || "An error occurred while fetching data",
-      });
-    }
-  });
-};
-
-// const fillByMaterial = async (materialId, limit, page) => {
-//     return new Promise(async (resolve, reject) => {
-//         try {
-//             // mongoose debug tools
-//             // mongoose.set('debug', true)
-
-//             const query = {'material': new ObjId(materialId)}
-//             const products = await Product.find(query).populate('material').populate('category').limit(limit).skip(page * limit)
-//             const totalProduct = await Product.countDocuments(query)
-
-//             resolve(
-//                 {
-//                     status: 'OK',
-//                     message: 'Get filled products',
-//                     data: products,
-//                     total: totalProduct,
-//                     currentPage: Number(page) + 1,
-//                     totalPage: Math.ceil(totalProduct / limit)
-//                 }
-//             )
-//         } catch (e) {
-//             reject(e)
-//         }
-//     })
-// }
-
-// const fillByCategory = async (categoryId, limit, page) => {
-//     return new Promise(async (resolve, reject) => {
-//         try {
-//             // mongoose debug tools
-//             // mongoose.set('debug', true)
-
-//             const query = {'category': new ObjId(categoryId)}
-//             const products = await Product.find(query).populate('material').populate('category').limit(limit).skip(page * limit)
-//             const totalProduct = await Product.countDocuments(query)
-
-//             resolve(
-//                 {
-//                     status: 'OK',
-//                     message: 'Get filled products',
-//                     data: products,
-//                     total: totalProduct,
-//                     currentPage: Number(page) + 1,
-//                     totalPage: Math.ceil(totalProduct / limit)
-//                 }
-//             )
-//         } catch (e) {
-//             reject(e)
-//         }
-//     })
-// }
 
 const fillProducts = async (categoryId, materialId) => {
   return new Promise(async (resolve, reject) => {
@@ -863,15 +760,123 @@ const searchProductByAdmin = (keyword) => {
     }
   });
 };
+//Thống kê
+const productCountByCategory = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Sử dụng aggregate để nhóm và đếm sản phẩm theo loại
+      const productsCount = await Product.aggregate([
+        {
+          $group: {
+            _id: "$category", // Nhóm theo categoryId
+            count: { $sum: 1 }, // Đếm số lượng sản phẩm trong mỗi nhóm
+          },
+        },
+        {
+          $lookup: {
+            from: "categories", // Tên bảng category trong cơ sở dữ liệu
+            localField: "_id",
+            foreignField: "_id",
+            as: "category", // Lưu thông tin loại vào trường category
+          },
+        },
+        {
+          $unwind: "$category", // Giải nén mảng category
+        },
+        {
+          $project: {
+            _id: 0,
+            categoryId: "$category._id", // Lấy categoryId
+            categoryName: "$category.name", // Lấy tên loại
+            count: 1, // Số lượng sản phẩm
+          },
+        },
+      ]);
+
+      if (!productsCount || productsCount.length === 0) {
+        resolve({
+          status: "ERR",
+          message: "No products found",
+        });
+      } else {
+        resolve({
+          status: "OK",
+          message: "Get product count by category SUCCESS",
+          data: productsCount,
+        });
+      }
+    } catch (e) {
+      reject({
+        status: "ERR",
+        message: e.message || "An error occurred while fetching data",
+      });
+    }
+  });
+};
+const topSellingProducts = async () => {
+  try {
+    const topProducts = await OrderDetail.aggregate([
+      {
+        $group: {
+          _id: "$productQuantity", // Nhóm theo productQuantity
+          totalQuantity: { $sum: "$quantity" }, // Tính tổng số lượng bán ra
+        },
+      },
+      {
+        $lookup: {
+          from: "quantities", // Truy cập bảng quantities
+          localField: "_id", // Trường _id ở đây là productQuantity
+          foreignField: "_id", // Trường _id trong bảng quantities
+          as: "quantityDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "products", // Truy cập bảng products
+          localField: "quantityDetails.product", // Trường product trong quantityDetails
+          foreignField: "_id", // Trường _id trong bảng products
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: "$productDetails", // Giải nén để lấy từng sản phẩm
+      },
+      {
+        $project: {
+          _id: 0,
+          productIdObj: { $arrayElemAt: ["$quantityDetails.product", 0] },
+          productId: "$productDetails.productId",
+          productName: "$productDetails.name",
+          price: "$productDetails.price",
+          urlImage: "$productDetails.urlImage",
+          totalQuantity: 1, // Tổng số lượng bán ra
+        },
+      },
+      {
+        $sort: { totalQuantity: -1 }, // Sắp xếp theo tổng số lượng bán ra giảm dần
+      },
+      {
+        $limit: 10, // Giới hạn kết quả chỉ lấy 10 sản phẩm hàng đầu
+      },
+    ]);
+
+    return {
+      status: "OK",
+      message: "Top selling products fetched successfully",
+      data: topProducts,
+    };
+  } catch (error) {
+    console.error("Error fetching top selling products:", error); // Ghi log chi tiết lỗi
+    throw new Error("An error occurred while fetching top selling products");
+  }
+};
+
 module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
   getProductById,
   getAll,
-  productCountByCategory,
-  // fillByMaterial,
-  // fillByCategory,
   fillProducts,
   searchProducts,
   getQuantity,
@@ -887,4 +892,6 @@ module.exports = {
   decrementItemProduct,
   searchProductByAdmin,
   deleteItemProduct,
+  productCountByCategory,
+  topSellingProducts,
 };

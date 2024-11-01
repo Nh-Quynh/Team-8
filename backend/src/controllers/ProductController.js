@@ -273,7 +273,17 @@ const productCountByCategory = async (req, res) => {
     });
   }
 };
+const topSellingProducts = async (req, res) => {
+  try {
+    const response = await ProductService.topSellingProducts();
 
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(500).json({
+      message: e.message || "An error occurred while fetching data",
+    });
+  }
+};
 const getQuantityById = async (req, res) => {
   try {
     const quantityId = req.params.quantityId;
@@ -309,8 +319,6 @@ module.exports = {
   deleteProduct,
   getProductById,
   getAll,
-  // fillByMaterial,
-  // fillByCategory,
   fillProducts,
   searchProducts,
   getQuantity,
@@ -320,6 +328,7 @@ module.exports = {
   getAllColor,
   createQuantity,
   productCountByCategory,
+  topSellingProducts,
   getQuantityById,
   searchProductByAdmin,
 };
