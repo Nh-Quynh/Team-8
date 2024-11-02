@@ -4,8 +4,14 @@ const mongoose = require("mongoose");
 const createOrder = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { itemIds, deliveryMethod, deliveryFee, address, paymentMethod } =
-      req.body;
+    const {
+      itemIds,
+      deliveryMethod,
+      deliveryFee,
+      address,
+      paymentMethod,
+      VAT,
+    } = req.body;
     console.log("Request Body:", req.body);
     if (
       !userId ||
