@@ -150,6 +150,23 @@ const getMonthlyRevenue = async (req, res) => {
     });
   }
 };
+const getInvoiceByOrderId = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    if (!orderId) {
+      return res.status(200).json({
+        status: "ERR",
+        message: "The missing value",
+      });
+    }
+    const response = await OrderService.getInvoiceByOrderId(orderId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 
 module.exports = {
   getAllOrders,
@@ -162,4 +179,5 @@ module.exports = {
   getMonthlyRevenue,
   createOrder,
   getOrderbyStatus,
+  getInvoiceByOrderId,
 };

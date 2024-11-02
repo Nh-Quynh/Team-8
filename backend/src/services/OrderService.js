@@ -8,6 +8,7 @@ const PaymentMethod = require("../models/PaymentMethodModel");
 const Quantity = require("../models/QuantityModel");
 const Status = require("../models/Status.Model");
 const Product = require("../models/ProductModel");
+const Invoice = require("../models/InvoiceModel");
 const DiscountService = require("../services/DiscountService");
 const ObjId = mongoose.Types.ObjectId;
 const StatusService = require("../services/StatusService");
@@ -16,7 +17,14 @@ const generateOrderID = () => {
     .toString()
     .padStart(4, "0")}`;
 };
+// function generateUniqueSeries() {
+//   const timestamp = Date.now(); // lấy thời gian hiện tại tính bằng milliseconds
+//   return `SERIES-${timestamp}`;
+// }
 
+// console.log(generateUniqueSeries());
+
+// console.log(generateUniqueSeries());
 const createUniqueOrderID = async () => {
   let orderId;
   let isUnique = false;
@@ -29,11 +37,69 @@ const createUniqueOrderID = async () => {
 
   return orderId;
 };
+const generateUniqueSeries = () => {
+  const timestamp = Date.now(); // lấy thời gian hiện tại tính bằng milliseconds
+  return `SERIES-${timestamp}`;
+};
+
+const createInvoice = async (VAT, orderId, finalPrice) => {
+  try {
+    if (!VAT || !orderId || !finalPrice) {
+      return {
+        status: "ERR",
+        message: "Missing invoice attributes or products is not an array",
+      };
+    }
+    const invoiceNew = await Invoice.create({
+      seriesNumber: generateUniqueSeries(),
+      VAT: VAT,
+      repeatDate: Date.now(),
+      order: orderId,
+      finalPrice: finalPrice,
+    });
+    resolve({
+      status: "OK",
+      message: "Create invoice success",
+      data: invoiceNew,
+    });
+  } catch (e) {
+    reject({
+      status: "ERR",
+      message: e.message || "An error occurred while creating the invoice.",
+    });
+  }
+};
+const getInvoiceByOrderId = (orderId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const invoice = await Invoice.findOne({ order: orderId });
+      if (!invoice) {
+        return {
+          status: "ERR",
+          message: "invoice undefined",
+        };
+      }
+      resolve({
+        status: "OK",
+        message: "Get invoice success",
+        data: invoice,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 const createOrder = (userId, newOrder) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { itemIds, deliveryMethod, deliveryFee, address, paymentMethod } =
-        newOrder;
+      const {
+        itemIds,
+        deliveryMethod,
+        deliveryFee,
+        address,
+        paymentMethod,
+        VAT,
+      } = newOrder;
 
       // Kiểm tra người dùng hợp lệ
       const checkUser = await Customer.findById(userId);
@@ -46,7 +112,6 @@ const createOrder = (userId, newOrder) => {
       if (!cart) {
         return reject({ status: "ERR", message: "Cart not found" });
       }
-
       // Kiểm tra số lượng của từng item
       const insufficientItems = [];
       const validItems = [];
@@ -122,19 +187,37 @@ const createOrder = (userId, newOrder) => {
         totalAmount += product.price * item.quantity;
         console.log("Current Total Amount:", totalAmount);
       }
-
-      // Đảm bảo tổng tiền giảm không vượt quá tổng tiền
+      let checkPaymentMethod;
+      if (paymentMethod == "Thanh toán online") {
+        checkPaymentMethod = await PaymentMethod.findOne({
+          name: paymentMethod,
+          status: true,
+        });
+        if (!checkPaymentMethod) {
+          checkPaymentMethod = await PaymentMethod.create({
+            name: paymentMethod,
+            status: true,
+          });
+        }
+      } else {
+        checkPaymentMethod = await PaymentMethod.findOne({
+          name: paymentMethod,
+        });
+        if (!checkPaymentMethod) {
+          checkPaymentMethod = await PaymentMethod.create({
+            name: paymentMethod,
+          });
+        }
+      }
       if (totalDiscount > totalAmount) totalDiscount = totalAmount;
       // const totalPrice = totalAmount - totalDiscount +  Number(deliveryFee);
       const totalPrice = totalAmount - totalDiscount + deliveryFee;
-
-      let checkPaymentMethod = await PaymentMethod.findOne({
-        name: paymentMethod,
-      });
-      if (!checkPaymentMethod) {
-        checkPaymentMethod = await PaymentMethod.create({
-          name: paymentMethod,
-        });
+      let finalPrice;
+      if (VAT) {
+        //VAT tồn tại giá trị hợp lệ
+        finalPrice = totalPrice + (VAT * totalPrice) / 100;
+      } else {
+        finalPrice = totalPrice;
       }
 
       const status = await StatusService.getStatusDefault();
@@ -143,7 +226,7 @@ const createOrder = (userId, newOrder) => {
         orderID: orderId,
         userId: checkUser._id,
         orderDetail: orderDetails,
-        totalPrice: totalPrice,
+        totalPrice: finalPrice,
         deliveryMethod,
         deliveryFee,
         orderDate: Date.now(),
@@ -151,13 +234,16 @@ const createOrder = (userId, newOrder) => {
         paymentMethod: checkPaymentMethod._id,
         status: status,
       });
-
+      if (VAT) {
+        await createInvoice(VAT, orderId, finalPrice);
+      }
       resolve({
         status: "OK",
         message: "Create order success",
         data: orderNew,
         totalDiscount: totalDiscount,
         totalAmount: totalAmount,
+        finalPrice: finalPrice,
       });
     } catch (e) {
       console.error("Error creating order:", e);
@@ -496,4 +582,5 @@ module.exports = {
   fillOrderByStatus,
   getOrdersCountByStatus,
   getMonthlyRevenue,
+  getInvoiceByOrderId,
 };

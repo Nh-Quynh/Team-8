@@ -4,6 +4,7 @@ const orderController = require("../controllers/OrderController");
 const authSalesMiddleware = require("../middleware/authSalesMiddleware");
 
 router.post("/create-order/:userId", orderController.createOrder);
+router.get("/get-invoice/:orderId", orderController.getInvoiceByOrderId);
 router.get("/get-all-orders", orderController.getAllOrders);
 router.get("/get-orders-history", orderController.getOrdersHistory);
 router.get("/get-details/:orderId", orderController.getOrderDetails);

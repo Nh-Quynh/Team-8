@@ -28,6 +28,9 @@ const createProduct = async (newProduct) => {
   try {
     // Kiểm tra xem sản phẩm có tồn tại không
     let product = await Product.findOne({ productId });
+    if (!product) {
+      product = await Product.findOne({ name });
+    }
     let categoryObj = await Category.findOne({ _id: categoryId });
     let colorObj = await Color.findOne({
       name: { $regex: new RegExp(`^${color}$`, "i") },
