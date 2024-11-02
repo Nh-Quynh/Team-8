@@ -218,15 +218,9 @@ const createOrder = (userId, newOrder) => {
       }
       if (totalDiscount > totalAmount) totalDiscount = totalAmount;
       // const totalPrice = totalAmount - totalDiscount +  Number(deliveryFee);
-      const totalPrice = totalAmount - totalDiscount + deliveryFee;
+      const totalPrice = totalAmount - totalDiscount;
       let finalPrice;
-      // if (VAT) {
-      //VAT tồn tại giá trị hợp lệ
-      finalPrice = totalPrice + (VAT * totalPrice) / 100;
-      // } else {
-      //   finalPrice = totalPrice;
-      // }
-
+      finalPrice = totalPrice + (VAT * totalPrice) / 100 + deliveryFee;
       const status = await StatusService.getStatusDefault();
       const orderId = await createUniqueOrderID();
       const orderNew = await Order.create({
@@ -241,9 +235,7 @@ const createOrder = (userId, newOrder) => {
         paymentMethod: checkPaymentMethod._id,
         status: status,
       });
-      // if (VAT) {
       await createInvoice(VAT, orderId, finalPrice);
-      // }
       resolve({
         status: "OK",
         message: "Create order success",
