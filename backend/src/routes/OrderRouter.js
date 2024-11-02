@@ -27,7 +27,7 @@ router.get("/get-monthly-revenue/:year", orderController.getMonthlyRevenue);
 // only sale employees can update order status
 router.put(
   "/update-status/:orderId",
-  authSalesMiddleware,
+  // authSalesMiddleware,
   orderController.updateOrderStatus
 );
 
