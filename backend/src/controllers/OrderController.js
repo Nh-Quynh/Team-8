@@ -19,7 +19,8 @@ const createOrder = async (req, res) => {
       !deliveryMethod ||
       !deliveryFee ||
       !address ||
-      !paymentMethod
+      !paymentMethod ||
+      !VAT
     ) {
       return res.status(200).json({
         status: "ERR",

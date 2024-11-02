@@ -50,11 +50,18 @@ const createInvoice = async (VAT, orderId, finalPrice) => {
         message: "Missing invoice attributes or products is not an array",
       };
     }
+    const orderObj = await Order.findOne({ orderId: orderId });
+    if (!orderObj) {
+      return {
+        status: "ERR",
+        message: "order undefined",
+      };
+    }
     const invoiceNew = await Invoice.create({
       seriesNumber: generateUniqueSeries(),
       VAT: VAT,
       repeatDate: Date.now(),
-      order: orderId,
+      order: orderObj._id,
       finalPrice: finalPrice,
     });
     resolve({
@@ -213,12 +220,12 @@ const createOrder = (userId, newOrder) => {
       // const totalPrice = totalAmount - totalDiscount +  Number(deliveryFee);
       const totalPrice = totalAmount - totalDiscount + deliveryFee;
       let finalPrice;
-      if (VAT) {
-        //VAT tồn tại giá trị hợp lệ
-        finalPrice = totalPrice + (VAT * totalPrice) / 100;
-      } else {
-        finalPrice = totalPrice;
-      }
+      // if (VAT) {
+      //VAT tồn tại giá trị hợp lệ
+      finalPrice = totalPrice + (VAT * totalPrice) / 100;
+      // } else {
+      //   finalPrice = totalPrice;
+      // }
 
       const status = await StatusService.getStatusDefault();
       const orderId = await createUniqueOrderID();
@@ -234,9 +241,9 @@ const createOrder = (userId, newOrder) => {
         paymentMethod: checkPaymentMethod._id,
         status: status,
       });
-      if (VAT) {
-        await createInvoice(VAT, orderId, finalPrice);
-      }
+      // if (VAT) {
+      await createInvoice(VAT, orderId, finalPrice);
+      // }
       resolve({
         status: "OK",
         message: "Create order success",
