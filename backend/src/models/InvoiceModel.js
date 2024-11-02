@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const invoiceSchema = new mongoose.Schema(
   {
     seriesNumber: {
-      type: Number,
+      type: String,
       required: true,
     },
     VAT: {

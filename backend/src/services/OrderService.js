@@ -43,38 +43,40 @@ const generateUniqueSeries = () => {
 };
 
 const createInvoice = async (VAT, orderId, finalPrice) => {
-  try {
-    if (!VAT || !orderId || !finalPrice) {
-      return {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!VAT || !orderId || !finalPrice) {
+        return {
+          status: "ERR",
+          message: "Missing invoice attributes or products is not an array",
+        };
+      }
+      const orderObj = await Order.findOne({ orderID: orderId });
+      if (!orderObj) {
+        return {
+          status: "ERR",
+          message: "order undefined",
+        };
+      }
+      const invoiceNew = await Invoice.create({
+        seriesNumber: generateUniqueSeries(),
+        VAT: VAT,
+        repeatDate: Date.now(),
+        order: orderObj._id,
+        finalPrice: finalPrice,
+      });
+      resolve({
+        status: "OK",
+        message: "Create invoice success",
+        data: invoiceNew,
+      });
+    } catch (e) {
+      reject({
         status: "ERR",
-        message: "Missing invoice attributes or products is not an array",
-      };
+        message: e.message || "An error occurred while creating the invoice.",
+      });
     }
-    const orderObj = await Order.findOne({ orderId: orderId });
-    if (!orderObj) {
-      return {
-        status: "ERR",
-        message: "order undefined",
-      };
-    }
-    const invoiceNew = await Invoice.create({
-      seriesNumber: generateUniqueSeries(),
-      VAT: VAT,
-      repeatDate: Date.now(),
-      order: orderObj._id,
-      finalPrice: finalPrice,
-    });
-    resolve({
-      status: "OK",
-      message: "Create invoice success",
-      data: invoiceNew,
-    });
-  } catch (e) {
-    reject({
-      status: "ERR",
-      message: e.message || "An error occurred while creating the invoice.",
-    });
-  }
+  });
 };
 const getInvoiceByOrderId = (orderId) => {
   return new Promise(async (resolve, reject) => {
@@ -220,7 +222,9 @@ const createOrder = (userId, newOrder) => {
       // const totalPrice = totalAmount - totalDiscount +  Number(deliveryFee);
       const totalPrice = totalAmount - totalDiscount;
       let finalPrice;
-      finalPrice = totalPrice + (VAT * totalPrice) / 100 + deliveryFee;
+
+      finalPrice = totalPrice + deliveryFee + (VAT * totalPrice) / 100;
+
       const status = await StatusService.getStatusDefault();
       const orderId = await createUniqueOrderID();
       const orderNew = await Order.create({
@@ -235,7 +239,9 @@ const createOrder = (userId, newOrder) => {
         paymentMethod: checkPaymentMethod._id,
         status: status,
       });
-      await createInvoice(VAT, orderId, finalPrice);
+      // if (VAT) {
+      const invoice = await createInvoice(VAT, orderId, finalPrice);
+      // }
       resolve({
         status: "OK",
         message: "Create order success",
@@ -243,6 +249,7 @@ const createOrder = (userId, newOrder) => {
         totalDiscount: totalDiscount,
         totalAmount: totalAmount,
         finalPrice: finalPrice,
+        invoice: invoice,
       });
     } catch (e) {
       console.error("Error creating order:", e);
