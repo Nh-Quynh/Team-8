@@ -103,6 +103,7 @@ const NewsTable = () => {
             setNews([...news, newNews]); // Thêm người dùng mới vào danh sách
             message.success("Đã thêm tin tức mới thành công");
 
+            form.resetFields();
             setFileList([]);
             setImagePreview(null);
             setIsFormOpen(false); // Đóng form sau khi tạo người dùng
@@ -141,6 +142,7 @@ const NewsTable = () => {
             setNews([...news, newNews]); // Thêm người dùng mới vào danh sách
             message.success("Đã cập nhật tin tức thành công");
 
+            form.resetFields();
             setFileList([]);
             setImagePreview(null);
             setIsFormOpen(false); // Đóng form sau khi tạo người dùng

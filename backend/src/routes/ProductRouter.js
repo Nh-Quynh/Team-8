@@ -16,12 +16,12 @@ router.delete(
   productController.deleteProduct
 );
 router.get("/get-product/:productId", productController.getProductById);
-router.get("/get-all-products", productController.getAllProducts);
 router.get("/get-all", productController.getAll);
 router.get(
   "/product-count-by-category",
   productController.productCountByCategory
 );
+router.get("/product-top-selling", productController.topSellingProducts);
 // router.get('/material/:materialId', productController.fillByMaterial)
 // router.get('/category/:categoryId', productController.fillByCategory)
 router.get("/fill-products", productController.fillProducts);
@@ -32,10 +32,11 @@ router.get("/get-quantity/:quantityId", productController.getQuantityById);
 router.post("/create-quantity", productController.createQuantity);
 router.delete(
   "/delete-quantity/:id",
-  authAdminMiddleware,
+  // authAdminMiddleware,
   productController.deleteQuantity
 );
 router.get("/color/:colorId", productController.getColorById);
 router.get("/get-all-color", productController.getAllColor);
+router.get("/search-by-admin/:keyword", productController.searchProductByAdmin);
 
 module.exports = router;

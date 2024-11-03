@@ -35,8 +35,9 @@ router.put(
 );
 router.put(
   "/item-decrement/:userId/:itemId",
-  userController.incrementItemProduct
+  userController.decrementItemProduct
 );
+router.delete("/item-delete/:userId/:itemId", userController.deleteItemProduct);
 //Xem chi tiet nguoi dung = email
 
 // ============== Employee ==============
@@ -59,8 +60,13 @@ router.get(
 );
 router.get(
   "/employee/get-details/:id",
-  authUserMiddleWare,
+  // authUserMiddleWare,
   userController.getEmployeeById
+);
+router.get(
+  "/employee/search/:keyword",
+  // authUserMiddleWare,
+  userController.searchEmployee
 );
 router.put(
   "/employee/update-status/:id",

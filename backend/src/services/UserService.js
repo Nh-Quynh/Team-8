@@ -462,6 +462,30 @@ const getEmployeeById = (id) => {
     }
   });
 };
+const searchEmployee = async (keyword) => {
+  try {
+    // Sử dụng 'regex' để tìm kiếm theo từ khóa không phân biệt hoa thường
+    const employees = await Employee.find({
+      $or: [
+        { name: { $regex: keyword, $options: "i" } },
+        { fullName: { $regex: keyword, $options: "i" } },
+        { email: { $regex: keyword, $options: "i" } },
+      ],
+    });
+
+    return {
+      status: "OK",
+      message: "Search employee success",
+      data: employees,
+    };
+  } catch (e) {
+    return {
+      status: "ERROR",
+      message: "Search employee failed",
+      error: e.message,
+    };
+  }
+};
 module.exports = {
   createCustomer,
   loginCustomer,
@@ -478,4 +502,5 @@ module.exports = {
   getEmployeeById,
   updateStatusEmployee,
   updateRoleEmployee,
+  searchEmployee,
 };

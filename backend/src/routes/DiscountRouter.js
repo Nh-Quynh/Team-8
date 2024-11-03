@@ -10,6 +10,10 @@ router.get(
   discountController.getAllDiscount
 );
 router.get("/get-discount/:discountId", discountController.getDiscount);
+router.get(
+  "/get-discount-by-product/:productId",
+  discountController.getDiscountByProductId
+);
 router.put("/update-discount/:discountId", discountController.updateDiscount);
 router.delete(
   "/delete-discount/:discountId",
