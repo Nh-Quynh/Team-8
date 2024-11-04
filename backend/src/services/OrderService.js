@@ -370,7 +370,6 @@ const updateOrderStatus = (orderId, orderStatus) => {
         { status: new ObjId(orderStatus) },
         { new: true }
       ).populate("status");
-
       resolve({
         status: "OK",
         message: "Update order status successful",

@@ -816,27 +816,87 @@ const productCountByCategory = () => {
     }
   });
 };
+// const topSellingProducts = async () => {
+//   try {
+//     const topProducts = await OrderDetail.aggregate([
+//       {
+//         $group: {
+//           _id: "$productQuantity", // Nhóm theo productQuantity
+//           totalQuantity: { $sum: "$quantity" }, // Tính tổng số lượng bán ra
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "quantities", // Truy cập bảng quantities
+//           localField: "_id", // Trường _id ở đây là productQuantity
+//           foreignField: "_id", // Trường _id trong bảng quantities
+//           as: "quantityDetails",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "products", // Truy cập bảng products
+//           localField: "quantityDetails.product", // Trường product trong quantityDetails
+//           foreignField: "_id", // Trường _id trong bảng products
+//           as: "productDetails",
+//         },
+//       },
+//       {
+//         $unwind: "$productDetails", // Giải nén để lấy từng sản phẩm
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           productIdObj: { $arrayElemAt: ["$quantityDetails.product", 0] },
+//           productId: "$productDetails.productId",
+//           productName: "$productDetails.name",
+//           price: "$productDetails.price",
+//           urlImage: "$productDetails.urlImage",
+//           totalQuantity: 1, // Tổng số lượng bán ra
+//         },
+//       },
+//       {
+//         $sort: { totalQuantity: -1 }, // Sắp xếp theo tổng số lượng bán ra giảm dần
+//       },
+//       {
+//         $limit: 10, // Giới hạn kết quả chỉ lấy 10 sản phẩm hàng đầu
+//       },
+//     ]);
+
+//     return {
+//       status: "OK",
+//       message: "Top selling products fetched successfully",
+//       data: topProducts,
+//     };
+//   } catch (error) {
+//     console.error("Error fetching top selling products:", error); // Ghi log chi tiết lỗi
+//     throw new Error("An error occurred while fetching top selling products");
+//   }
+// };
 const topSellingProducts = async () => {
   try {
     const topProducts = await OrderDetail.aggregate([
       {
-        $group: {
-          _id: "$productQuantity", // Nhóm theo productQuantity
-          totalQuantity: { $sum: "$quantity" }, // Tính tổng số lượng bán ra
-        },
-      },
-      {
         $lookup: {
           from: "quantities", // Truy cập bảng quantities
-          localField: "_id", // Trường _id ở đây là productQuantity
+          localField: "productQuantity", // Trường productQuantity trong OrderDetail
           foreignField: "_id", // Trường _id trong bảng quantities
           as: "quantityDetails",
         },
       },
       {
+        $unwind: "$quantityDetails", // Giải nén quantityDetails để truy cập từng phần tử
+      },
+      {
+        $group: {
+          _id: "$quantityDetails.product", // Nhóm theo productId từ quantityDetails
+          totalQuantity: { $sum: "$quantity" }, // Tính tổng số lượng bán ra
+        },
+      },
+      {
         $lookup: {
           from: "products", // Truy cập bảng products
-          localField: "quantityDetails.product", // Trường product trong quantityDetails
+          localField: "_id", // Trường _id là productId sau khi nhóm
           foreignField: "_id", // Trường _id trong bảng products
           as: "productDetails",
         },
@@ -847,7 +907,6 @@ const topSellingProducts = async () => {
       {
         $project: {
           _id: 0,
-          productIdObj: { $arrayElemAt: ["$quantityDetails.product", 0] },
           productId: "$productDetails.productId",
           productName: "$productDetails.name",
           price: "$productDetails.price",
