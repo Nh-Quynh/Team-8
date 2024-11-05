@@ -9,11 +9,9 @@ const ratingProduct = (userId, orderId, productId, ratingValue) => {
     try {
       // Kiểm tra nếu người dùng đã đánh giá sản phẩm
       const checkRated = await Rating.findOne({
-        customer: new mongoose.Types.ObjectId(userId),
         product: new mongoose.Types.ObjectId(productId),
         order: new mongoose.Types.ObjectId(orderId),
       });
-
       if (checkRated) {
         // Người dùng đã đánh giá, không thể đánh giá thêm
         reject({

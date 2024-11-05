@@ -7,10 +7,10 @@ const ratingProduct = async (req, res) => {
 
     const { userId, orderId, productId, rating } = req.body;
 
-    if (!userId || !productId || rating === undefined) {
+    if (!userId || !productId||!orderId || rating === undefined) {
       return res.status(400).json({
         status: "ERR",
-        message: "userId, productId, and rating are required",
+        message: "userId,orderId, productId, and rating are required",
       });
     }
     if (rating < 0 || rating > 5) {
