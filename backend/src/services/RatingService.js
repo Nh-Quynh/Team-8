@@ -1,93 +1,127 @@
 const mongoose = require("mongoose");
 const ObjId = mongoose.Types.ObjectId;
-const Rating = require('../models/RatingModel');
+const Rating = require("../models/RatingModel");
+const Order = require("../models/OrderModel");
+const Status = require("../models/Status.Model");
 
-const ratingProduct = (userId, productId, ratingValue) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            // Kiểm tra nếu người dùng đã đánh giá sản phẩm
-            const checkRated = await Rating.findOne({
-                customer: new mongoose.Types.ObjectId(userId),
-                product: new mongoose.Types.ObjectId(productId)
-            });
-            
-            if (checkRated) {
-                // Người dùng đã đánh giá, không thể đánh giá thêm
-                reject({
-                    status: 'ERR',
-                    message: 'The product has already been rated by this user. You cannot rate it again.'
-                });
-            } else {
-                // Người dùng chưa đánh giá, thêm đánh giá mới
-                const ratingQuery = {
-                    customer: new mongoose.Types.ObjectId(userId),
-                    product: new mongoose.Types.ObjectId(productId),
-                    rating: ratingValue
-                };
+const ratingProduct = (userId, orderId, productId, ratingValue) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Kiểm tra nếu người dùng đã đánh giá sản phẩm
+      const checkRated = await Rating.findOne({
+        customer: new mongoose.Types.ObjectId(userId),
+        product: new mongoose.Types.ObjectId(productId),
+        order: new mongoose.Types.ObjectId(orderId),
+      });
 
-                const newRating = await Rating.create(ratingQuery);
-                resolve({
-                    status: 'OK',
-                    message: 'Add rating successful',
-                    rating: newRating
-                });
-            }
+      if (checkRated) {
+        // Người dùng đã đánh giá, không thể đánh giá thêm
+        reject({
+          status: "ERR",
+          message:
+            "The product has already been rated by this user. You cannot rate it again.",
+        });
+      } else {
+        // Người dùng chưa đánh giá, thêm đánh giá mới
+        const ratingQuery = {
+          customer: new mongoose.Types.ObjectId(userId),
+          product: new mongoose.Types.ObjectId(productId),
+          order: new mongoose.Types.ObjectId(orderId),
+          rating: ratingValue,
+        };
 
-        } catch (e) {
-            reject(e);
-        }
-    });
+        const newRating = await Rating.create(ratingQuery);
+        resolve({
+          status: "OK",
+          message: "Add rating successful",
+          rating: newRating,
+        });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
 };
-
 
 const updateRating = (userId, productId, rating) => {
-    return new Promise(async (resolve, reject) => {
-        try{
-            const checkRated = Rating.findOne({customer: new ObjId(userId), product: new ObjId(productId)})
-            if (!checkRated)
-            {
-                resolve({
-                    status: 'OK',
-                    message: 'The user had not rated this product'
-                })
-            } else {
-                const updatedRating = await Rating.findOneAndUpdate(
-                    {customer: new ObjId(userId), product: new ObjId(productId)}, 
-                    {rating: rating}, 
-                    {new: true})
-
-                resolve({
-                    status: 'OK',
-                    message: 'Update rating successful',
-                    data: updatedRating
-                })
-            }
-        } catch(e) {
-            reject(e)
-        }
-    })
-}
-
-const getProductAverageRating = async (productId) => {
+  return new Promise(async (resolve, reject) => {
     try {
-        const result = await Rating.aggregate([
-            { $match: { product: new mongoose.Types.ObjectId(productId) } },
-            { $group: { _id: "$product", averageRating: { $avg: "$rating" } } }
-        ]);
+      const checkRated = Rating.findOne({
+        customer: new ObjId(userId),
+        product: new ObjId(productId),
+      });
+      if (!checkRated) {
+        resolve({
+          status: "OK",
+          message: "The user had not rated this product",
+        });
+      } else {
+        const updatedRating = await Rating.findOneAndUpdate(
+          { customer: new ObjId(userId), product: new ObjId(productId) },
+          { rating: rating },
+          { new: true }
+        );
 
-        return result.length > 0
-            ? { status: 'OK', averageRating: result[0].averageRating }
-            : { status: 'OK', averageRating: 0, message: 'No ratings found for this product' };
-
-    } catch (error) {
-        console.error("Error in getAverageRating:", error);
-        throw error;
+        resolve({
+          status: "OK",
+          message: "Update rating successful",
+          data: updatedRating,
+        });
+      }
+    } catch (e) {
+      reject(e);
     }
+  });
 };
 
+const getProductAverageRating = async (productId) => {
+  try {
+    const result = await Rating.aggregate([
+      { $match: { product: new mongoose.Types.ObjectId(productId) } },
+      { $group: { _id: "$product", averageRating: { $avg: "$rating" } } },
+    ]);
 
+    return result.length > 0
+      ? { status: "OK", averageRating: result[0].averageRating }
+      : {
+          status: "OK",
+          averageRating: 0,
+          message: "No ratings found for this product",
+        };
+  } catch (error) {
+    console.error("Error in getAverageRating:", error);
+    throw error;
+  }
+};
+const checkRating = async (userId, orderId, productId) => {
+  try {
+    const checkOrder = await Order.findById(orderId);
+    const statusOrderId = checkOrder._id;
+    const checkStatus = await Status.findById(statusOrderId);
+    if (checkStatus.name == "Đã giao") {
+      const checkRated = await Rating.findOne({
+        customer: new mongoose.Types.ObjectId(userId),
+        product: new mongoose.Types.ObjectId(productId),
+        order: new mongoose.Types.ObjectId(orderId),
+      });
+      if (checkRated) {
+        return resolve({
+          status: "ERR",
+          message: "Product was rated",
+        });
+      }
+    }
+    resolve({
+      status: "OK",
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
 module.exports = {
-    ratingProduct,
-    updateRating,
-    getProductAverageRating
-}
+  ratingProduct,
+  updateRating,
+  getProductAverageRating,
+  checkRating,
+};
