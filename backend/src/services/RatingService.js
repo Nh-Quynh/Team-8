@@ -101,7 +101,6 @@ const getProductAverageRating = async (productId) => {
   }
 };
 
-
 const checkRating = async (userId, orderId, productId) => {
   try {
     const checkOrder = await Order.findById(orderId);
