@@ -408,12 +408,12 @@ const cancelOrder = (orderId) => {
           data: order,
         });
       } else if (
-        orderStatus === "Đang chuẩn bị" ||
+        // orderStatus === "Đang chuẩn bị" ||
         orderStatus === "Đang chờ duyệt"
       ) {
         // Cập nhật trạng thái đơn hàng sang "Bị hủy"
         const canceledStatus = await Status.findOne({ name: "Bị hủy" });
-
+        await Invoice.findOneAndDelete({ order: order._id });
         // Duyệt qua các mặt hàng trong OrderDetail để hoàn lại số lượng kho
         for (const detail of order.orderDetail) {
           const quantityObj = await Quantity.findById(detail.productQuantity);
