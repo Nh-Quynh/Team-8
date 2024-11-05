@@ -174,6 +174,18 @@ const getInvoiceByOrderId = async (req, res) => {
     });
   }
 };
+const resetOrderInvoice = async (req, res) => {
+  try {
+    const response = await OrderService.resetOrderInvoice();
+    console.log("tới đây");
+    return res.status(200).json(response);
+  } catch (e) {
+    console.error("Lỗi khi reset đơn hàng:", e.message); // Log lỗi để dễ debug
+    return res.status(500).json({
+      message: e.message || "Có lỗi xảy ra trong quá trình xử lý",
+    });
+  }
+};
 
 module.exports = {
   getAllOrders,
@@ -187,4 +199,5 @@ module.exports = {
   createOrder,
   getOrderbyStatus,
   getInvoiceByOrderId,
+  resetOrderInvoice,
 };

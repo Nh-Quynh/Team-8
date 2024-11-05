@@ -575,6 +575,30 @@ const getMonthlyRevenue = (year) => {
     }
   });
 };
+// const resetOrderInvoice = () => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       await Order.deleteAll();
+//       await OrderDetail.deleteAll();
+//       await Invoice.deleteAll();
+
+//       resolve({ status: "OK" });
+//     } catch (e) {
+//       reject(e);
+//     }
+//   });
+// };
+const resetOrderInvoice = async () => {
+  try {
+    await Order.deleteMany({});
+    await OrderDetail.deleteMany({});
+    await Invoice.deleteMany({});
+
+    return { status: "OK" };
+  } catch (e) {
+    throw e;
+  }
+};
 
 module.exports = {
   createOrder,
@@ -588,4 +612,5 @@ module.exports = {
   getOrdersCountByStatus,
   getMonthlyRevenue,
   getInvoiceByOrderId,
+  resetOrderInvoice,
 };
