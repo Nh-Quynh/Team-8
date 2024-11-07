@@ -30,5 +30,6 @@ router.put(
   // authSalesMiddleware,
   orderController.updateOrderStatus
 );
+router.delete("/delete-reset", orderController.resetOrderInvoice);
 
 module.exports = router;

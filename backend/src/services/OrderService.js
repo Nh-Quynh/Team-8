@@ -370,7 +370,6 @@ const updateOrderStatus = (orderId, orderStatus) => {
         { status: new ObjId(orderStatus) },
         { new: true }
       ).populate("status");
-
       resolve({
         status: "OK",
         message: "Update order status successful",
@@ -409,12 +408,12 @@ const cancelOrder = (orderId) => {
           data: order,
         });
       } else if (
-        orderStatus === "Đang chuẩn bị" ||
+        // orderStatus === "Đang chuẩn bị" ||
         orderStatus === "Đang chờ duyệt"
       ) {
         // Cập nhật trạng thái đơn hàng sang "Bị hủy"
         const canceledStatus = await Status.findOne({ name: "Bị hủy" });
-
+        await Invoice.findOneAndDelete({ order: order._id });
         // Duyệt qua các mặt hàng trong OrderDetail để hoàn lại số lượng kho
         for (const detail of order.orderDetail) {
           const quantityObj = await Quantity.findById(detail.productQuantity);
@@ -576,6 +575,30 @@ const getMonthlyRevenue = (year) => {
     }
   });
 };
+// const resetOrderInvoice = () => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       await Order.deleteAll();
+//       await OrderDetail.deleteAll();
+//       await Invoice.deleteAll();
+
+//       resolve({ status: "OK" });
+//     } catch (e) {
+//       reject(e);
+//     }
+//   });
+// };
+const resetOrderInvoice = async () => {
+  try {
+    await Order.deleteMany({});
+    await OrderDetail.deleteMany({});
+    await Invoice.deleteMany({});
+
+    return { status: "OK" };
+  } catch (e) {
+    throw e;
+  }
+};
 
 module.exports = {
   createOrder,
@@ -589,4 +612,5 @@ module.exports = {
   getOrdersCountByStatus,
   getMonthlyRevenue,
   getInvoiceByOrderId,
+  resetOrderInvoice,
 };
