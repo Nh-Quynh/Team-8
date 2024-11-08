@@ -49,9 +49,7 @@ const getAllOrders = async (req, res) => {
 
 const getOrdersHistory = async (req, res) => {
   try {
-    const { limit, page } = req.query;
-
-    const response = await OrderService.getOrdersHistory(limit || 8, page || 0);
+    const response = await OrderService.getOrdersHistory();
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({

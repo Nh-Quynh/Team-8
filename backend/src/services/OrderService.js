@@ -269,7 +269,6 @@ const getAllOrders = () => {
       const orders = await Order.find()
         .populate("paymentMethod", "name")
         .populate("status", "name")
-        // .populate("orderDetail")
         .populate({
           path: "orderDetail",
           populate: {
@@ -293,20 +292,16 @@ const getAllOrders = () => {
   });
 };
 
-const getOrdersHistory = (limit, page) => {
+const getOrdersHistory = () => {
   return new Promise(async (resolve, reject) => {
     try {
       // mongoose.set('debug', true)
-
-      const totalOrder = await Order.countDocuments();
 
       // {orderDate: -1} will sort orders in descending order
       // date format in mongodb: yyyy-mm-dd
       const ordersSort = { orderDate: -1 };
       const orders = await Order.find()
         .sort(ordersSort)
-        .limit(limit)
-        .skip(page * limit)
         .populate("paymentMethod")
         .populate("status")
         .populate({
@@ -325,8 +320,6 @@ const getOrdersHistory = (limit, page) => {
         status: "OK",
         message: "Orders history",
         data: orders,
-        totalOrder: totalOrder,
-        totalPage: Math.ceil(totalOrder / limit),
       });
     } catch (e) {
       reject(e);
