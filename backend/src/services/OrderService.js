@@ -12,6 +12,7 @@ const Invoice = require("../models/InvoiceModel");
 const DiscountService = require("../services/DiscountService");
 const ObjId = mongoose.Types.ObjectId;
 const StatusService = require("../services/StatusService");
+const sendEmail = require("../middleware/emailConfig")
 const generateOrderID = () => {
   return `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)
     .toString()
@@ -278,7 +279,8 @@ const getAllOrders = () => {
               select: "name price urlImage",
             },
           },
-        });
+        })
+        .populate("userId", "name email");
 
       resolve({
         status: "OK",
@@ -316,7 +318,8 @@ const getOrdersHistory = (limit, page) => {
               select: "name price urlImage",
             },
           },
-        });
+        })
+        .populate("userId", "name email");
 
       resolve({
         status: "OK",
@@ -349,7 +352,8 @@ const getOrderDetails = (orderId) => {
               select: "name price urlImage",
             },
           },
-        });
+        })
+        .populate("userId", "name email");
 
       resolve({
         status: "OK",
@@ -369,7 +373,63 @@ const updateOrderStatus = (orderId, orderStatus) => {
         orderId,
         { status: new ObjId(orderStatus) },
         { new: true }
-      ).populate("status");
+      )
+      .populate("status")
+      .populate("userId", "name email")
+      .populate({
+        path: "orderDetail",
+        populate: {
+          path: "productQuantity",
+          populate: {
+            path: "product",
+            select: "name price urlImage",
+          },
+        },
+      });
+
+      // send email to customer when the order is changed status to delivered
+      if (updatedOrder.status.name === "Đang giao")
+      {
+        const productList = updatedOrder.orderDetail.map(_product => `\t\t${_product.productQuantity.product.name} \tx ${_product.quantity}`).join('\n');
+
+        const emailContent = 
+          `Kính gửi ${updatedOrder.userId.name}, 
+          \nChúng tôi rất vui mừng thông báo rằng đơn hàng ${updatedOrder.orderID} của bạn đã được chuẩn bị xong và đang trên đường đến địa chỉ của bạn! 
+          \n**Thông tin đơn hàng:** 
+          \n\t- Mã đơn hàng: [Mã đơn hàng] 
+          \n\t- Sản phẩm:
+          \n\t\t${productList}
+          \n\t-Tổng thanh toán: ${updatedOrder.totalPrice}.000 vnđ
+          \n\nNếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, đừng ngần ngại liên hệ với chúng tôi qua email này hoặc trang chủ của cửa hàng. 
+          \nCảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi! 
+          \n\nTrân trọng, 
+          \nLL&Q Store`
+
+        sendEmail(updatedOrder.userId.email, `Đơn hàng ${updatedOrder.orderID} đang được giao`, emailContent);
+      }
+
+      // send email to customer when the order is changed status to delivered successfully
+      if (updatedOrder.status.name === "Đã giao")
+      {
+        const productList = updatedOrder.orderDetail.map(_product => `\t\t${_product.productQuantity.product.name} \tx ${_product.quantity}`).join('\n');
+
+        const emailContent = 
+          `Kính gửi ${updatedOrder.userId.name}, 
+          \nChúng tôi rất vui mừng thông báo rằng đơn hàng ${updatedOrder.orderID} giao thành công đến địa chỉ của bạn! 
+          \n**Thông tin đơn hàng:** 
+          \n\t- Mã đơn hàng: [Mã đơn hàng] 
+          \n\t- Sản phẩm:
+          \n\t\t${productList}
+          \n\t-Tổng thanh toán: ${updatedOrder.totalPrice}.000 vnđ
+          \n\nChúng tôi hy vọng bạn hài lòng với sản phẩm đã nhận. Nếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, đừng ngần ngại liên hệ với chúng tôi qua email này hoặc truy cập trang chủ của cửa hàng. 
+          \nNếu bạn hài lòng với dịch vụ của chúng tôi, hãy để lại đánh giá và phản hồi của bạn tại trang chủ của cửa hàng. Phản hồi của bạn là vô cùng quan trọng để chúng tôi không ngừng cải thiện chất lượng dịch vụ. 
+          \n\nCảm ơn bạn đã mua sắm tại LL&Q Store! 
+          \nTrân trọng, 
+          \nLL&Q Store`
+
+        sendEmail(updatedOrder.userId.email, `Đơn hàng ${updatedOrder.orderID} được giao thành công`, emailContent);
+      }
+
       resolve({
         status: "OK",
         message: "Update order status successful",
