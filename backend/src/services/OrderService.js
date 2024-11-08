@@ -398,7 +398,7 @@ const updateOrderStatus = (orderId, orderStatus) => {
           \n**Thông tin đơn hàng:** 
           \n\t- Mã đơn hàng: [Mã đơn hàng] 
           \n\t- Sản phẩm:
-          \n\t\t${productList}
+          \n${productList}
           \n\t-Tổng thanh toán: ${updatedOrder.totalPrice}.000 vnđ
           \n\nNếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, đừng ngần ngại liên hệ với chúng tôi qua email này hoặc trang chủ của cửa hàng. 
           \nCảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi! 
@@ -419,7 +419,7 @@ const updateOrderStatus = (orderId, orderStatus) => {
           \n**Thông tin đơn hàng:** 
           \n\t- Mã đơn hàng: [Mã đơn hàng] 
           \n\t- Sản phẩm:
-          \n\t\t${productList}
+          \n${productList}
           \n\t-Tổng thanh toán: ${updatedOrder.totalPrice}.000 vnđ
           \n\nChúng tôi hy vọng bạn hài lòng với sản phẩm đã nhận. Nếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, đừng ngần ngại liên hệ với chúng tôi qua email này hoặc truy cập trang chủ của cửa hàng. 
           \nNếu bạn hài lòng với dịch vụ của chúng tôi, hãy để lại đánh giá và phản hồi của bạn tại trang chủ của cửa hàng. Phản hồi của bạn là vô cùng quan trọng để chúng tôi không ngừng cải thiện chất lượng dịch vụ. 
