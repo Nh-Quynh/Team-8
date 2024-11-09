@@ -13,6 +13,7 @@ const DiscountService = require("../services/DiscountService");
 const ObjId = mongoose.Types.ObjectId;
 const StatusService = require("../services/StatusService");
 const sendEmail = require("../middleware/emailConfig");
+const { promises } = require("nodemailer/lib/xoauth2");
 const generateOrderID = () => {
   return `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)
     .toString()
@@ -648,19 +649,7 @@ const getMonthlyRevenue = (year) => {
     }
   });
 };
-// const resetOrderInvoice = () => {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       await Order.deleteAll();
-//       await OrderDetail.deleteAll();
-//       await Invoice.deleteAll();
 
-//       resolve({ status: "OK" });
-//     } catch (e) {
-//       reject(e);
-//     }
-//   });
-// };
 const resetOrderInvoice = async () => {
   try {
     await Order.deleteMany({});

@@ -172,6 +172,7 @@ const getInvoiceByOrderId = async (req, res) => {
     });
   }
 };
+
 const resetOrderInvoice = async (req, res) => {
   try {
     const response = await OrderService.resetOrderInvoice();
@@ -198,7 +199,6 @@ const getCountFailOrder = async (req, res) => {
 };
 const getTotalRevenue = async (req, res) => {
   try {
-    // const keyword = req.params.keyword;
     const response = await OrderService.getTotalRevenue();
     return res.status(200).json(response);
   } catch (e) {

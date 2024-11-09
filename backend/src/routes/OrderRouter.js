@@ -33,5 +33,6 @@ router.put(
 router.delete("/delete-reset", orderController.resetOrderInvoice);
 router.get("/get-count-fail/:userId", orderController.getCountFailOrder);
 router.get("/get-total-revenue", orderController.getTotalRevenue);
+// router.get("/total-revenue", orderController.getTotalRevenue);
 
 module.exports = router;
