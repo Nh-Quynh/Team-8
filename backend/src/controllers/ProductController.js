@@ -284,6 +284,17 @@ const topSellingProducts = async (req, res) => {
     });
   }
 };
+const totalProductsSold = async (req, res) => {
+  try {
+    const response = await ProductService.totalProductsSold();
+
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(500).json({
+      message: e.message || "An error occurred while fetching data",
+    });
+  }
+};
 const getQuantityById = async (req, res) => {
   try {
     const quantityId = req.params.quantityId;
@@ -331,4 +342,5 @@ module.exports = {
   topSellingProducts,
   getQuantityById,
   searchProductByAdmin,
+  totalProductsSold,
 };

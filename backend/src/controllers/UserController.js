@@ -484,6 +484,17 @@ const searchEmployee = async (req, res) => {
     });
   }
 };
+const searchCustomer = async (req, res) => {
+  try {
+    const keyword = req.params.keyword;
+    const response = await UserService.searchCustomer(keyword);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 // logoutEmployee
 module.exports = {
   createCustomer,
@@ -509,4 +520,5 @@ module.exports = {
   decrementItemProduct,
   deleteItemProduct,
   searchEmployee,
+  searchCustomer,
 };

@@ -16,7 +16,7 @@ router.put(
 );
 router.delete(
   "/delete-customer/:id",
-  authAdminMiddleware, //tim hieu sau
+  // authAdminMiddleware, //tim hieu sau
   userController.deleteCustomer
 );
 
@@ -39,6 +39,11 @@ router.put(
 );
 router.delete("/item-delete/:userId/:itemId", userController.deleteItemProduct);
 //Xem chi tiet nguoi dung = email
+router.get(
+  "/search/:keyword",
+  // authUserMiddleWare,
+  userController.searchCustomer
+);
 
 // ============== Employee ==============
 router.post(

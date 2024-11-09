@@ -656,6 +656,29 @@ const resetOrderInvoice = async () => {
   }
 };
 
+const getCountFailOrder = async (userId) => {
+  try {
+    const statusObj = await Status.findOne({ name: "Giao không thành công" });
+    if (!statusObj)
+      throw new Error("Không tìm thấy status 'Giao không thành công'");
+
+    const statusId = new mongoose.Types.ObjectId(statusObj._id);
+    const userIdObj = new mongoose.Types.ObjectId(userId);
+
+    const countFail = await Order.aggregate([
+      { $match: { userId: userIdObj, status: statusId } },
+      { $group: { _id: "$userId", count: { $sum: 1 } } },
+    ]);
+
+    const result = countFail[0]?.count || 0;
+    console.log("Kết quả count:", result);
+    return { status: "OK", data: result, statusObj };
+  } catch (e) {
+    console.error("Lỗi:", e);
+    throw e;
+  }
+};
+
 const getTotalRevenue = async () => {
   try {
     const orders = await Order.find();
@@ -689,5 +712,6 @@ module.exports = {
   getMonthlyRevenue,
   getInvoiceByOrderId,
   resetOrderInvoice,
+  getCountFailOrder,
   getTotalRevenue,
 };

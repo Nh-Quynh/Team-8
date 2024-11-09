@@ -31,6 +31,7 @@ router.put(
   orderController.updateOrderStatus
 );
 router.delete("/delete-reset", orderController.resetOrderInvoice);
+router.get("/get-count-fail/:userId", orderController.getCountFailOrder);
 router.get("/total-revenue", orderController.getTotalRevenue);
 
 module.exports = router;

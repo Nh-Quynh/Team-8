@@ -118,38 +118,57 @@ const createProduct = async (newProduct) => {
   }
 };
 
-//Cap nhat san pham
 const updateProduct = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
+      // Tìm sản phẩm hiện tại trong CSDL
       const checkProduct = await Product.findOne({
         _id: id,
       });
-      // console.log("checkProduct ", checkProduct);
+
+      // Nếu không tìm thấy sản phẩm, trả về lỗi
       if (checkProduct == null) {
         resolve({
           status: "ERR",
           message: "The product is not defined",
         });
+        return;
       }
-      const updateProduct = await Product.findByIdAndUpdate(id, data, {
+
+      // Kiểm tra xem tên sản phẩm đã tồn tại chưa
+      const productDif = await Product.findOne({ name: data.name });
+      if (
+        productDif &&
+        productDif._id.toString() !== checkProduct._id.toString()
+      ) {
+        return reject({
+          status: "ERR",
+          message: "Product with this name already exists. Update failed.",
+        });
+      }
+
+      // Cập nhật sản phẩm
+      const updatedProduct = await Product.findByIdAndUpdate(id, data, {
         new: true,
-        runValidators: true, // Kiểm tra tính hợp lệ nếu có
+        runValidators: true, // Kiểm tra tính hợp lệ
       });
+
       // Nếu không có sản phẩm nào được cập nhật
-      if (!updateProduct) {
+      if (!updatedProduct) {
         return reject({
           status: "ERR",
           message: "Update failed, no changes were made.",
         });
       }
-      // console.log("updateProduct", updateProduct);
+
+      // Trả về kết quả thành công
       resolve({
         status: "OK",
         message: "Update product success",
-        data: updateProduct,
+        data: updatedProduct,
       });
     } catch (e) {
+      // Xử lý lỗi
       reject(e);
     }
   });
@@ -932,6 +951,29 @@ const topSellingProducts = async () => {
     throw new Error("An error occurred while fetching top selling products");
   }
 };
+const totalProductsSold = async () => {
+  try {
+    const totalSold = await OrderDetail.aggregate([
+      {
+        $group: {
+          _id: null, // Không cần nhóm theo product
+          totalQuantity: { $sum: "$quantity" }, // Tính tổng quantity trực tiếp từ OrderDetail
+        },
+      },
+    ]);
+
+    const result = totalSold[0]?.totalQuantity || 0; // Đảm bảo kết quả trả về là 0 nếu không có dữ liệu
+
+    return {
+      status: "OK",
+      message: "Total products sold fetched successfully",
+      data: result,
+    };
+  } catch (error) {
+    console.error("Error fetching total products sold:", error);
+    throw new Error("An error occurred while fetching total products sold");
+  }
+};
 
 module.exports = {
   createProduct,
@@ -956,4 +998,5 @@ module.exports = {
   deleteItemProduct,
   productCountByCategory,
   topSellingProducts,
+  totalProductsSold,
 };
