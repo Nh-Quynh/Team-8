@@ -196,7 +196,17 @@ const getCountFailOrder = async (req, res) => {
     });
   }
 };
-
+const getTotalRevenue = async (req, res) => {
+  try {
+    // const keyword = req.params.keyword;
+    const response = await OrderService.getTotalRevenue();
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 module.exports = {
   getAllOrders,
   getOrdersHistory,
@@ -211,4 +221,5 @@ module.exports = {
   getInvoiceByOrderId,
   resetOrderInvoice,
   getCountFailOrder,
+  getTotalRevenue,
 };

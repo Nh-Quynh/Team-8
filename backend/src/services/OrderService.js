@@ -358,6 +358,12 @@ const getOrderDetails = (orderId) => {
     }
   });
 };
+const formatCurrency = (value) => {
+  const formattedValue = (value * 1000).toLocaleString("vi-VN");
+  return formattedValue.endsWith(",000")
+    ? formattedValue.slice(0, -4) + " đ"
+    : formattedValue + " đ";
+};
 
 const updateOrderStatus = (orderId, orderStatus) => {
   return new Promise(async (resolve, reject) => {
@@ -379,7 +385,7 @@ const updateOrderStatus = (orderId, orderStatus) => {
             },
           },
         });
-
+      const formattedTotalPrice = formatCurrency(updatedOrder.totalPrice);
       // send email to customer when the order is changed status to delivered
       if (updatedOrder.status.name === "Đang giao") {
         const productList = updatedOrder.orderDetail
@@ -395,7 +401,7 @@ const updateOrderStatus = (orderId, orderStatus) => {
           \n\t- Mã đơn hàng: [Mã đơn hàng] 
           \n\t- Sản phẩm:
           \n${productList}
-          \n\t-Tổng thanh toán: ${updatedOrder.totalPrice}.000 vnđ
+          \n\t-Tổng thanh toán: ${formattedTotalPrice}
           \n\nNếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, đừng ngần ngại liên hệ với chúng tôi qua email này hoặc trang chủ của cửa hàng. 
           \nCảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi! 
           \n\nTrân trọng, 
@@ -423,7 +429,7 @@ const updateOrderStatus = (orderId, orderStatus) => {
           \n\t- Mã đơn hàng: [Mã đơn hàng] 
           \n\t- Sản phẩm:
           \n${productList}
-          \n\t-Tổng thanh toán: ${updatedOrder.totalPrice}.000 vnđ
+          \n\t-Tổng thanh toán:${formattedTotalPrice}
           \n\nChúng tôi hy vọng bạn hài lòng với sản phẩm đã nhận. Nếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, đừng ngần ngại liên hệ với chúng tôi qua email này hoặc truy cập trang chủ của cửa hàng. 
           \nNếu bạn hài lòng với dịch vụ của chúng tôi, hãy để lại đánh giá và phản hồi của bạn tại trang chủ của cửa hàng. Phản hồi của bạn là vô cùng quan trọng để chúng tôi không ngừng cải thiện chất lượng dịch vụ. 
           \n\nCảm ơn bạn đã mua sắm tại LL&Q Store! 
@@ -690,6 +696,26 @@ const getCountFailOrder = async (userId) => {
   }
 };
 
+const getTotalRevenue = async () => {
+  try {
+    const revenue = await Order.aggregate([
+      {
+        $group: {
+          _id: null, // Không nhóm theo bất kỳ trường nào
+          totalRevenue: { $sum: "$totalPrice" }, // Tính tổng totalPrice
+        },
+      },
+    ]);
+
+    const result = revenue[0]?.totalRevenue || 0; // Đảm bảo giá trị trả về là 0 nếu không có dữ liệu
+
+    return { status: "OK", data: result };
+  } catch (e) {
+    console.error("Lỗi:", e);
+    throw e;
+  }
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
@@ -704,4 +730,5 @@ module.exports = {
   getInvoiceByOrderId,
   resetOrderInvoice,
   getCountFailOrder,
+  getTotalRevenue,
 };
