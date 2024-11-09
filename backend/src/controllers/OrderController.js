@@ -172,6 +172,7 @@ const getInvoiceByOrderId = async (req, res) => {
     });
   }
 };
+
 const resetOrderInvoice = async (req, res) => {
   try {
     const response = await OrderService.resetOrderInvoice();
@@ -184,6 +185,19 @@ const resetOrderInvoice = async (req, res) => {
     });
   }
 };
+
+const getTotalRevenue = async (req, res) => {
+  try {
+    const response = await OrderService.getTotalRevenue();
+    return res.status(200).json(response);
+  }
+  catch(e)
+  {
+    return res.status(404).json({
+      message: e,
+    })
+  }
+}
 
 module.exports = {
   getAllOrders,
@@ -198,4 +212,5 @@ module.exports = {
   getOrderbyStatus,
   getInvoiceByOrderId,
   resetOrderInvoice,
+  getTotalRevenue,
 };
