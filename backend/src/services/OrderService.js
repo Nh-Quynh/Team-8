@@ -12,7 +12,7 @@ const Invoice = require("../models/InvoiceModel");
 const DiscountService = require("../services/DiscountService");
 const ObjId = mongoose.Types.ObjectId;
 const StatusService = require("../services/StatusService");
-const sendEmail = require("../middleware/emailConfig")
+const sendEmail = require("../middleware/emailConfig");
 const generateOrderID = () => {
   return `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)
     .toString()
@@ -367,26 +367,29 @@ const updateOrderStatus = (orderId, orderStatus) => {
         { status: new ObjId(orderStatus) },
         { new: true }
       )
-      .populate("status")
-      .populate("userId", "name email")
-      .populate({
-        path: "orderDetail",
-        populate: {
-          path: "productQuantity",
+        .populate("status")
+        .populate("userId", "name email")
+        .populate({
+          path: "orderDetail",
           populate: {
-            path: "product",
-            select: "name price urlImage",
+            path: "productQuantity",
+            populate: {
+              path: "product",
+              select: "name price urlImage",
+            },
           },
-        },
-      });
+        });
 
       // send email to customer when the order is changed status to delivered
-      if (updatedOrder.status.name === "Đang giao")
-      {
-        const productList = updatedOrder.orderDetail.map(_product => `\t\t${_product.productQuantity.product.name} \tx ${_product.quantity}`).join('\n');
+      if (updatedOrder.status.name === "Đang giao") {
+        const productList = updatedOrder.orderDetail
+          .map(
+            (_product) =>
+              `\t\t${_product.productQuantity.product.name} \tx ${_product.quantity}`
+          )
+          .join("\n");
 
-        const emailContent = 
-          `Kính gửi ${updatedOrder.userId.name}, 
+        const emailContent = `Kính gửi ${updatedOrder.userId.name}, 
           \nChúng tôi rất vui mừng thông báo rằng đơn hàng ${updatedOrder.orderID} của bạn đã được chuẩn bị xong và đang trên đường đến địa chỉ của bạn! 
           \n**Thông tin đơn hàng:** 
           \n\t- Mã đơn hàng: [Mã đơn hàng] 
@@ -396,18 +399,25 @@ const updateOrderStatus = (orderId, orderStatus) => {
           \n\nNếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, đừng ngần ngại liên hệ với chúng tôi qua email này hoặc trang chủ của cửa hàng. 
           \nCảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi! 
           \n\nTrân trọng, 
-          \nLL&Q Store`
+          \nLL&Q Store`;
 
-        sendEmail(updatedOrder.userId.email, `Đơn hàng ${updatedOrder.orderID} đang được giao`, emailContent);
+        sendEmail(
+          updatedOrder.userId.email,
+          `Đơn hàng ${updatedOrder.orderID} đang được giao`,
+          emailContent
+        );
       }
 
       // send email to customer when the order is changed status to delivered successfully
-      if (updatedOrder.status.name === "Đã giao")
-      {
-        const productList = updatedOrder.orderDetail.map(_product => `\t\t${_product.productQuantity.product.name} \tx ${_product.quantity}`).join('\n');
+      if (updatedOrder.status.name === "Đã giao") {
+        const productList = updatedOrder.orderDetail
+          .map(
+            (_product) =>
+              `\t\t${_product.productQuantity.product.name} \tx ${_product.quantity}`
+          )
+          .join("\n");
 
-        const emailContent = 
-          `Kính gửi ${updatedOrder.userId.name}, 
+        const emailContent = `Kính gửi ${updatedOrder.userId.name}, 
           \nChúng tôi rất vui mừng thông báo rằng đơn hàng ${updatedOrder.orderID} giao thành công đến địa chỉ của bạn! 
           \n**Thông tin đơn hàng:** 
           \n\t- Mã đơn hàng: [Mã đơn hàng] 
@@ -418,9 +428,13 @@ const updateOrderStatus = (orderId, orderStatus) => {
           \nNếu bạn hài lòng với dịch vụ của chúng tôi, hãy để lại đánh giá và phản hồi của bạn tại trang chủ của cửa hàng. Phản hồi của bạn là vô cùng quan trọng để chúng tôi không ngừng cải thiện chất lượng dịch vụ. 
           \n\nCảm ơn bạn đã mua sắm tại LL&Q Store! 
           \nTrân trọng, 
-          \nLL&Q Store`
+          \nLL&Q Store`;
 
-        sendEmail(updatedOrder.userId.email, `Đơn hàng ${updatedOrder.orderID} được giao thành công`, emailContent);
+        sendEmail(
+          updatedOrder.userId.email,
+          `Đơn hàng ${updatedOrder.orderID} được giao thành công`,
+          emailContent
+        );
       }
 
       resolve({
@@ -653,6 +667,29 @@ const resetOrderInvoice = async () => {
   }
 };
 
+const getCountFailOrder = async (userId) => {
+  try {
+    const statusObj = await Status.findOne({ name: "Giao không thành công" });
+    if (!statusObj)
+      throw new Error("Không tìm thấy status 'Giao không thành công'");
+
+    const statusId = new mongoose.Types.ObjectId(statusObj._id);
+    const userIdObj = new mongoose.Types.ObjectId(userId);
+
+    const countFail = await Order.aggregate([
+      { $match: { userId: userIdObj, status: statusId } },
+      { $group: { _id: "$userId", count: { $sum: 1 } } },
+    ]);
+
+    const result = countFail[0]?.count || 0;
+    console.log("Kết quả count:", result);
+    return { status: "OK", data: result, statusObj };
+  } catch (e) {
+    console.error("Lỗi:", e);
+    throw e;
+  }
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
@@ -666,4 +703,5 @@ module.exports = {
   getMonthlyRevenue,
   getInvoiceByOrderId,
   resetOrderInvoice,
+  getCountFailOrder,
 };

@@ -184,6 +184,18 @@ const resetOrderInvoice = async (req, res) => {
     });
   }
 };
+const getCountFailOrder = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const response = await OrderService.getCountFailOrder(userId);
+    return res.status(200).json(response);
+  } catch (e) {
+    console.error(e.message); // Log lỗi để dễ debug
+    return res.status(500).json({
+      message: e.message || "Có lỗi xảy ra trong quá trình xử lý",
+    });
+  }
+};
 
 module.exports = {
   getAllOrders,
@@ -198,4 +210,5 @@ module.exports = {
   getOrderbyStatus,
   getInvoiceByOrderId,
   resetOrderInvoice,
+  getCountFailOrder,
 };
