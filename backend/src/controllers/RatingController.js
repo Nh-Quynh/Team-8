@@ -121,9 +121,39 @@ const checkRating = async (req, res) => {
   }
 };
 
+const getRatingsByProductId = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    console.log("Fetching ratings for productId:", productId); // Log để kiểm tra productId
+
+    const ratings = await Rating.find({ product: new mongoose.Types.ObjectId(productId) })
+      .populate('customer', 'name') // Tùy chọn: Chỉ lấy tên khách hàng từ thông tin người dùng
+      .select('rating comment createdAt'); // Chỉ lấy trường cần thiết
+
+    if (!ratings || ratings.length === 0) {
+      return res.status(200).json({
+        status: "OK",
+        message: "No ratings found for this product",
+        ratings: [],
+      });
+    }
+
+    return res.status(200).json({
+      status: "OK",
+      ratings,
+    });
+  } catch (error) {
+    console.error("Error in getRatingsByProductId:", error);
+    return res.status(500).json({
+      status: "ERR",
+      message: "Internal server error",
+    });
+  }
+};
 module.exports = {
   ratingProduct,
   updateRating,
   getProductAverageRating,
   checkRating,
+  getRatingsByProductId
 };
