@@ -1,6 +1,6 @@
 const Rating = require("../models/RatingModel");
 const RatingService = require("../services/RatingService");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // add rating with data from request body
 const ratingProduct = async (req, res) => {
@@ -68,10 +68,10 @@ const updateRating = async (req, res) => {
 const getProductAverageRating = async (req, res) => {
   try {
     const { productId } = req.params;
-    console.log("Received productId:", productId); // Kiểm tra productId nhận được
+    // console.log("Received productId:", productId); // Kiểm tra productId nhận được
 
     const response = await RatingService.getProductAverageRating(productId);
-    console.log("Average Rating Response:", response); // Kiểm tra phản hồi từ service
+    // console.log("Average Rating Response:", response); // Kiểm tra phản hồi từ service
 
     return res.status(200).json(response);
   } catch (e) {
@@ -84,7 +84,11 @@ const getProductAverageRating = async (req, res) => {
 const checkRating = async (req, res) => {
   try {
     const { userId, orderId, productId } = req.params;
-    const response = await RatingService.checkRating(userId, orderId, productId);
+    const response = await RatingService.checkRating(
+      userId,
+      orderId,
+      productId
+    );
 
     // Nếu sản phẩm đã được đánh giá, trả về thông báo rõ ràng
     if (response.status === "ERR") {
@@ -117,7 +121,9 @@ const checkRating = async (req, res) => {
     }
   } catch (error) {
     console.error("Error in checkRating:", error);
-    return res.status(500).json({ message: error.message || 'An internal server error occurred' });
+    return res
+      .status(500)
+      .json({ message: error.message || "An internal server error occurred" });
   }
 };
 

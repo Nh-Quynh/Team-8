@@ -10,10 +10,18 @@ const discountSchema = new mongoose.Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "Product",
-        required: true,
+        // required: true,
+      },
+    ],
+    categories: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+        // required: true,
       },
     ],
   },
+
   {
     timestamps: true,
   }

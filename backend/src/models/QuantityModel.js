@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const Product = require("./ProductModel")
-const Color = require("./ColorModel")
+const Product = require("./ProductModel");
+const Color = require("./ColorModel");
 
 const Schema = mongoose.Schema;
 
@@ -20,6 +20,16 @@ const quantitySchema = new mongoose.Schema(
       ref: "Product",
       required: true,
     },
+    image: {
+      type: Schema.Types.ObjectId,
+      ref: "Image",
+      // required: true,
+    },
+    // image: {
+    //   type:String,
+    //   // ref: "Image",
+    //   // required: true,
+    // },
   },
   {
     timestamps: true,

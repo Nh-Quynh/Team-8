@@ -1,21 +1,22 @@
 const Discount = require("../models/DiscountModel");
 const Product = require("../models/ProductModel");
+const Category = require("../models/CategoryModel");
 const mongoose = require("mongoose");
 const ObjId = mongoose.Types.ObjectId;
 
 const createDiscount = async (newDiscount) => {
   try {
-    const { discountId, discountPercent, startDate, endDate, products } =
-      newDiscount;
-
+    const {
+      discountId,
+      discountPercent,
+      startDate,
+      endDate,
+      products,
+      categories,
+    } = newDiscount;
+    console.log(newDiscount);
     // Kiểm tra xem các trường bắt buộc có được cung cấp không
-    if (
-      !discountId ||
-      !discountPercent ||
-      !startDate ||
-      !endDate ||
-      !Array.isArray(products)
-    ) {
+    if (!discountId || !discountPercent || !startDate || !endDate) {
       return {
         status: "ERR",
         message: "Missing discount attributes or products is not an array",
@@ -31,44 +32,86 @@ const createDiscount = async (newDiscount) => {
       };
     }
 
-    // Tìm tất cả sản phẩm tương ứng từ cơ sở dữ liệu bằng productId
-    const foundProducts = await Product.find({ productId: { $in: products } });
-
-    if (foundProducts.length === 0) {
-      return { status: "ERR", message: "Not found products" };
-    }
-
-    // Lưu chuỗi ObjectId của các sản phẩm
-    const productIds = foundProducts.map((product) => product._id); // Lấy _id của từng sản phẩm
-
-    // Kiểm tra và chuyển đổi định dạng ngày từ dd/mm/yyyy sang Date
-    const convertDate = (dateStr) => {
-      const [day, month, year] = dateStr.split("/");
-      if (!day || !month || !year) {
-        throw new Error("Invalid date format. Please use dd/mm/yyyy");
-      }
-      return new Date(`${year}-${month}-${day}`);
+    // Tạo đối tượng mã giảm giá
+    let discountQuery = {
+      discountId,
+      discountPercent,
+      startDate,
+      endDate,
     };
 
-    const startDateFormatted = convertDate(startDate);
-    const endDateFormatted = convertDate(endDate);
+    // Kiểm tra và xử lý mảng products
+    if (Array.isArray(products) && products.length > 0) {
+      // Kiểm tra xem các ID sản phẩm có hợp lệ không
+      const productIds = products.map((id) => new mongoose.Types.ObjectId(id));
+      const invalidProducts = productIds.filter(
+        (id) => !mongoose.Types.ObjectId.isValid(id)
+      );
 
-    // Kiểm tra xem startDate có nhỏ hơn hoặc bằng endDate không
-    if (startDateFormatted > endDateFormatted) {
+      if (invalidProducts.length > 0) {
+        return {
+          status: "ERR",
+          message: `Invalid product IDs: ${invalidProducts.join(", ")}`,
+        };
+      }
+
+      // Tìm các sản phẩm trong cơ sở dữ liệu
+      const foundProducts = await Product.find({ _id: { $in: productIds } });
+      if (foundProducts.length === 0) {
+        return {
+          status: "ERR",
+          message: "No products found matching the provided IDs",
+        };
+      }
+
+      // Lưu các sản phẩm hợp lệ
+      discountQuery.products = foundProducts.map((product) => product._id);
+    } else {
       return {
         status: "ERR",
-        message: "Start date must be less than or equal to end date",
+        message: "Products should be a non-empty array",
       };
     }
 
-    // Tạo đối tượng mã giảm giá
-    const discountQuery = {
-      discountId,
-      discountPercent,
-      startDate: startDateFormatted,
-      endDate: endDateFormatted,
-      products: productIds, // Chỉ lưu chuỗi ObjectId
-    };
+    // Kiểm tra và xử lý mảng categories
+    if (Array.isArray(categories) && categories.length > 0) {
+      // Kiểm tra xem các ID danh mục có hợp lệ không
+      const categoryIds = categories.map(
+        (id) => new mongoose.Types.ObjectId(id)
+      );
+      const invalidCategories = categoryIds.filter(
+        (id) => !mongoose.Types.ObjectId.isValid(id)
+      );
+
+      if (invalidCategories.length > 0) {
+        return {
+          status: "ERR",
+          message: `Invalid category IDs: ${invalidCategories.join(", ")}`,
+        };
+      }
+
+      // Tìm các danh mục trong cơ sở dữ liệu
+      const foundCategories = await Category.find({
+        _id: { $in: categoryIds },
+      });
+
+      if (foundCategories.length === 0) {
+        return {
+          status: "ERR",
+          message: "No categories found matching the provided IDs",
+        };
+      }
+
+      // Lưu các danh mục hợp lệ
+      discountQuery.categories = foundCategories.map(
+        (category) => category._id
+      );
+    } else {
+      return {
+        status: "ERR",
+        message: "Categories should be a non-empty array",
+      };
+    }
 
     // Tạo mới mã giảm giá
     const createdDiscount = await Discount.create(discountQuery);
@@ -81,6 +124,7 @@ const createDiscount = async (newDiscount) => {
     return { status: "ERR", message: e.message || "Internal server error" };
   }
 };
+
 const getDiscountByProductId = async (productId) => {
   try {
     const currentDate = new Date(); // Lấy ngày hiện tại
@@ -115,8 +159,8 @@ const getDiscountByProductId = async (productId) => {
 const getAllDiscount = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const discounts = await Discount.find().populate("products");
-
+      // const discounts = await Discount.find().populate("products");
+      const discounts = await Discount.find();
       resolve({
         status: "OK",
         message: "Get all discounts",
@@ -131,10 +175,13 @@ const getAllDiscount = () => {
 const getDiscount = (discountId) => {
   return new Promise(async (resolve, reject) => {
     try {
+      // const discount = await Discount.findOne({
+      //   _id: discountId,
+      // }).populate("products");
+
       const discount = await Discount.findOne({
         _id: discountId,
-      }).populate("products");
-
+      });
       resolve({
         status: "OK",
         message: "Get discount by discount id",
@@ -159,21 +206,30 @@ const updateDiscount = async (discountId, updatedData) => {
 
     // Nếu có sản phẩm trong updatedData, xử lý chúng
     if (
+      updatedData.categories &&
+      Array.isArray(updatedData.categories) &&
+      updatedData.categories.length > 0
+    ) {
+      const foundCategories = await Product.find({
+        _id: { $in: updatedData.categories },
+      });
+      if (foundCategories.length > 0) {
+        const categoryIds = foundCategories.map((category) => category._id);
+        updatedData.categories = categoryIds;
+      }
+    }
+    if (
       updatedData.products &&
       Array.isArray(updatedData.products) &&
       updatedData.products.length > 0
     ) {
       const foundProducts = await Product.find({
-        productId: { $in: updatedData.products },
+        _id: { $in: updatedData.products },
       });
-
-      if (foundProducts.length === 0) {
-        return { status: "ERR", message: "Not found products" };
+      if (foundProducts.length > 0) {
+        const productIds = foundProducts.map((product) => product._id);
+        updatedData.products = productIds;
       }
-
-      // Lưu chuỗi ObjectId của các sản phẩm
-      const productIds = foundProducts.map((product) => product._id);
-      updatedData.products = productIds; // Cập nhật danh sách sản phẩm
     }
 
     // Xử lý ngày tháng

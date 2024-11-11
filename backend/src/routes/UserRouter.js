@@ -11,7 +11,7 @@ router.post("/sign-in", userController.loginCustomer);
 router.put("/update-customer/:id", userController.updateCustomer);
 router.put(
   "/update-status/:id",
-  authAdminMiddleware,
+  // authAdminMiddleware,
   userController.updateStatusCustomer
 );
 router.delete(

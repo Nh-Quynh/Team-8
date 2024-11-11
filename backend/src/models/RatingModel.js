@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const Customer = require('./CustomerModel')
-const Product = require('./ProductModel')
+const Customer = require("./CustomerModel");
+const Product = require("./ProductModel");
 const Schema = mongoose.Schema;
 
 const ratingSchema = new mongoose.Schema(
