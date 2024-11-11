@@ -21,6 +21,11 @@ router.get(
   "/product-count-by-category",
   productController.productCountByCategory
 );
+router.get(
+  "/low-product-with-color",
+  productController.lowStockProductsWithColor
+);
+router.get("/get-image-by-id/:imageId", productController.getImageById);
 router.get("/product-top-selling", productController.topSellingProducts);
 router.get("/count-product-sold", productController.totalProductsSold);
 // router.get('/material/:materialId', productController.fillByMaterial)

@@ -6,6 +6,7 @@ const Color = require("../models/ColorModel");
 const OrderDetail = require("../models/OrderDetailModel");
 const Quantity = require("../models/QuantityModel");
 const Material = require("../models/MaterialModel");
+const Image = require("../models/ImageModel");
 const Cart = require("../models/CartModel");
 const DiscountService = require("../services/DiscountService");
 const ObjectId = mongoose.Types.ObjectId;
@@ -18,11 +19,11 @@ const createProduct = async (newProduct) => {
     name,
     price,
     description,
-    urlImage,
+    images,
     categoryId,
     materialId,
-    color,
-    quantity,
+    // color,
+    // quantity,
   } = newProduct;
 
   try {
@@ -32,9 +33,9 @@ const createProduct = async (newProduct) => {
       product = await Product.findOne({ name });
     }
     let categoryObj = await Category.findOne({ _id: categoryId });
-    let colorObj = await Color.findOne({
-      name: { $regex: new RegExp(`^${color}$`, "i") },
-    });
+    // let colorObj = await Color.findOne({
+    //   name: { $regex: new RegExp(`^${color}$`, "i") },
+    // });
     // let colorObj = await Color.findOne({ name: color });
     let materialObj = await Material.findOne({ _id: materialId });
     // Nếu category , material chưa tồn tại báo lỗi
@@ -50,66 +51,71 @@ const createProduct = async (newProduct) => {
       };
     }
 
-    if (!colorObj) colorObj = await Color.create({ name: color });
+    // if (!colorObj) colorObj = await Color.create({ name: color });
 
     // Nếu sản phẩm đã tồn tại
     if (product) {
-      let existingQuantity = await Quantity.findOne({
-        product: product._id,
-        color: colorObj._id,
-      });
+      // let existingQuantity = await Quantity.findOne({
+      //   product: product._id,
+      //   color: colorObj._id,
+      // });
 
-      if (existingQuantity) {
-        // Cập nhật số lượng sản phẩm
-        existingQuantity.quantity =
-          Number(existingQuantity.quantity) + Number(quantity);
-        // existingQuantity.quantity += quantity
-        await existingQuantity.save();
-        return {
-          status: "OK",
-          message: "Updated existing product quantity",
-          product,
-          updateQuantity: existingQuantity,
-        };
-      } else {
-        // Tạo mới quantity cho sản phẩm
-        const newQuantity = await Quantity.create({
-          product: product._id,
-          color: colorObj._id,
-          quantity,
-        });
-        return {
-          status: "OK",
-          message: "Created new quantity for existing product",
-          product,
-          quantity: newQuantity,
-        };
-      }
+      // if (existingQuantity) {
+      //   // Cập nhật số lượng sản phẩm
+      //   existingQuantity.quantity =
+      //     Number(existingQuantity.quantity) + Number(quantity);
+      //   // existingQuantity.quantity += quantity
+      //   await existingQuantity.save();
+      //   return {
+      //     status: "OK",
+      //     message: "Updated existing product quantity",
+      //     product,
+      //     updateQuantity: existingQuantity,
+      //   };
+      // } else {
+      //   // Tạo mới quantity cho sản phẩm
+      //   const newQuantity = await Quantity.create({
+      //     product: product._id,
+      //     color: colorObj._id,
+      //     quantity,
+      //   });
+      return {
+        status: "ERR",
+        message: "Created new quantity for existing product",
+        product,
+        // quantity: newQuantity,
+      };
+      // }
     }
 
     // Nếu sản phẩm chưa tồn tại, tiến hành tạo sản phẩm mới
+    const imageIds = [];
+    for (const imageUrl of images) {
+      const image = await Image.create({ imageUrl });
+      imageIds.push(image._id); // lưu ObjectId của ảnh vào mảng imageIds
+    }
     product = await Product.create({
       productId,
       name,
       price,
       description,
-      urlImage,
       category: categoryObj._id,
       material: materialObj._id,
+      images: imageIds,
     });
 
-    // Tạo mới quantity cho sản phẩm mới
-    const newQuantity = await Quantity.create({
-      product: product._id,
-      color: colorObj._id,
-      quantity,
-    });
+    // // Tạo mới quantity cho sản phẩm mới
+    // const newQuantity = await Quantity.create({
+    //   product: product._id,
+    //   color: colorObj._id,
+    //   quantity,
+    // });
 
     return {
       status: "OK",
       message: "Created new product with quantity",
       product,
-      quantity: newQuantity,
+      // quantity: newQuantity,
     };
   } catch (e) {
     // In ra lỗi để dễ debug
@@ -329,23 +335,39 @@ const getQuantity = (productId) => {
     }
   });
 };
-const updateQuantity = (id, quantity) => {
+const updateQuantity = async (id, quantity, image) => {
   return new Promise(async (resolve, reject) => {
     try {
+      // Tìm sản phẩm cần cập nhật
       const quantityProduct = await Quantity.findById(id);
-      // Kiểm tra xem bản ghi có tồn tại không
       if (!quantityProduct) {
         return resolve({
           status: "ERR",
           message: "The quantity product is not defined",
         });
       }
+
+      // Kiểm tra ảnh mới trong collection `Image`
+      let imageObj = await Image.findOne({ imageUrl: image });
+      if (!imageObj) {
+        imageObj = await Image.create({ imageUrl: image });
+      } else if (
+        quantityProduct.image &&
+        quantityProduct.image.toString() !== imageObj._id.toString()
+      ) {
+        await Image.findByIdAndDelete(quantityProduct.image); // Xóa ảnh cũ nếu khác
+      }
+
+      // Cập nhật `quantity` và thêm `image` nếu chưa có
       const updatedProduct = await Quantity.findByIdAndUpdate(
         id,
-        { quantity: quantity },
-        { new: true } // Tùy chọn này sẽ trả về bản ghi đã được cập nhật
+        {
+          quantity: quantity,
+          image: imageObj._id,
+        },
+        { new: true, upsert: true } // Thêm `{ upsert: true }` để đảm bảo thêm `image` nếu chưa có
       );
-      // console.log(id, quantity + "Đã được gửi đi");
+
       resolve({
         status: "OK",
         message: "Quantity updated successfully",
@@ -354,7 +376,7 @@ const updateQuantity = (id, quantity) => {
     } catch (e) {
       reject({
         status: "ERR",
-        message: e.message, // Trả về lỗi nếu có
+        message: e.message,
       });
     }
   });
@@ -362,9 +384,17 @@ const updateQuantity = (id, quantity) => {
 const createQuantity = (newQuantity) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { color, quantity, productId } = newQuantity;
+      const { color, quantity, image, productId } = newQuantity;
+      console.log("tới đây");
       // Kiểm tra tính hợp lệ của productId
       let productObj = await Product.findOne({ _id: productId });
+      if (!productObj) {
+        return reject({
+          status: "ERR",
+          message: "Product not found",
+        });
+      }
+
       let colorObj = await Color.findOne({
         name: { $regex: new RegExp(`^${color}$`, "i") },
       });
@@ -374,6 +404,7 @@ const createQuantity = (newQuantity) => {
         color: colorObj._id,
         product: productObj._id,
       });
+
       // Kiểm tra xem bản ghi có tồn tại không
       if (quantityProduct) {
         return resolve({
@@ -383,11 +414,27 @@ const createQuantity = (newQuantity) => {
         });
       }
 
-      const quantityObj = await Quantity.create({
-        product: productObj._id,
-        color: colorObj._id,
-        quantity,
-      });
+      let quantityObj;
+      if (image) {
+        // Tạo hình ảnh nếu có
+        const newImage = await Image.create({
+          imageUrl: image,
+        });
+        quantityObj = await Quantity.create({
+          product: productObj._id,
+          color: colorObj._id,
+          quantity,
+          image: newImage._id,
+        });
+      } else {
+        // Nếu không có hình ảnh, tạo quantity mà không cần image
+        quantityObj = await Quantity.create({
+          product: productObj._id,
+          color: colorObj._id,
+          quantity,
+        });
+      }
+
       resolve({
         status: "OK",
         message: "Create quantity successfully",
@@ -974,7 +1021,90 @@ const totalProductsSold = async () => {
     throw new Error("An error occurred while fetching total products sold");
   }
 };
+const lowStockProductsWithColor = async () => {
+  try {
+    const products = await Quantity.aggregate([
+      {
+        $match: {
+          quantity: { $lte: 5 }, // Bao gồm tất cả sản phẩm có quantity <= 5, bao gồm cả 0 và 1
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "product",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$productDetails",
+          preserveNullAndEmptyArrays: true, // Giữ lại các bản ghi không có thông tin trong productDetails
+        },
+      },
+      {
+        $lookup: {
+          from: "colors",
+          localField: "color",
+          foreignField: "_id",
+          as: "colorDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$colorDetails",
+          preserveNullAndEmptyArrays: true, // Giữ lại các bản ghi không có thông tin trong colorDetails
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          productIdObj: "$product",
+          productId: "$productDetails.productId",
+          productName: "$productDetails.name",
+          colorName: "$colorDetails.name",
+          quantityInStock: "$quantity",
+        },
+      },
+      {
+        $sort: { quantityInStock: 1 }, // Sắp xếp theo số lượng tồn kho tăng dần
+      },
+      {
+        $limit: 10, // Giới hạn chỉ lấy 10 sản phẩm
+      },
+    ]);
 
+    console.log("Low stock products:", products);
+
+    return {
+      status: "OK",
+      message: "Products with low stock and color fetched successfully",
+      data: products,
+    };
+  } catch (error) {
+    console.error("Error fetching products with low stock and color:", error);
+    throw new Error(
+      "An error occurred while fetching products with low stock and color"
+    );
+  }
+};
+const getImageById = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 'regex' helps in case searching for part of product name
+      // options: i helps in case insensitive search
+      const image = await Image.findById(id);
+      resolve({
+        status: "OK",
+        message: "Get image success",
+        data: image,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
 module.exports = {
   createProduct,
   updateProduct,
@@ -999,4 +1129,6 @@ module.exports = {
   productCountByCategory,
   topSellingProducts,
   totalProductsSold,
+  lowStockProductsWithColor,
+  getImageById,
 };

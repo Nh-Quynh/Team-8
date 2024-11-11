@@ -2,17 +2,23 @@ const DiscountService = require("../services/DiscountService");
 
 const createDiscount = async (req, res) => {
   try {
-    const { discountId, discountPercent, startDate, endDate, products } =
-      req.body;
+    const {
+      discountId,
+      discountPercent,
+      startDate,
+      endDate,
+      products,
+      categories,
+    } = req.body;
 
     // Kiểm tra các thuộc tính cần thiết
     if (
       !discountId ||
       !discountPercent ||
       !startDate ||
-      !endDate ||
-      !Array.isArray(products) ||
-      products.length === 0
+      !endDate
+      // !Array.isArray(products) ||
+      // products.length === 0
     ) {
       return res.status(400).json({
         status: "ERR",

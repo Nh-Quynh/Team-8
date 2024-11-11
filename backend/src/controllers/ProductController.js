@@ -8,22 +8,21 @@ const createProduct = async (req, res) => {
       name,
       price,
       description,
-      urlImage,
+      images,
       categoryId,
       materialId,
-      color,
-      quantity,
+      // color,
+      // quantity,
     } = req.body;
     if (
       !productId ||
       !name ||
       !price ||
       !description ||
-      !urlImage ||
       !categoryId ||
-      !materialId ||
-      !color ||
-      !quantity
+      !materialId
+      // !color ||
+      // !quantity
     ) {
       return res.status(200).json({
         status: "ERR",
@@ -169,14 +168,18 @@ const getQuantity = async (req, res) => {
 const updateQuantity = async (req, res) => {
   try {
     const quantityId = req.params.id;
-    const quantity = req.body.quantity;
+    const { quantity, image } = req.body;
     if (!quantityId) {
       return res.status(200).json({
         status: "ERR",
         message: "The quantity is required",
       });
     }
-    const response = await ProductService.updateQuantity(quantityId, quantity);
+    const response = await ProductService.updateQuantity(
+      quantityId,
+      quantity,
+      image
+    );
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
@@ -187,7 +190,7 @@ const updateQuantity = async (req, res) => {
 const createQuantity = async (req, res) => {
   try {
     // const product = req.params.id;
-    const { color, quantity, productId } = req.body;
+    const { color, quantity, image, productId } = req.body;
     if (!color && !productId && !quantity) {
       return res.status(200).json({
         status: "ERR",
@@ -295,6 +298,17 @@ const totalProductsSold = async (req, res) => {
     });
   }
 };
+const lowStockProductsWithColor = async (req, res) => {
+  try {
+    const response = await ProductService.lowStockProductsWithColor();
+
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(500).json({
+      message: e.message || "An error occurred while fetching data",
+    });
+  }
+};
 const getQuantityById = async (req, res) => {
   try {
     const quantityId = req.params.quantityId;
@@ -324,6 +338,17 @@ const searchProductByAdmin = async (req, res) => {
     });
   }
 };
+const getImageById = async (req, res) => {
+  try {
+    const imageId = req.params.imageId;
+    const response = await ProductService.getImageById(imageId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 module.exports = {
   createProduct,
   updateProduct,
@@ -343,4 +368,6 @@ module.exports = {
   getQuantityById,
   searchProductByAdmin,
   totalProductsSold,
+  lowStockProductsWithColor,
+  getImageById,
 };
