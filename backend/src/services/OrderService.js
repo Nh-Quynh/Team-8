@@ -705,6 +705,48 @@ const getTotalRevenue = async () => {
   }
 };
 
+const getTotalSales = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const orders = await Order.find({}).populate({
+        path: "orderDetail",
+        populate: {
+          path: "productQuantity",
+          populate: {
+            path: "product",
+            model: "Product",
+          },
+        },
+      });
+
+      const productSales = {};
+
+      orders.forEach((order) => {
+        order.orderDetail.forEach((detail) => {
+          const product = detail.productQuantity.product;
+          if (!productSales[product.name]) {
+            productSales[product.name] = 0;
+          }
+          productSales[product.name] += detail.quantity;
+        });
+      });
+
+      // convert productSales to an array and sort it
+      const sortedProductSales = Object.entries(productSales)
+        .map(([name, quantity]) => ({ name, quantity }))
+        .sort((a, b) => b.quantity - a.quantity);
+
+      resolve({
+        status: "OK",
+        message: "Get total sales",
+        data: sortedProductSales,
+      });
+    } catch (error) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   createOrder,
   getAllOrders,
@@ -720,4 +762,5 @@ module.exports = {
   resetOrderInvoice,
   getCountFailOrder,
   getTotalRevenue,
+  getTotalSales,
 };

@@ -207,6 +207,20 @@ const getTotalRevenue = async (req, res) => {
     });
   }
 };
+
+const getTotalSales = async (req, res) => {
+  try {
+    const response = await OrderService.getTotalSales();
+    return res.status(200).json(response);
+  }
+  catch(e)
+  {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+}
+
 module.exports = {
   getAllOrders,
   getOrdersHistory,
@@ -222,4 +236,5 @@ module.exports = {
   resetOrderInvoice,
   getCountFailOrder,
   getTotalRevenue,
+  getTotalSales,
 };
