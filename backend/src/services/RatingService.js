@@ -153,10 +153,33 @@ const checkRating = async (userId, orderId, productId) => {
     throw error;
   }
 };
+const getRatingsByProductId = async (productId) => {
+  try {
+    // Lấy tất cả đánh giá dựa trên `productId`
+    const ratings = await Rating.find({ product: new mongoose.Types.ObjectId(productId) });
 
+    if (ratings.length > 0) {
+      return {
+        status: "OK",
+        message: "Ratings retrieved successfully",
+        data: ratings,
+      };
+    } else {
+      return {
+        status: "OK",
+        message: "No ratings found for this product",
+        data: [],
+      };
+    }
+  } catch (error) {
+    console.error("Error in getRatingsByProductId:", error);
+    throw error;
+  }
+};
 module.exports = {
   ratingProduct,
   updateRating,
   getProductAverageRating,
   checkRating,
+  getRatingsByProductId
 };

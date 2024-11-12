@@ -12,4 +12,5 @@ router.get(
   "/check-rating/:userId/:orderId/:productId",
   ratingController.checkRating
 );
+router.get("/product/:productId", ratingController.getRatingsByProductId);
 module.exports = router;
