@@ -103,7 +103,6 @@ const createProduct = async (newProduct) => {
       material: materialObj._id,
       images: imageIds,
     });
-
     // // Tạo mới quantity cho sản phẩm mới
     // const newQuantity = await Quantity.create({
     //   product: product._id,
@@ -128,12 +127,10 @@ const updateProduct = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Tìm sản phẩm hiện tại trong CSDL
-      const checkProduct = await Product.findOne({
-        _id: id,
-      });
+      const product = await Product.findById(id).populate("images");
 
       // Nếu không tìm thấy sản phẩm, trả về lỗi
-      if (checkProduct == null) {
+      if (!product) {
         resolve({
           status: "ERR",
           message: "The product is not defined",
@@ -142,30 +139,63 @@ const updateProduct = (id, data) => {
       }
 
       // Kiểm tra xem tên sản phẩm đã tồn tại chưa
-      const productDif = await Product.findOne({ name: data.name });
-      if (
-        productDif &&
-        productDif._id.toString() !== checkProduct._id.toString()
-      ) {
+      const existingProduct = await Product.findOne({ name: data.name });
+      if (existingProduct && existingProduct._id.toString() !== id) {
         return reject({
           status: "ERR",
           message: "Product with this name already exists. Update failed.",
         });
       }
 
-      // Cập nhật sản phẩm
-      const updatedProduct = await Product.findByIdAndUpdate(id, data, {
-        new: true,
-        runValidators: true, // Kiểm tra tính hợp lệ
-      });
-
-      // Nếu không có sản phẩm nào được cập nhật
-      if (!updatedProduct) {
-        return reject({
+      // Kiểm tra và cập nhật danh mục và chất liệu
+      const categoryObj = await Category.findById(data.categoryId);
+      const materialObj = await Material.findById(data.materialId);
+      if (!categoryObj) {
+        return resolve({
           status: "ERR",
-          message: "Update failed, no changes were made.",
+          message: "Unavailable category",
         });
       }
+      if (!materialObj) {
+        return resolve({
+          status: "ERR",
+          message: "Unavailable material",
+        });
+      }
+
+      // Cập nhật hình ảnh
+      const newImageIds = [];
+      for (const imageUrl of data.images) {
+        // Kiểm tra xem ảnh đã tồn tại hay chưa
+        const existingImage = product.images.find(
+          (img) => img.imageUrl === imageUrl
+        );
+        if (existingImage) {
+          newImageIds.push(existingImage._id); // Giữ lại ảnh cũ
+        } else {
+          const newImage = await Image.create({ imageUrl }); // Tạo ảnh mới
+          newImageIds.push(newImage._id); // Thêm ảnh mới vào mảng
+        }
+      }
+
+      // Xóa ảnh không còn dùng trong `product.images` hiện tại
+      for (const image of product.images) {
+        if (!newImageIds.includes(image._id)) {
+          await Image.findByIdAndDelete(image._id); // Xóa ảnh thừa
+        }
+      }
+
+      // Cập nhật các trường còn lại của sản phẩm
+      const updatedProduct = await Product.findByIdAndUpdate(
+        id,
+        {
+          ...data,
+          category: categoryObj._id,
+          material: materialObj._id,
+          images: newImageIds,
+        },
+        { new: true, runValidators: true }
+      );
 
       // Trả về kết quả thành công
       resolve({
@@ -175,7 +205,11 @@ const updateProduct = (id, data) => {
       });
     } catch (e) {
       // Xử lý lỗi
-      reject(e);
+      console.error("Error in updateProduct service:", e);
+      reject({
+        status: "ERR",
+        message: e.message,
+      });
     }
   });
 };
@@ -183,18 +217,29 @@ const updateProduct = (id, data) => {
 const deleteProduct = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkProduct = await Product.findOne({
-        _id: id, //MongodB sử dụng ID dạng _id
-      });
+      const checkProduct = await Product.findOne({ _id: id });
+
       console.log("Id Service", id);
+
       if (checkProduct == null) {
         resolve({
           status: "ERR",
           message: "The product is not defined",
         });
+        return;
       }
+
+      // Duyệt qua mảng checkProduct.images và xóa từng ảnh
+      if (checkProduct.images && Array.isArray(checkProduct.images)) {
+        for (const imageId of checkProduct.images) {
+          await Image.findByIdAndDelete(imageId); // Giả sử delebyId là hàm xóa ảnh
+        }
+      }
+
+      // Xóa sản phẩm sau khi xóa ảnh thành công
       await Product.findByIdAndDelete(id);
       await Quantity.findOneAndDelete({ product: id });
+
       resolve({
         status: "OK",
         message: "Delete product SUCCESS",
@@ -348,25 +393,34 @@ const updateQuantity = async (id, quantity, image) => {
       }
 
       // Kiểm tra ảnh mới trong collection `Image`
-      let imageObj = await Image.findOne({ imageUrl: image });
-      if (!imageObj) {
-        imageObj = await Image.create({ imageUrl: image });
-      } else if (
-        quantityProduct.image &&
-        quantityProduct.image.toString() !== imageObj._id.toString()
-      ) {
-        await Image.findByIdAndDelete(quantityProduct.image); // Xóa ảnh cũ nếu khác
+      let imageObj = null;
+      if (image && image !== "") {
+        imageObj = await Image.findOne({ imageUrl: image });
+        if (!imageObj) {
+          imageObj = await Image.create({ imageUrl: image });
+        } else if (
+          quantityProduct.image &&
+          quantityProduct.image.toString() !== imageObj._id.toString()
+        ) {
+          // Xóa ảnh cũ nếu ảnh mới khác
+          await Image.findByIdAndDelete(quantityProduct.image);
+        }
+      } else if (quantityProduct.image) {
+        // Xóa ảnh cũ nếu không có ảnh mới
+        await Image.findByIdAndDelete(quantityProduct.image);
       }
 
-      // Cập nhật `quantity` và thêm `image` nếu chưa có
-      const updatedProduct = await Quantity.findByIdAndUpdate(
-        id,
-        {
-          quantity: quantity,
-          image: imageObj._id,
-        },
-        { new: true, upsert: true } // Thêm `{ upsert: true }` để đảm bảo thêm `image` nếu chưa có
-      );
+      // Cập nhật `quantity` và thêm `image` nếu có ảnh mới
+      const updateData = { quantity: quantity };
+      if (imageObj) {
+        updateData.image = imageObj._id;
+      } else {
+        updateData.image = null; // Xóa liên kết ảnh nếu không có ảnh mới
+      }
+
+      const updatedProduct = await Quantity.findByIdAndUpdate(id, updateData, {
+        new: true,
+      });
 
       resolve({
         status: "OK",
@@ -381,6 +435,7 @@ const updateQuantity = async (id, quantity, image) => {
     }
   });
 };
+
 const createQuantity = (newQuantity) => {
   return new Promise(async (resolve, reject) => {
     try {

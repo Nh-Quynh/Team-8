@@ -129,24 +129,48 @@ const getDiscountByProductId = async (productId) => {
   try {
     const currentDate = new Date(); // Lấy ngày hiện tại
 
-    // Tìm tất cả các giảm giá mà sản phẩm nằm trong danh sách sản phẩm
-    const discounts = await Discount.find({
-      products: productId,
-      startDate: { $lte: currentDate }, // Ngày bắt đầu <= ngày hiện tại
-      endDate: { $gte: currentDate }, // Ngày kết thúc >= ngày hiện tại
-    });
-
-    if (discounts.length === 0) {
+    // Tìm sản phẩm với ID productId để lấy danh mục (categories) của nó
+    const product = await Product.findOne({ _id: productId }).lean();
+    if (!product) {
       return {
         status: "ERR",
-        message: "No discounts found for this product",
+        message: "Product not found",
+      };
+    }
+
+    const productCategories = product.category;
+
+    // Tìm các giảm giá theo sản phẩm
+    const productDiscounts = await Discount.find({
+      products: productId,
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+    });
+
+    // Tìm các giảm giá theo danh mục
+    const categoryDiscounts = await Discount.find({
+      categories: { $in: productCategories },
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+    });
+
+    // Gộp 2 mảng mà không loại bỏ trùng lặp
+    const combinedDiscounts = [...productDiscounts, ...categoryDiscounts];
+
+    if (combinedDiscounts.length === 0) {
+      return {
+        status: "ERR",
+        message: "No discounts found for this product or its categories",
       };
     }
 
     return {
       status: "OK",
       message: "Discounts found",
-      data: discounts,
+      data: combinedDiscounts,
+      categoryDiscounts,
+
+      productDiscounts,
     };
   } catch (error) {
     return {
@@ -156,6 +180,7 @@ const getDiscountByProductId = async (productId) => {
     };
   }
 };
+
 const getAllDiscount = () => {
   return new Promise(async (resolve, reject) => {
     try {
