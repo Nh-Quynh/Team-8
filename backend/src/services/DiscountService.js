@@ -14,7 +14,6 @@ const createDiscount = async (newDiscount) => {
       products,
       categories,
     } = newDiscount;
-    console.log(newDiscount);
     // Kiểm tra xem các trường bắt buộc có được cung cấp không
     if (!discountId || !discountPercent || !startDate || !endDate) {
       return {
@@ -57,21 +56,22 @@ const createDiscount = async (newDiscount) => {
 
       // Tìm các sản phẩm trong cơ sở dữ liệu
       const foundProducts = await Product.find({ _id: { $in: productIds } });
-      if (foundProducts.length === 0) {
-        return {
-          status: "ERR",
-          message: "No products found matching the provided IDs",
-        };
+      if (foundProducts.length > 0) {
+        // return {
+        //   status: "ERR",
+        //   message: "No products found matching the provided IDs",
+        // };
+        discountQuery.products = foundProducts.map((product) => product._id);
       }
 
       // Lưu các sản phẩm hợp lệ
-      discountQuery.products = foundProducts.map((product) => product._id);
-    } else {
-      return {
-        status: "ERR",
-        message: "Products should be a non-empty array",
-      };
     }
+    // } else {
+    //   return {
+    //     status: "ERR",
+    //     message: "Products should be a non-empty array",
+    //   };
+    // }
 
     // Kiểm tra và xử lý mảng categories
     if (Array.isArray(categories) && categories.length > 0) {
@@ -95,23 +95,27 @@ const createDiscount = async (newDiscount) => {
         _id: { $in: categoryIds },
       });
 
-      if (foundCategories.length === 0) {
-        return {
-          status: "ERR",
-          message: "No categories found matching the provided IDs",
-        };
+      if (foundCategories.length > 0) {
+        // return {
+        //   status: "ERR",
+        //   message: "No categories found matching the provided IDs",
+        // };
+        // Lưu các danh mục hợp lệ
+        discountQuery.categories = foundCategories.map(
+          (category) => category._id
+        );
       }
-
-      // Lưu các danh mục hợp lệ
-      discountQuery.categories = foundCategories.map(
-        (category) => category._id
-      );
-    } else {
-      return {
-        status: "ERR",
-        message: "Categories should be a non-empty array",
-      };
     }
+    // // Lưu các danh mục hợp lệ
+    // discountQuery.categories = foundCategories.map(
+    //   (category) => category._id
+    // );
+    // } else {
+    //   return {
+    //     status: "ERR",
+    //     message: "Categories should be a non-empty array",
+    //   };
+    // }
 
     // Tạo mới mã giảm giá
     const createdDiscount = await Discount.create(discountQuery);
@@ -127,9 +131,10 @@ const createDiscount = async (newDiscount) => {
 
 const getDiscountByProductId = async (productId) => {
   try {
-    const currentDate = new Date(); // Lấy ngày hiện tại
+    // Lấy thời điểm hiện tại
+    const now = new Date();
 
-    // Tìm sản phẩm với ID productId để lấy danh mục (categories) của nó
+    // Tìm sản phẩm với ID productId để lấy danh mục của nó
     const product = await Product.findOne({ _id: productId }).lean();
     if (!product) {
       return {
@@ -140,36 +145,35 @@ const getDiscountByProductId = async (productId) => {
 
     const productCategories = product.category;
 
-    // Tìm các giảm giá theo sản phẩm
+    // Tìm các giảm giá theo sản phẩm còn hiệu lực
     const productDiscounts = await Discount.find({
       products: productId,
-      startDate: { $lte: currentDate },
-      endDate: { $gte: currentDate },
+      startDate: { $lte: now },
+      endDate: { $gte: now },
     });
 
-    // Tìm các giảm giá theo danh mục
+    // Tìm các giảm giá theo danh mục còn hiệu lực
     const categoryDiscounts = await Discount.find({
       categories: { $in: productCategories },
-      startDate: { $lte: currentDate },
-      endDate: { $gte: currentDate },
+      startDate: { $lte: now },
+      endDate: { $gte: now },
     });
 
-    // Gộp 2 mảng mà không loại bỏ trùng lặp
+    // Kết hợp các giảm giá còn hiệu lực cho sản phẩm và danh mục
     const combinedDiscounts = [...productDiscounts, ...categoryDiscounts];
 
     if (combinedDiscounts.length === 0) {
       return {
         status: "ERR",
-        message: "No discounts found for this product or its categories",
+        message: "No active discounts found for this product or its categories",
       };
     }
 
     return {
       status: "OK",
-      message: "Discounts found",
+      message: "Active discounts found",
       data: combinedDiscounts,
       categoryDiscounts,
-
       productDiscounts,
     };
   } catch (error) {
@@ -229,7 +233,7 @@ const updateDiscount = async (discountId, updatedData) => {
       };
     }
 
-    // Nếu có sản phẩm trong updatedData, xử lý chúng
+    // Nếu có danh mục trong updatedData, xử lý chúng
     if (
       updatedData.categories &&
       Array.isArray(updatedData.categories) &&
@@ -241,8 +245,14 @@ const updateDiscount = async (discountId, updatedData) => {
       if (foundCategories.length > 0) {
         const categoryIds = foundCategories.map((category) => category._id);
         updatedData.categories = categoryIds;
+      } else {
+        delete updatedData.categories; // Xóa nếu không có danh mục nào tìm thấy
       }
+    } else {
+      delete updatedData.categories; // Xóa nếu mảng categories rỗng hoặc không tồn tại
     }
+
+    // Nếu có sản phẩm trong updatedData, xử lý chúng
     if (
       updatedData.products &&
       Array.isArray(updatedData.products) &&
@@ -254,7 +264,11 @@ const updateDiscount = async (discountId, updatedData) => {
       if (foundProducts.length > 0) {
         const productIds = foundProducts.map((product) => product._id);
         updatedData.products = productIds;
+      } else {
+        delete updatedData.products; // Xóa nếu không có sản phẩm nào tìm thấy
       }
+    } else {
+      delete updatedData.products; // Xóa nếu mảng products rỗng hoặc không tồn tại
     }
 
     // Xử lý ngày tháng

@@ -25,9 +25,10 @@ const createDiscount = async (req, res) => {
         message: "Missing discount attribute or products array is empty",
       });
     }
-
+    console.log("toi day");
     // Gọi dịch vụ để tạo discount
     const response = await DiscountService.createDiscount(req.body);
+    console.log(response);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(500).json({
