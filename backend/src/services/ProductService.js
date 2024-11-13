@@ -19,12 +19,20 @@ const createProduct = async (newProduct) => {
     name,
     price,
     description,
-    images,
+    // images,
     categoryId,
     materialId,
     // color,
     // quantity,
   } = newProduct;
+  // let products = await Product.find({});
+
+  // // Duyệt qua các sản phẩm và xóa trường images nếu có
+  // products.forEach((product) => {
+  //   if (product.images) {
+  //     delete product.images;
+  //   }
+  // });
 
   try {
     // Kiểm tra xem sản phẩm có tồn tại không
@@ -89,11 +97,11 @@ const createProduct = async (newProduct) => {
     }
 
     // Nếu sản phẩm chưa tồn tại, tiến hành tạo sản phẩm mới
-    const imageIds = [];
-    for (const imageUrl of images) {
-      const image = await Image.create({ imageUrl });
-      imageIds.push(image._id); // lưu ObjectId của ảnh vào mảng imageIds
-    }
+    // const imageIds = [];
+    // for (const imageUrl of images) {
+    //   const image = await Image.create({ imageUrl });
+    //   imageIds.push(image._id); // lưu ObjectId của ảnh vào mảng imageIds
+    // }
     product = await Product.create({
       productId,
       name,
@@ -101,7 +109,7 @@ const createProduct = async (newProduct) => {
       description,
       category: categoryObj._id,
       material: materialObj._id,
-      images: imageIds,
+      // images: imageIds,
     });
     // // Tạo mới quantity cho sản phẩm mới
     // const newQuantity = await Quantity.create({
@@ -127,7 +135,7 @@ const updateProduct = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Tìm sản phẩm hiện tại trong CSDL
-      const product = await Product.findById(id).populate("images");
+      const product = await Product.findById(id);
 
       // Nếu không tìm thấy sản phẩm, trả về lỗi
       if (!product) {
@@ -164,26 +172,26 @@ const updateProduct = (id, data) => {
       }
 
       // Cập nhật hình ảnh
-      const newImageIds = [];
-      for (const imageUrl of data.images) {
-        // Kiểm tra xem ảnh đã tồn tại hay chưa
-        const existingImage = product.images.find(
-          (img) => img.imageUrl === imageUrl
-        );
-        if (existingImage) {
-          newImageIds.push(existingImage._id); // Giữ lại ảnh cũ
-        } else {
-          const newImage = await Image.create({ imageUrl }); // Tạo ảnh mới
-          newImageIds.push(newImage._id); // Thêm ảnh mới vào mảng
-        }
-      }
+      // const newImageIds = [];
+      // for (const imageUrl of data.images) {
+      //   // Kiểm tra xem ảnh đã tồn tại hay chưa
+      //   const existingImage = product.images.find(
+      //     (img) => img.imageUrl === imageUrl
+      //   );
+      //   if (existingImage) {
+      //     newImageIds.push(existingImage._id); // Giữ lại ảnh cũ
+      //   } else {
+      //     const newImage = await Image.create({ imageUrl }); // Tạo ảnh mới
+      //     newImageIds.push(newImage._id); // Thêm ảnh mới vào mảng
+      //   }
+      // }
 
       // Xóa ảnh không còn dùng trong `product.images` hiện tại
-      for (const image of product.images) {
-        if (!newImageIds.includes(image._id)) {
-          await Image.findByIdAndDelete(image._id); // Xóa ảnh thừa
-        }
-      }
+      // for (const image of product.images) {
+      //   if (!newImageIds.includes(image._id)) {
+      //     await Image.findByIdAndDelete(image._id); // Xóa ảnh thừa
+      //   }
+      // }
 
       // Cập nhật các trường còn lại của sản phẩm
       const updatedProduct = await Product.findByIdAndUpdate(
@@ -192,7 +200,7 @@ const updateProduct = (id, data) => {
           ...data,
           category: categoryObj._id,
           material: materialObj._id,
-          images: newImageIds,
+          // images: newImageIds,
         },
         { new: true, runValidators: true }
       );
@@ -229,12 +237,12 @@ const deleteProduct = (id) => {
         return;
       }
 
-      // Duyệt qua mảng checkProduct.images và xóa từng ảnh
-      if (checkProduct.images && Array.isArray(checkProduct.images)) {
-        for (const imageId of checkProduct.images) {
-          await Image.findByIdAndDelete(imageId); // Giả sử delebyId là hàm xóa ảnh
-        }
-      }
+      // // Duyệt qua mảng checkProduct.images và xóa từng ảnh
+      // if (checkProduct.images && Array.isArray(checkProduct.images)) {
+      //   for (const imageId of checkProduct.images) {
+      //     await Image.findByIdAndDelete(imageId); // Giả sử delebyId là hàm xóa ảnh
+      //   }
+      // }
 
       // Xóa sản phẩm sau khi xóa ảnh thành công
       await Product.findByIdAndDelete(id);
@@ -490,10 +498,13 @@ const createQuantity = (newQuantity) => {
         // // Lưu tất cả các ID của hình ảnh đã tạo vào mảng
         // const imageIds = createdImages.map((image) => image._id);
         const imageIds = [];
-        for (const imageUrl of images) {
+        const uniqueImages = [...new Set(images)]; // Loại bỏ ảnh trùng lặp
+
+        for (const imageUrl of uniqueImages) {
           const image = await Image.create({ imageUrl });
           imageIds.push(image._id); // lưu ObjectId của ảnh vào mảng imageIds
         }
+
         quantityObj = await Quantity.create({
           product: productObj._id,
           color: colorObj._id,
