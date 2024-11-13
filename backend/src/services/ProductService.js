@@ -380,7 +380,7 @@ const getQuantity = (productId) => {
     }
   });
 };
-const updateQuantity = async (id, quantity, image) => {
+const updateQuantity = async (id, quantity, images) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Tìm sản phẩm cần cập nhật
@@ -392,35 +392,38 @@ const updateQuantity = async (id, quantity, image) => {
         });
       }
 
-      // Kiểm tra ảnh mới trong collection `Image`
-      let imageObj = null;
-      if (image && image !== "") {
-        imageObj = await Image.findOne({ imageUrl: image });
-        if (!imageObj) {
-          imageObj = await Image.create({ imageUrl: image });
-        } else if (
-          quantityProduct.image &&
-          quantityProduct.image.toString() !== imageObj._id.toString()
-        ) {
-          // Xóa ảnh cũ nếu ảnh mới khác
-          await Image.findByIdAndDelete(quantityProduct.image);
+      // Cập nhật hình ảnh
+      const newImageIds = [];
+      for (const imageUrl of images) {
+        // Sử dụng `images` từ tham số
+        // Kiểm tra xem ảnh đã tồn tại hay chưa
+        const existingImage = quantityProduct.images.find(
+          (img) => img.imageUrl === imageUrl
+        );
+        if (existingImage) {
+          newImageIds.push(existingImage._id); // Giữ lại ảnh cũ
+        } else {
+          const newImage = await Image.create({ imageUrl }); // Tạo ảnh mới
+          newImageIds.push(newImage._id); // Thêm ảnh mới vào mảng
         }
-      } else if (quantityProduct.image) {
-        // Xóa ảnh cũ nếu không có ảnh mới
-        await Image.findByIdAndDelete(quantityProduct.image);
       }
 
-      // Cập nhật `quantity` và thêm `image` nếu có ảnh mới
-      const updateData = { quantity: quantity };
-      if (imageObj) {
-        updateData.image = imageObj._id;
-      } else {
-        updateData.image = null; // Xóa liên kết ảnh nếu không có ảnh mới
+      // Xóa ảnh không còn dùng trong `quantityProduct.images` hiện tại
+      for (const image of quantityProduct.images) {
+        if (!newImageIds.includes(image._id)) {
+          await Image.findByIdAndDelete(image._id); // Xóa ảnh thừa
+        }
       }
 
-      const updatedProduct = await Quantity.findByIdAndUpdate(id, updateData, {
-        new: true,
-      });
+      // Cập nhật `quantity` và `images` trong `Quantity`
+      const updatedProduct = await Quantity.findByIdAndUpdate(
+        id,
+        {
+          quantity: quantity,
+          images: newImageIds,
+        },
+        { new: true }
+      );
 
       resolve({
         status: "OK",
@@ -439,8 +442,9 @@ const updateQuantity = async (id, quantity, image) => {
 const createQuantity = (newQuantity) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { color, quantity, image, productId } = newQuantity;
+      const { color, quantity, images, productId } = newQuantity;
       console.log("tới đây");
+
       // Kiểm tra tính hợp lệ của productId
       let productObj = await Product.findOne({ _id: productId });
       if (!productObj) {
@@ -450,11 +454,13 @@ const createQuantity = (newQuantity) => {
         });
       }
 
+      // Tìm hoặc tạo màu
       let colorObj = await Color.findOne({
         name: { $regex: new RegExp(`^${color}$`, "i") },
       });
       if (!colorObj) colorObj = await Color.create({ name: color });
 
+      // Kiểm tra xem quantity cho sản phẩm và màu đã tồn tại chưa
       const quantityProduct = await Quantity.findOne({
         color: colorObj._id,
         product: productObj._id,
@@ -470,16 +476,29 @@ const createQuantity = (newQuantity) => {
       }
 
       let quantityObj;
-      if (image) {
-        // Tạo hình ảnh nếu có
-        const newImage = await Image.create({
-          imageUrl: image,
-        });
+      if (images && images.length > 0) {
+        // // Duyệt qua mảng images và tạo hình ảnh
+        // const imagePromises = images.map((image) => {
+        //   return Image.create({
+        //     imageUrl: image,
+        //   });
+        // });
+
+        // // Chờ tất cả các hình ảnh được tạo
+        // const createdImages = await Promise.all(imagePromises);
+
+        // // Lưu tất cả các ID của hình ảnh đã tạo vào mảng
+        // const imageIds = createdImages.map((image) => image._id);
+        const imageIds = [];
+        for (const imageUrl of images) {
+          const image = await Image.create({ imageUrl });
+          imageIds.push(image._id); // lưu ObjectId của ảnh vào mảng imageIds
+        }
         quantityObj = await Quantity.create({
           product: productObj._id,
           color: colorObj._id,
           quantity,
-          image: newImage._id,
+          images: imageIds, // Lưu mảng ID hình ảnh
         });
       } else {
         // Nếu không có hình ảnh, tạo quantity mà không cần image
@@ -508,15 +527,22 @@ const deleteQuantity = (quantityId) => {
   return new Promise(async (resolve, reject) => {
     try {
       // Tìm và xóa bản ghi Quantity dựa trên colorId và productId
-      const result = await Quantity.findByIdAndDelete(quantityId);
+      const quantity = await Quantity.findById(quantityId);
 
       // Kiểm tra xem bản ghi có tồn tại không
-      if (!result) {
+      if (!quantity) {
         return resolve({
           status: "ERR",
           message: "The product is not defined",
         });
       }
+      // Duyệt qua mảng checkProduct.images và xóa từng ảnh
+      if (quantity.images && Array.isArray(quantity.images)) {
+        for (const imageId of quantity.images) {
+          await Image.findByIdAndDelete(imageId); // Giả sử delebyId là hàm xóa ảnh
+        }
+      }
+      await Quantity.findByIdAndDelete(quantityId);
 
       // Trả về thông báo thành công
       resolve({

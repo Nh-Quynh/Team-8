@@ -25,10 +25,10 @@ const createDiscount = async (req, res) => {
         message: "Missing discount attribute or products array is empty",
       });
     }
-    console.log("toi day");
+
     // Gọi dịch vụ để tạo discount
     const response = await DiscountService.createDiscount(req.body);
-    console.log(response);
+
     return res.status(200).json(response);
   } catch (e) {
     return res.status(500).json({
@@ -85,11 +85,12 @@ const updateDiscount = async (req, res) => {
   try {
     const discountId = req.params.discountId;
     const updatedData = req.body;
-
+    console.log("TỚi đây");
     const response = await DiscountService.updateDiscount(
       discountId,
       updatedData
     );
+    console.log(response);
     res.status(200).json(response);
   } catch (e) {
     res.status(404).json({

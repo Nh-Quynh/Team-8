@@ -21,7 +21,6 @@ const createDiscount = async (newDiscount) => {
         message: "Missing discount attributes or products is not an array",
       };
     }
-
     // Kiểm tra xem mã giảm giá đã tồn tại chưa
     const checkDiscount = await Discount.findOne({ discountId });
     if (checkDiscount) {
@@ -233,71 +232,36 @@ const updateDiscount = async (discountId, updatedData) => {
       };
     }
 
-    // Nếu có danh mục trong updatedData, xử lý chúng
-    if (
-      updatedData.categories &&
-      Array.isArray(updatedData.categories) &&
-      updatedData.categories.length > 0
-    ) {
-      const foundCategories = await Product.find({
-        _id: { $in: updatedData.categories },
-      });
-      if (foundCategories.length > 0) {
-        const categoryIds = foundCategories.map((category) => category._id);
-        updatedData.categories = categoryIds;
-      } else {
-        delete updatedData.categories; // Xóa nếu không có danh mục nào tìm thấy
-      }
-    } else {
-      delete updatedData.categories; // Xóa nếu mảng categories rỗng hoặc không tồn tại
-    }
+    // Xử lý ngày tháng, chuyển đổi nếu là chuỗi
+    let startDateFormatted =
+      updatedData.startDate instanceof Date
+        ? updatedData.startDate
+        : new Date(updatedData.startDate);
 
-    // Nếu có sản phẩm trong updatedData, xử lý chúng
-    if (
-      updatedData.products &&
-      Array.isArray(updatedData.products) &&
-      updatedData.products.length > 0
-    ) {
-      const foundProducts = await Product.find({
-        _id: { $in: updatedData.products },
-      });
-      if (foundProducts.length > 0) {
-        const productIds = foundProducts.map((product) => product._id);
-        updatedData.products = productIds;
-      } else {
-        delete updatedData.products; // Xóa nếu không có sản phẩm nào tìm thấy
-      }
-    } else {
-      delete updatedData.products; // Xóa nếu mảng products rỗng hoặc không tồn tại
-    }
+    let endDateFormatted = updatedData.endDate
+      ? updatedData.endDate instanceof Date
+        ? updatedData.endDate
+        : new Date(updatedData.endDate)
+      : checkDiscount.endDate;
 
-    // Xử lý ngày tháng
-    const { startDate, endDate } = updatedData;
-
-    if (startDate) {
-      const convertDate = (dateStr) => {
-        const [day, month, year] = dateStr.split("/");
-        if (!day || !month || !year) {
-          throw new Error("Invalid date format. Please use dd/mm/yyyy");
-        }
-        return new Date(`${year}-${month}-${day}`);
+    // Kiểm tra tính hợp lệ của ngày tháng
+    if (isNaN(startDateFormatted) || isNaN(endDateFormatted)) {
+      return {
+        status: "ERR",
+        message: "Invalid date format. Dates must be valid.",
       };
-
-      const startDateFormatted = convertDate(startDate);
-      const endDateFormatted = endDate
-        ? convertDate(endDate)
-        : checkDiscount.endDate;
-
-      if (startDateFormatted > endDateFormatted) {
-        return {
-          status: "ERR",
-          message: "Start date must be less than or equal to end date",
-        };
-      }
-
-      updatedData.startDate = startDateFormatted;
-      updatedData.endDate = endDateFormatted;
     }
+
+    if (startDateFormatted > endDateFormatted) {
+      return {
+        status: "ERR",
+        message: "Start date must be less than or equal to end date",
+      };
+    }
+
+    // Gán lại giá trị đã định dạng vào updatedData
+    updatedData.startDate = startDateFormatted;
+    updatedData.endDate = endDateFormatted;
 
     // Cập nhật mã giảm giá với dữ liệu đã cập nhật
     const updatedDiscount = await Discount.findOneAndUpdate(

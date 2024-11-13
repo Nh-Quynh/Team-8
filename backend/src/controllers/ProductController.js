@@ -168,7 +168,7 @@ const getQuantity = async (req, res) => {
 const updateQuantity = async (req, res) => {
   try {
     const quantityId = req.params.id;
-    const { quantity, image } = req.body;
+    const { quantity, images } = req.body;
     if (!quantityId) {
       return res.status(200).json({
         status: "ERR",
@@ -178,7 +178,7 @@ const updateQuantity = async (req, res) => {
     const response = await ProductService.updateQuantity(
       quantityId,
       quantity,
-      image
+      images
     );
     return res.status(200).json(response);
   } catch (e) {
@@ -190,14 +190,16 @@ const updateQuantity = async (req, res) => {
 const createQuantity = async (req, res) => {
   try {
     // const product = req.params.id;
-    const { color, quantity, image, productId } = req.body;
+    const { color, quantity, images, productId } = req.body;
     if (!color && !productId && !quantity) {
       return res.status(200).json({
         status: "ERR",
         message: "The product, color, and quantity are required",
       });
     }
+    console.log("toi day");
     const response = await ProductService.createQuantity(req.body);
+    console.log(response);
     return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({

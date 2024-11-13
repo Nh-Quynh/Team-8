@@ -20,11 +20,13 @@ const quantitySchema = new mongoose.Schema(
       ref: "Product",
       required: true,
     },
-    image: {
-      type: Schema.Types.ObjectId,
-      ref: "Image",
-      // required: true,
-    },
+    images: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Image",
+        // required: true,
+      },
+    ],
     // image: {
     //   type:String,
     //   // ref: "Image",
