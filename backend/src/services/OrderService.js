@@ -274,10 +274,16 @@ const getAllOrders = () => {
           path: "orderDetail",
           populate: {
             path: "productQuantity",
-            populate: {
-              path: "product",
-              select: "name price urlImage",
-            },
+            populate: [
+              {
+                path: "product",
+                select: "name price",
+              },
+              {
+                path: "images",
+                select: "imageUrl",
+              }
+            ]
           },
         })
         .populate("userId", "name email");
@@ -309,10 +315,16 @@ const getOrdersHistory = () => {
           path: "orderDetail",
           populate: {
             path: "productQuantity",
-            populate: {
-              path: "product",
-              select: "name price urlImage",
-            },
+            populate: [
+              {
+                path: "product",
+                select: "name price",
+              },
+              {
+                path: "images",
+                select: "imageUrl",
+              }
+            ]
           },
         })
         .populate("userId", "name email");
@@ -708,16 +720,16 @@ const getTotalRevenue = async () => {
 const getTotalSales = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const orders = await Order.find({}).populate({
-        path: "orderDetail",
-        populate: {
-          path: "productQuantity",
+      const orders = await Order.find()
+        .populate({
+          path: "orderDetail",
           populate: {
-            path: "product",
-            model: "Product",
+            path: "productQuantity",
+            populate: {
+              path: "product",
+            },
           },
-        },
-      });
+        });
 
       const productSales = {};
 
@@ -728,8 +740,8 @@ const getTotalSales = () => {
             productSales[product.name] = 0;
           }
           productSales[product.name] += detail.quantity;
-        });
-      });
+        })
+      })
 
       // convert productSales to an array and sort it
       const sortedProductSales = Object.entries(productSales)
@@ -742,7 +754,7 @@ const getTotalSales = () => {
         data: sortedProductSales,
       });
     } catch (error) {
-      reject(e);
+      reject(error);
     }
   });
 };
