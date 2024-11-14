@@ -284,17 +284,53 @@ const getProductById = (id) => {
 const getAll = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const product = await Product.find();
-      if (!product) {
+      // Lấy tất cả sản phẩm
+      const products = await Product.find();
+
+      // Dùng Promise.all để lấy quantity và ảnh đầu tiên cho từng sản phẩm
+      const productsWithImage = await Promise.all(
+        products.map(async (product) => {
+          // Tìm quantity đầu tiên của sản phẩm, populate images
+          const quantity = await Quantity.findOne({
+            product: product._id,
+          }).populate("images");
+
+          let urlImage = null;
+
+          // Nếu có ảnh trong Quantity, lấy ảnh đầu tiên
+          if (quantity && quantity.images && quantity.images.length > 0) {
+            // Lấy imageUrl từ ảnh đầu tiên trong mảng images của Quantity
+            urlImage = quantity.images[0].imageUrl;
+          } else {
+            // Nếu không có ảnh trong Quantity, tìm ảnh từ bảng Image
+            const image = await Image.findOne({ productId: product._id });
+            if (image && image.imageUrl) {
+              // Lấy imageUrl từ ảnh đầu tiên trong bảng Image
+              urlImage = image.imageUrl;
+            }
+          }
+
+          // Trả về sản phẩm với ảnh đã gán
+          return {
+            ...product.toObject(),
+            urlImage, // Gán ảnh đầu tiên vào urlImage
+          };
+        })
+      );
+
+      // Nếu không có sản phẩm, trả về lỗi
+      if (!productsWithImage) {
         resolve({
           status: "ERR",
-          message: "The product is not defined",
+          message: "No products found",
         });
       }
+
+      // Trả về danh sách sản phẩm đã được gán ảnh
       resolve({
         status: "OK",
-        message: "Get all product SUCCESS",
-        data: product,
+        message: "Get all products with images SUCCESS",
+        data: productsWithImage,
       });
     } catch (e) {
       reject(e);
@@ -723,7 +759,7 @@ const viewCart = (userId) => {
 const getQuantityById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const quantityProduct = await Quantity.findById(id);
+      const quantityProduct = await Quantity.findById(id).populate("images");
       // Kiểm tra xem bản ghi có tồn tại không
       if (!quantityProduct) {
         return resolve({
