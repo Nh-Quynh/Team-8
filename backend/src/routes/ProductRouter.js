@@ -44,5 +44,9 @@ router.delete(
 router.get("/color/:colorId", productController.getColorById);
 router.get("/get-all-color", productController.getAllColor);
 router.get("/search-by-admin/:keyword", productController.searchProductByAdmin);
+router.get(
+  "/fill-products-by-color/:colorId",
+  productController.fillProductsByColor
+);
 
 module.exports = router;
