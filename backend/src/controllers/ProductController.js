@@ -351,6 +351,17 @@ const getImageById = async (req, res) => {
     });
   }
 };
+const fillProductsByColor = async (req, res) => {
+  try {
+    const colorId = req.params.colorId;
+    const response = await ProductService.fillProductsByColor(colorId);
+    return res.status(200).json(response);
+  } catch (e) {
+    return res.status(404).json({
+      message: e,
+    });
+  }
+};
 module.exports = {
   createProduct,
   updateProduct,
@@ -372,4 +383,5 @@ module.exports = {
   totalProductsSold,
   lowStockProductsWithColor,
   getImageById,
+  fillProductsByColor,
 };

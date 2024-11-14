@@ -1197,6 +1197,33 @@ const getImageById = (id) => {
     }
   });
 };
+const fillProductsByColor = async (colorId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Tìm các sản phẩm trong bảng Quantity theo colorId và populate sản phẩm
+      const quantities = await Quantity.find({ color: colorId }).populate({
+        path: "product",
+      });
+
+      // Lấy tất cả các sản phẩm đã được populate và loại bỏ null
+      const products = quantities
+        .map((quantity) => quantity.product)
+        .filter((product) => product !== null);
+
+      const totalProduct = products.length;
+
+      resolve({
+        status: "OK",
+        message: "Get filled products",
+        data: products,
+        total: totalProduct,
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 module.exports = {
   createProduct,
   updateProduct,
@@ -1223,4 +1250,5 @@ module.exports = {
   totalProductsSold,
   lowStockProductsWithColor,
   getImageById,
+  fillProductsByColor,
 };
