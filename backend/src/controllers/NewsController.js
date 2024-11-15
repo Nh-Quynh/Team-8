@@ -3,7 +3,7 @@ const NewsService = require("../services/NewsService");
 const createNews = async (req, res) => {
   try {
     const { newsId, title, description, urlImage } = req.body;
-    if (!newsId || !title || !description || !urlImage) {
+    if (!newsId || !title || !description) {
       return res.status(404).json({
         status: "ERROR",
         message: "Have any attribute missing",
