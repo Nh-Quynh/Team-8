@@ -343,8 +343,6 @@ const getOrdersHistory = () => {
 const getOrderDetails = (orderId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      mongoose.set("debug", true);
-
       const order = await Order.findOne({ orderID: orderId })
         .populate("paymentMethod")
         .populate("status")
@@ -353,10 +351,16 @@ const getOrderDetails = (orderId) => {
           path: "orderDetail",
           populate: {
             path: "productQuantity",
-            populate: {
-              path: "product",
-              select: "name price urlImage",
-            },
+            populate: [
+              {
+                path: "product",
+                select: "name price",
+              },
+              {
+                path: "images",
+                select: "imageUrl", // Lấy trường `imageUrl`
+              },
+            ],
           },
         })
         .populate("userId", "name email");
@@ -367,10 +371,12 @@ const getOrderDetails = (orderId) => {
         data: order,
       });
     } catch (e) {
+      console.error("Error fetching order details:", e); // Thêm log lỗi để kiểm tra
       reject(e);
     }
   });
 };
+
 const formatCurrency = (value) => {
   const formattedValue = (value * 1000).toLocaleString("vi-VN");
   return formattedValue.endsWith(",000")
@@ -753,8 +759,8 @@ const getTotalSales = () => {
         message: "Get total sales",
         data: sortedProductSales,
       });
-    } catch (error) {
-      reject(error);
+    } catch (e) {
+      throw e;
     }
   });
 };
